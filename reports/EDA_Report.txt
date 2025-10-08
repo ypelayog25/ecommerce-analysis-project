@@ -1,0 +1,37 @@
+================================================================================
+E-COMMERCE DATASET - EXPLORATORY DATA ANALYSIS REPORT
+================================================================================
+
+
+DATASET: ecommerce_dataset_10000
+--------------------------------------------------------------------------------
+Shape: 10,000 rows × 20 columns
+Memory: 9.50 MB
+
+COLUMNS:
+customer_id       object
+first_name        object
+last_name         object
+gender            object
+age_group         object
+signup_date       object
+country           object
+product_id        object
+product_name      object
+category          object
+quantity           int64
+unit_price         int64
+order_id          object
+order_date        object
+order_status      object
+payment_method    object
+rating             int64
+review_text       object
+review_id         object
+review_date       object
+
+DUPLICATES: 0
+
+
+================================================================================
+

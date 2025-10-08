@@ -1,0 +1,117 @@
+import duckdb
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+from pathlib import Path
+
+# --- Paths ---
+DRIVE_ROOT = "/content/drive/MyDrive"
+PROJECT_ROOT = Path(f"{DRIVE_ROOT}/ecommerce-analysis-project")
+DATA_PATH = PROJECT_ROOT / "data" / "features" / "ecommerce_features.csv"
+REPORTS_PATH = PROJECT_ROOT / "reports" / "figures"
+REPORTS_PATH.mkdir(parents=True, exist_ok=True)
+
+# --- Load dataset ---
+df = pd.read_csv(DATA_PATH)
+print(f"Dataset loaded: {df.shape[0]} rows, {df.shape[1]} columns")
+
+# --- Connect to DuckDB ---
+con = duckdb.connect(database=':memory:')
+con.register("ecommerce", df)
+
+# --- 1. Top 10 customers by revenue ---
+query_top_clients = '''
+SELECT customer_id,
+       SUM(quantity * unit_price) AS total_revenue,
+       COUNT(DISTINCT order_id) AS total_orders
+FROM ecommerce
+GROUP BY customer_id
+ORDER BY total_revenue DESC
+LIMIT 10
+'''
+top_clients = con.execute(query_top_clients).df()
+
+plt.figure(figsize=(10,5))
+sns.barplot(x='customer_id', y='total_revenue', data=top_clients, palette='viridis')
+plt.xticks(rotation=45)
+plt.title("Top 10 Customers by Revenue")
+plt.tight_layout()
+plt.savefig(REPORTS_PATH / "top_clients.png")
+plt.close()
+
+# --- 2. Top 10 products sold ---
+query_top_products = '''
+SELECT product_name,
+       SUM(quantity) AS total_sold
+FROM ecommerce
+GROUP BY product_name
+ORDER BY total_sold DESC
+LIMIT 10
+'''
+top_products = con.execute(query_top_products).df()
+
+plt.figure(figsize=(10,5))
+sns.barplot(x='product_name', y='total_sold', data=top_products, palette='crest')
+plt.xticks(rotation=60)
+plt.title("Top 10 Best-Selling Products")
+plt.tight_layout()
+plt.savefig(REPORTS_PATH / "top_products.png")
+plt.close()
+
+# --- 3. Revenue by country ---
+query_country_revenue = '''
+SELECT country,
+       SUM(quantity * unit_price) AS total_revenue
+FROM ecommerce
+GROUP BY country
+ORDER BY total_revenue DESC
+'''
+country_revenue = con.execute(query_country_revenue).df()
+
+plt.figure(figsize=(8,5))
+sns.barplot(y='country', x='total_revenue', data=country_revenue, palette='mako')
+plt.title("Total Revenue by Country")
+plt.tight_layout()
+plt.savefig(REPORTS_PATH / "revenue_by_country.png")
+plt.close()
+
+# --- 4. Monthly revenue evolution ---
+query_sales_time = '''
+SELECT strftime('%Y-%m', order_date) AS month,
+       SUM(quantity * unit_price) AS monthly_revenue
+FROM ecommerce
+GROUP BY month
+ORDER BY month
+'''
+sales_time = con.execute(query_sales_time).df()
+
+plt.figure(figsize=(10,5))
+sns.lineplot(x='month', y='monthly_revenue', data=sales_time, marker='o')
+plt.xticks(rotation=45)
+plt.title("Monthly Revenue Evolution")
+plt.tight_layout()
+plt.savefig(REPORTS_PATH / "sales_over_time.png")
+plt.close()
+
+# --- 5. Average order value ---
+query_avg_order = '''
+SELECT AVG(quantity * unit_price) AS avg_order_value
+FROM ecommerce
+'''
+avg_order_value = con.execute(query_avg_order).fetchone()[0]
+
+# --- Export SQL Insights Report ---
+summary_path = PROJECT_ROOT / "reports" / "SQL_Insights.txt"
+with open(summary_path, "w", encoding="utf-8") as f:
+    f.write("🔍 SQL Insights Summary\n")
+    f.write("="*40 + "\n\n")
+    f.write("Top 10 Customers:\n")
+    f.write(top_clients.to_string(index=False))
+    f.write("\n\nTop 10 Products:\n")
+    f.write(top_products.to_string(index=False))
+    f.write("\n\nRevenue by Country:\n")
+    f.write(country_revenue.to_string(index=False))
+    f.write(f"\n\nAverage Order Value: ${avg_order_value:.2f}\n")
+
+print("\n✅ SQL Insights generated successfully!")
+print(f"📊 Reports saved in: {REPORTS_PATH}")
