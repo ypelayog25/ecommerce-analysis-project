@@ -2,17 +2,23 @@
 # Git Ignore for Ecommerce Analysis Project
 # ======================================
 
-# Kaggle credentials (DO NOT UPLOAD)
+# =======================
+# Sensitive / credentials
+# =======================
 kaggle.json
 /.kaggle/
 /content/drive/MyDrive/kaggle/
 
+# =======================
 # Data folders
-/data/raw/
-/data/processed/
-/reports/figures/
+# =======================
+# Solo ignora raw si el dataset es muy grande, pero podemos subir processed y features
+data/raw/*.csv
+# Mantener processed y features para visualizaciones y dashboards
 
+# =======================
 # Temporary or cache files
+# =======================
 *.tmp
 *.log
 *.bak
@@ -20,20 +26,27 @@ kaggle.json
 __pycache__/
 .ipynb_checkpoints/
 
+# =======================
 # Environment & system files
+# =======================
 .env
 *.env
 .DS_Store
 Thumbs.db
 
+# =======================
 # Colab & Google Drive metadata
-*.ipynb
+# =======================
 *.ipynb_save
 *.gdrive
 
+# =======================
 # OS-specific
+# =======================
 ehthumbs.db
 desktop.ini
 
+# =======================
 # Jupyter notebook auto-checkpoints
+# =======================
 */.ipynb_checkpoints/*
