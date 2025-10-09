@@ -98,10 +98,6 @@ jobs:
           git push origin $BRANCH
           echo "branch_name=$BRANCH" >> $GITHUB_OUTPUT
 
-      - name: Authenticate GH CLI
-        if: steps.hash-check.outputs.changed == 'true'
-        run: gh auth login --with-token <<< "${{ secrets.GITHUB_TOKEN }}"
-
       - name: Create Pull Request
         if: steps.hash-check.outputs.changed == 'true'
         uses: peter-evans/create-pull-request@v5
@@ -116,6 +112,8 @@ jobs:
 
       - name: Auto-merge PR if no conflicts
         if: steps.hash-check.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           BRANCH="${{ steps.commit-updates.outputs.branch_name }}"
           PR_NUMBER=$(gh pr list --state open --head $BRANCH --json number --jq '.[0].number')
