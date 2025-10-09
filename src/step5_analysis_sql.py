@@ -4,20 +4,28 @@ import matplotlib.pyplot as plt
 from pathlib import Path
 
 # --- Paths ---
-PROJECT_ROOT = Path("./")
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
 DATA_PATH = PROJECT_ROOT / "data" / "features" / "ecommerce_features.csv"
 REPORTS_PATH = PROJECT_ROOT / "reports" / "figures"
 REPORTS_PATH.mkdir(parents=True, exist_ok=True)
 
+print("✅ Starting analysis pipeline...")
+print(f"📂 Loading dataset from: {DATA_PATH}")
+
 # --- Load dataset ---
 df = pd.read_csv(DATA_PATH)
 print(f"✅ Dataset loaded successfully: {df.shape[0]} rows, {df.shape[1]} columns")
+
+# --- Convert order_date to datetime for compatibility ---
+print("🔄 Converting order_date column to datetime format...")
+df['order_date'] = pd.to_datetime(df['order_date'], errors='coerce')
 
 # --- Connect to DuckDB ---
 con = duckdb.connect(database=':memory:')
 con.register("ecommerce", df)
 
 # --- 1. Top 10 customers by revenue ---
+print("📊 Generating Top Customers chart...")
 query_top_clients = '''
 SELECT customer_id,
        SUM(quantity * unit_price) AS total_revenue,
@@ -38,6 +46,7 @@ plt.savefig(REPORTS_PATH / "top_clients.png")
 plt.close()
 
 # --- 2. Top 10 products sold ---
+print("📦 Generating Top Products chart...")
 query_top_products = '''
 SELECT product_name,
        SUM(quantity) AS total_sold
@@ -57,6 +66,7 @@ plt.savefig(REPORTS_PATH / "top_products.png")
 plt.close()
 
 # --- 3. Revenue by country ---
+print("🌍 Generating Country Revenue chart...")
 query_country_revenue = '''
 SELECT country,
        SUM(quantity * unit_price) AS total_revenue
@@ -74,8 +84,9 @@ plt.savefig(REPORTS_PATH / "revenue_by_country.png")
 plt.close()
 
 # --- 4. Monthly revenue evolution ---
+print("📈 Generating Monthly Revenue Trend chart...")
 query_sales_time = '''
-SELECT strftime('%Y-%m', CAST(order_date AS DATE)) AS month,
+SELECT date_trunc('month', order_date) AS month,
        SUM(quantity * unit_price) AS monthly_revenue
 FROM ecommerce
 GROUP BY month
@@ -91,8 +102,9 @@ plt.tight_layout()
 plt.savefig(REPORTS_PATH / "sales_over_time.png")
 plt.close()
 
-# --- Export SQL Insights Report ---
+# --- 5. SQL Summary Report ---
 summary_path = PROJECT_ROOT / "reports" / "SQL_Insights.txt"
+print("🧾 Writing SQL Insights Summary Report...")
 with open(summary_path, "w", encoding="utf-8") as f:
     f.write("🔍 SQL Insights Summary\n")
     f.write("="*40 + "\n\n")
@@ -103,5 +115,5 @@ with open(summary_path, "w", encoding="utf-8") as f:
     f.write("\n\nRevenue by Country:\n")
     f.write(country_revenue.to_string(index=False))
 
-print("\n✅ SQL Insights generated successfully!")
+print("\n✅ Analysis completed successfully!")
 print(f"📊 Reports saved in: {REPORTS_PATH}")
