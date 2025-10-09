@@ -52,8 +52,10 @@ jobs:
             echo "❌ ERROR: dataset-metadata.json not found"
             exit 1
           fi
+
           NEW_HASH=$(sha256sum dataset-metadata.json | cut -d " " -f1)
           OLD_HASH=$(cat .dataset_hash.txt 2>/dev/null || echo "")
+
           echo "OLD_HASH=$OLD_HASH"
           echo "NEW_HASH=$NEW_HASH"
 
@@ -61,6 +63,7 @@ jobs:
             echo "changed=true" >> $GITHUB_OUTPUT
           else
             echo "changed=false" >> $GITHUB_OUTPUT
+          fi
 
       - name: Download dataset if changed or forced
         if: steps.hash-check.outputs.changed == 'true'
