@@ -1,92 +1,64 @@
 name: Update Dataset and Run Analysis
 
 on:
+  workflow_dispatch: # Permite ejecución manual
   schedule:
-    - cron: '0 0 * * *'   # Ejecuta todos los días a medianoche UTC
-  workflow_dispatch:
+    - cron: "0 3 * * *" # Todos los días a las 3 AM UTC
 
 jobs:
   update-and-analyze:
     runs-on: ubuntu-latest
 
     steps:
-      # 1️⃣ Clonar repo
-      - name: Checkout repository
+      - name: Checkout code
         uses: actions/checkout@v3
-        with:
-          persist-credentials: false
 
-      # 2️⃣ Configurar Python
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.11'
-
-      # 3️⃣ Instalar dependencias
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install kaggle pandas numpy matplotlib seaborn tableau-api-lib jq
-
-      # 4️⃣ Configurar Kaggle API correctamente
-      - name: Setup Kaggle API
+      - name: Configure Kaggle API
         run: |
           mkdir -p ~/.kaggle
           echo "${{ secrets.KAGGLE_JSON }}" > ~/.kaggle/kaggle.json
           chmod 600 ~/.kaggle/kaggle.json
-          kaggle datasets list -s ecommerce   # Prueba rápida de conexión
 
-      # 5️⃣ Comprobar si el dataset tiene actualización
+      - name: Test Kaggle Authentication
+        run: kaggle datasets list -s ecommerce
+
+      - name: Create data/raw directory if missing
+        run: mkdir -p data/raw
+
       - name: Check for dataset update
-        id: check_update
+        id: check
         run: |
-          kaggle datasets metadata nabihazahid/ecommerce-dataset-for-sql-analysis > data/raw/metadata.json
-          latest_hash=$(jq -r '.lastUpdated' data/raw/metadata.json)
+          LATEST_HASH=$(kaggle datasets metadata nabihazahid/ecommerce-dataset-for-sql-analysis | md5sum | awk '{print $1}')
+          echo "Latest hash: $LATEST_HASH"
+
           if [ -f data/raw/.dataset_hash.txt ]; then
-            old_hash=$(cat data/raw/.dataset_hash.txt)
+            OLD_HASH=$(cat data/raw/.dataset_hash.txt)
           else
-            old_hash=""
+            OLD_HASH=""
           fi
-          echo "LATEST_HASH=$latest_hash" >> $GITHUB_ENV
-          echo "OLD_HASH=$old_hash" >> $GITHUB_ENV
-          if [ "$latest_hash" = "$old_hash" ]; then
-            echo "Dataset is up to date. Skipping download and analysis."
-            exit 0
 
-      # 6️⃣ Descargar dataset si hay actualización
-      - name: Download dataset from Kaggle
-        if: steps.check_update.outcome != 'success'
-        run: |
-          kaggle datasets download -d nabihazahid/ecommerce-dataset-for-sql-analysis -p ./data/raw --unzip
+          echo "Old hash: $OLD_HASH"
 
-      # 7️⃣ Actualizar hash del dataset
-      - name: Update dataset hash
-        if: steps.check_update.outcome != 'success'
-        run: |
-          echo "${{ env.LATEST_HASH }}" > data/raw/.dataset_hash.txt
+          if [ "$LATEST_HASH" != "$OLD_HASH" ]; then
+            echo "update_needed=true" >> $GITHUB_OUTPUT
+            echo $LATEST_HASH > data/raw/.dataset_hash.txt
+          else
+            echo "update_needed=false" >> $GITHUB_OUTPUT
+          fi
 
-      # 8️⃣ Ejecutar pipeline de análisis
+      - name: Download dataset from Kaggle (only if updated)
+        if: steps.check.outputs.update_needed == 'true'
+        run: kaggle datasets download -d nabihazahid/ecommerce-dataset-for-sql-analysis -p data/raw --unzip
+
       - name: Run analysis script
-        if: steps.check_update.outcome != 'success'
-        run: |
-          python src/analysis_pipeline.py
+        if: steps.check.outputs.update_needed == 'true'
+        run: python3 src/analysis_pipeline.py
 
-      # 9️⃣ Commit y push de resultados versionados
-      - name: Commit and push versioned results
-        if: steps.check_update.outcome != 'success'
+      - name: Commit and push changes
+        if: steps.check.outputs.update_needed == 'true'
         run: |
-          git config --global user.name "Yenismara Pelayo Garcia"
-          git config --global user.email "ypelayog25@gmail.com"
-          git add data/processed reports/ data/tableau_public/
-          git commit -m "chore: add versioned analysis results and CSVs for Tableau Public" || echo "No changes to commit"
-          git push https://$GITHUB_TOKEN@github.com/ypelayog25/ecommerce-analysis-project.git main
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      # 🔟 Notificación por Slack
-      - name: Send Slack notification
-        if: steps.check_update.outcome != 'success'
-        uses: rtCamp/action-slack-notify@v2
-        with:
-          webhook_url: ${{ secrets.SLACK_WEBHOOK_URL }}
-          msg: "✅ Ecommerce dataset updated and analysis pipeline completed successfully."
+          git config user.name "Yenismara Pelayo Garcia"
+          git config user.email "ypelayog25@gmail.com"
+          git add .
+          git commit -m "feat: automated update and analysis from Kaggle dataset"
+          git push
