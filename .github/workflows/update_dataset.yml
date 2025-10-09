@@ -1,14 +1,14 @@
 name: Update Dataset and Run Analysis
 
 on:
+  schedule:
+    - cron: "0 0 * * *"  # Automatically runs daily at midnight UTC
   workflow_dispatch:
     inputs:
       FORCE_RUN:
-        description: "Forzar análisis completo (ignorar hash)"
+        description: "Force full analysis (ignore hash check)"
         required: false
         default: "true"
-  schedule:
-    - cron: "0 0 * * *"  # Ejecuta diariamente a medianoche UTC (modo automático)
 
 jobs:
   update-and-analyze:
@@ -20,74 +20,77 @@ jobs:
       FORCE_RUN: ${{ github.event.inputs.FORCE_RUN }}
 
     steps:
+      # ✅ Step 1: Checkout repository
       - name: Checkout Repository
         uses: actions/checkout@v3
         with:
           lfs: true
 
+      # ✅ Step 2: Setup Python environment
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
           python-version: "3.11"
 
-      - name: Install Kaggle and requirements
+      # ✅ Step 3: Install Python dependencies
+      - name: Install Kaggle and dependencies
         run: |
           pip install kaggle pandas matplotlib pyarrow
 
+      # ✅ Step 4: Configure Kaggle API credentials
       - name: Configure Kaggle
         run: |
           mkdir -p ~/.kaggle
           echo "{\"username\":\"$KAGGLE_USERNAME\", \"key\":\"$KAGGLE_KEY\"}" > ~/.kaggle/kaggle.json
           chmod 600 ~/.kaggle/kaggle.json
 
+      # ✅ Step 5: Ensure raw data directory exists
       - name: Ensure raw data folder exists
         run: mkdir -p data/raw
 
+      # ✅ Step 6: Download latest dataset metadata
       - name: Download dataset metadata
         run: kaggle datasets metadata nabihazahid/ecommerce-dataset-for-sql-analysis -p data/raw
 
+      # ✅ Step 7: Detect changes using hash OR force run if manual trigger
       - name: Detect dataset changes
         id: hash-check
         run: |
           cd data/raw
-          if [ -f dataset-metadata.json ]; then
-            NEW_HASH=$(sha256sum dataset-metadata.json | cut -d " " -f1)
-          else
-            echo "❌ ERROR: dataset-metadata.json no encontrado"
-            exit 1
-          fi
-
+          NEW_HASH=$(sha256sum dataset-metadata.json | cut -d " " -f1)
           if [ -f .dataset_hash.txt ]; then
             OLD_HASH=$(cat .dataset_hash.txt)
           else
             OLD_HASH=""
           fi
-
-          echo "OLD_HASH=$OLD_HASH"
-          echo "NEW_HASH=$NEW_HASH"
+          echo "OLD_HASH: $OLD_HASH"
+          echo "NEW_HASH: $NEW_HASH"
 
           if [[ "$FORCE_RUN" == "true" ]]; then
-            echo "⚠️ Modo PRUEBA activado: Ignorando hash y forzando análisis"
+            echo "FORCE_RUN enabled — full analysis will run"
             echo "::set-output name=changed::true"
           elif [[ "$OLD_HASH" != "$NEW_HASH" ]]; then
-            echo "✅ Cambios detectados en dataset"
+            echo "New dataset detected — updating hash"
             echo "$NEW_HASH" > .dataset_hash.txt
             echo "::set-output name=changed::true"
           else
-            echo "⚪ No hay cambios detectados en dataset"
+            echo "No dataset changes detected — skipping analysis"
             echo "::set-output name=changed::false"
           fi
 
+      # ✅ Step 8: Download dataset only if updated or force mode enabled
       - name: Download dataset if changed
         if: steps.hash-check.outputs.changed == 'true'
         run: kaggle datasets download -d nabihazahid/ecommerce-dataset-for-sql-analysis -p data/raw --unzip
 
+      # ✅ Step 9: Run your analysis (Python script)
       - name: Run analysis script
         if: steps.hash-check.outputs.changed == 'true'
         run: |
-          echo "🚀 Ejecutando análisis completo..."
+          echo "🚀 Running full data analysis..."
           python src/data/step5_analysis_sql.py
 
+      # ✅ Step 10: Commit and push updated reports
       - name: Commit and push new hash & reports
         if: steps.hash-check.outputs.changed == 'true'
         run: |
