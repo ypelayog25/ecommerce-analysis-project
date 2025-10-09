@@ -71,14 +71,14 @@ jobs:
         run: |
           python src/analysis_pipeline.py
 
-      # 9️⃣ Commit y push de resultados versionados
+      # 9️⃣ Commit y push de resultados versionados y CSVs para Tableau Public
       - name: Commit and push versioned results
         if: steps.check_update.outcome != 'success'
         run: |
           git config --global user.name "Yenismara Pelayo Garcia"
           git config --global user.email "ypelayog25@gmail.com"
-          git add data/processed reports/
-          git commit -m "chore: add versioned analysis results for dataset update"
+          git add data/processed reports/ data/tableau_public/
+          git commit -m "chore: add versioned analysis results and CSVs for Tableau Public"
           git push https://$GITHUB_TOKEN@github.com/ypelayog25/ecommerce-analysis-project.git main
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
