@@ -19,6 +19,12 @@ jobs:
           echo "${{ secrets.KAGGLE_JSON }}" > ~/.kaggle/kaggle.json
           chmod 600 ~/.kaggle/kaggle.json
 
+      # 🔍 DEBUG — SOLO PARA PRUEBA (BORRAR DESPUÉS)
+      - name: Debug Kaggle Secret (TEMPORAL - ELIMINAR DESPUÉS)
+        run: |
+          echo "Contenido real de ~/.kaggle/kaggle.json:"
+          cat ~/.kaggle/kaggle.json
+
       - name: Test Kaggle Authentication
         run: kaggle datasets list -s ecommerce
 
