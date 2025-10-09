@@ -2,13 +2,13 @@ name: Update Dataset and Run Analysis
 
 on:
   schedule:
-    - cron: "0 0 * * *" # Runs daily at midnight UTC
+    - cron: "0 0 * * *"  # Runs daily at midnight UTC
   workflow_dispatch:
     inputs:
       FORCE_RUN:
         description: "Force full analysis (ignore hash check)"
         required: false
-        default: "false"
+        default: "true"
 
 jobs:
   update-and-analyze:
@@ -20,43 +20,42 @@ jobs:
       FORCE_RUN: ${{ github.event.inputs.FORCE_RUN }}
 
     steps:
-      - name: ✅ Checkout Repository
+      - name: Checkout repository
         uses: actions/checkout@v3
         with:
           lfs: true
 
-      - name: 🐍 Setup Python
+      - name: Setup Python
         uses: actions/setup-python@v4
         with:
           python-version: "3.11"
 
-      - name: 📦 Install Required Libraries
+      - name: Install dependencies
         run: |
           pip install kaggle pandas matplotlib duckdb pyarrow
 
-      - name: 🔑 Configure Kaggle Credentials
+      - name: Configure Kaggle
         run: |
           mkdir -p ~/.kaggle
-          echo "{\"username\":\"$KAGGLE_USERNAME\", \"key\":\"$KAGGLE_KEY\"}" > ~/.kaggle/kaggle.json
+          echo "{\"username\":\"${{ secrets.KAGGLE_USERNAME }}\", \"key\":\"${{ secrets.KAGGLE_KEY }}\"}" > ~/.kaggle/kaggle.json
           chmod 600 ~/.kaggle/kaggle.json
 
-      - name: 📥 Ensure raw data folder exists
+      - name: Create raw data directory
         run: mkdir -p data/raw
 
-      - name: 🔍 Download dataset metadata
+      - name: Download dataset metadata
         run: kaggle datasets metadata nabihazahid/ecommerce-dataset-for-sql-analysis -p data/raw
 
-      - name: 🔍 Detect dataset changes (hash check)
+      - name: Detect dataset changes or force run
         id: hash-check
         run: |
           cd data/raw
-          if [ ! -f dataset-metadata.json ]; then
-            echo "❌ dataset-metadata.json not found after metadata fetch."
+          if [ -f dataset-metadata.json ]; then
+            NEW_HASH=$(sha256sum dataset-metadata.json | cut -d " " -f1)
+          else
+            echo "❌ ERROR: dataset-metadata.json not found"
             exit 1
           fi
-
-          NEW_HASH=$(sha256sum dataset-metadata.json | cut -d " " -f1)
-          echo "NEW_HASH=$NEW_HASH"
 
           if [ -f .dataset_hash.txt ]; then
             OLD_HASH=$(cat .dataset_hash.txt)
@@ -65,45 +64,46 @@ jobs:
           fi
 
           echo "OLD_HASH=$OLD_HASH"
+          echo "NEW_HASH=$NEW_HASH"
 
           if [[ "$FORCE_RUN" == "true" ]]; then
-            echo "⚠️ FORCE_RUN enabled — analysis will run regardless of hash."
-            echo "true" > ../_run_flag.txt
-          elif [[ "$OLD_HASH" != "$NEW_HASH" ]]; then
-            echo "✅ New dataset detected — analysis will run."
-            echo "$NEW_HASH" > .dataset_hash.txt
-            echo "true" > ../_run_flag.txt
+            echo "⚠️ FORCE RUN enabled — skipping hash check"
+            echo "::set-output name=changed::true"
+          elif [[ "$NEW_HASH" != "$OLD_HASH" ]]; then
+            echo "✅ Dataset has changed"
+            echo "::set-output name=changed::true"
           else
-            echo "⚪ No dataset changes detected — skipping analysis."
-            echo "false" > ../_run_flag.txt
+            echo "ℹ️ No changes detected — skipping analysis"
+            echo "::set-output name=changed::false"
           fi
 
-      - name: 📦 Download dataset if changed
-        if: always()
+      - name: Download dataset if changed or forced
+        if: steps.hash-check.outputs.changed == 'true'
+        run: kaggle datasets download -d nabihazahid/ecommerce-dataset-for-sql-analysis -p data/raw --unzip
+
+      - name: Run analysis script
+        if: steps.hash-check.outputs.changed == 'true'
         run: |
-          if [[ $(cat data/_run_flag.txt) == "true" ]]; then
-            kaggle datasets download -d nabihazahid/ecommerce-dataset-for-sql-analysis -p data/raw --unzip
+          echo "Running analysis..."
+          python src/step5_analysis_sql.py
+
+      - name: Ensure dataset hash file exists
+        run: |
+          if [ ! -f "data/raw/.dataset_hash.txt" ]; then
+            echo "INITIAL_RUN" > data/raw/.dataset_hash.txt
           fi
 
-      - name: 🚀 Run analysis script
-        if: always()
+      - name: Save new dataset hash
+        if: steps.hash-check.outputs.changed == 'true'
         run: |
-          if [[ $(cat data/_run_flag.txt) == "true" ]]; then
-            echo "Running analysis..."
-            python src/step5_analysis_sql.py
-          else
-            echo "Skipping analysis."
-          fi
+          NEW_HASH=$(sha256sum data/raw/dataset-metadata.json | cut -d " " -f1)
+          echo "$NEW_HASH" > data/raw/.dataset_hash.txt
 
-      - name: 💾 Commit and push updates
-        if: always()
+      - name: Commit and push updates
+        if: steps.hash-check.outputs.changed == 'true'
         run: |
-          if [[ $(cat data/_run_flag.txt) == "true" ]]; then
-            git config user.name "GitHub Actions"
-            git config user.email "actions@github.com"
-            git add data/raw/.dataset_hash.txt reports/
-            git commit -m "chore: update reports after dataset analysis" || echo "No changes to commit"
-            git push || echo "Nothing to push"
-          else
-            echo "No commit needed."
-          fi
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git add data/raw/.dataset_hash.txt reports/
+          git commit -m "chore: update reports after dataset analysis"
+          git push
