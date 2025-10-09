@@ -1,41 +1,64 @@
 name: Update Dataset and Run Analysis
 
 on:
+  workflow_dispatch:
+    inputs:
+      FORCE_RUN:
+        description: "Forzar análisis completo (ignorar hash)"
+        required: false
+        default: "true"
   schedule:
-    - cron: "0 0 * * *"  # Ejecuta todos los días a medianoche UTC
-  workflow_dispatch:      # Permite ejecución manual
+    - cron: "0 0 * * *"  # Ejecuta diariamente a medianoche UTC (modo automático)
 
 jobs:
   update-and-analyze:
     runs-on: ubuntu-latest
 
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
+    env:
+      KAGGLE_USERNAME: ${{ secrets.KAGGLE_USERNAME }}
+      KAGGLE_KEY: ${{ secrets.KAGGLE_KEY }}
+      FORCE_RUN: ${{ github.event.inputs.FORCE_RUN }}
 
-      - name: Set up Python
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+        with:
+          lfs: true
+
+      - name: Setup Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.11'
+          python-version: "3.11"
 
-      - name: Install dependencies
+      - name: Install Kaggle and requirements
         run: |
-          pip install pandas kaggle
+          pip install kaggle pandas matplotlib pyarrow
 
-      - name: Setup Kaggle API
+      - name: Configure Kaggle
         run: |
           mkdir -p ~/.kaggle
-          echo "{\"username\":\"${{ secrets.KAGGLE_USERNAME }}\", \"key\":\"${{ secrets.KAGGLE_KEY }}\"}" > ~/.kaggle/kaggle.json
+          echo "{\"username\":\"$KAGGLE_USERNAME\", \"key\":\"$KAGGLE_KEY\"}" > ~/.kaggle/kaggle.json
           chmod 600 ~/.kaggle/kaggle.json
 
-      - name: Check for dataset update
-        run: |
-          mkdir -p data/raw
-          kaggle datasets metadata nabihazahid/ecommerce-dataset-for-sql-analysis -p data/raw
-          NEW_HASH=$(sha256sum data/raw/metadata.json | awk '{ print $1 }')
+      - name: Ensure raw data folder exists
+        run: mkdir -p data/raw
 
-          if [ -f "data/raw/.dataset_hash.txt" ]; then
-            OLD_HASH=$(cat data/raw/.dataset_hash.txt)
+      - name: Download dataset metadata
+        run: kaggle datasets metadata nabihazahid/ecommerce-dataset-for-sql-analysis -p data/raw
+
+      - name: Detect dataset changes
+        id: hash-check
+        run: |
+          cd data/raw
+          if [ -f dataset-metadata.json ]; then
+            NEW_HASH=$(sha256sum dataset-metadata.json | cut -d " " -f1)
+          else
+            echo "❌ ERROR: dataset-metadata.json no encontrado"
+            exit 1
+          fi
+
+          if [ -f .dataset_hash.txt ]; then
+            OLD_HASH=$(cat .dataset_hash.txt)
           else
             OLD_HASH=""
           fi
@@ -43,19 +66,33 @@ jobs:
           echo "OLD_HASH=$OLD_HASH"
           echo "NEW_HASH=$NEW_HASH"
 
-          if [ "$NEW_HASH" = "$OLD_HASH" ]; then
-            echo "No changes detected in dataset. Exiting..."
-            exit 0
+          if [[ "$FORCE_RUN" == "true" ]]; then
+            echo "⚠️ Modo PRUEBA activado: Ignorando hash y forzando análisis"
+            echo "::set-output name=changed::true"
+          elif [[ "$OLD_HASH" != "$NEW_HASH" ]]; then
+            echo "✅ Cambios detectados en dataset"
+            echo "$NEW_HASH" > .dataset_hash.txt
+            echo "::set-output name=changed::true"
+          else
+            echo "⚪ No hay cambios detectados en dataset"
+            echo "::set-output name=changed::false"
           fi
 
-          echo "$NEW_HASH" > data/raw/.dataset_hash.txt
-
-      - name: Download latest dataset
-        if: success()
-        run: |
-          kaggle datasets download nabihazahid/ecommerce-dataset-for-sql-analysis -p data/raw --unzip
+      - name: Download dataset if changed
+        if: steps.hash-check.outputs.changed == 'true'
+        run: kaggle datasets download -d nabihazahid/ecommerce-dataset-for-sql-analysis -p data/raw --unzip
 
       - name: Run analysis script
-        if: success()
+        if: steps.hash-check.outputs.changed == 'true'
         run: |
-          echo ">>> Aquí después conectaremos con tu análisis en Python y exporte a Tableau"
+          echo "🚀 Ejecutando análisis completo..."
+          python src/data/step5_analysis_sql.py
+
+      - name: Commit and push new hash & reports
+        if: steps.hash-check.outputs.changed == 'true'
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git add data/raw/.dataset_hash.txt reports/
+          git commit -m "chore: update reports after dataset analysis"
+          git push
