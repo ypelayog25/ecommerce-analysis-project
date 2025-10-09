@@ -2,6 +2,7 @@ name: Update Dataset and Run Analysis
 
 on:
   schedule:
+    # Ejecuta todos los días a medianoche UTC
     - cron: '0 0 * * *'
   workflow_dispatch:
 
@@ -12,6 +13,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
+        with:
+          persist-credentials: false  # Para poder hacer push con token
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -32,22 +35,15 @@ jobs:
       - name: Check for dataset update
         id: check_update
         run: |
-          # Obtener metadata del dataset en JSON
           kaggle datasets metadata nabihazahid/ecommerce-dataset-for-sql-analysis > data/raw/metadata.json
-
-          # Extraer hash o fecha de la versión más reciente
           latest_hash=$(jq -r '.lastUpdated' data/raw/metadata.json)
-
-          # Leer hash anterior si existe
           if [ -f data/raw/.dataset_hash.txt ]; then
             old_hash=$(cat data/raw/.dataset_hash.txt)
           else
             old_hash=""
           fi
-
-          echo "latest_hash=$latest_hash" >> $GITHUB_ENV
-          echo "old_hash=$old_hash" >> $GITHUB_ENV
-
+          echo "LATEST_HASH=$latest_hash" >> $GITHUB_ENV
+          echo "OLD_HASH=$old_hash" >> $GITHUB_ENV
           if [ "$latest_hash" = "$old_hash" ]; then
             echo "Dataset is up to date. Skipping download and analysis."
             exit 0
@@ -61,9 +57,20 @@ jobs:
       - name: Update dataset hash
         if: steps.check_update.outcome != 'success'
         run: |
-          echo "${{ env.latest_hash }}" > data/raw/.dataset_hash.txt
+          echo "${{ env.LATEST_HASH }}" > data/raw/.dataset_hash.txt
 
       - name: Run analysis script
         if: steps.check_update.outcome != 'success'
         run: |
           python src/analysis_pipeline.py
+
+      - name: Commit and push results
+        if: steps.check_update.outcome != 'success'
+        run: |
+          git config --global user.name "Yenismara Pelayo Garcia"
+          git config --global user.email "ypelayog25@gmail.com"
+          git add data/processed reports/
+          git commit -m "chore: update analysis results after dataset update"
+          git push https://$GITHUB_TOKEN@github.com/ypelayog25/ecommerce-analysis-project.git main
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
