@@ -1,31 +1,28 @@
 import os
+from datetime import datetime
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-# Paths
-RAW_DATA = "data/raw/ecommerce_dataset_10000.csv"
-PROCESSED_DATA = "data/processed/ecommerce_dataset_10000_cleaned.csv"
-FIGURES_DIR = "reports/figures/"
+# Timestamp para versionado
+timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 
+# Paths con versionado
+RAW_DATA = "data/raw/ecommerce_dataset_10000.csv"
+PROCESSED_DATA = f"data/processed/ecommerce_dataset_{timestamp}.csv"
+FIGURES_DIR = "reports/figures/"
 os.makedirs(FIGURES_DIR, exist_ok=True)
 os.makedirs("data/processed", exist_ok=True)
 
 # 1️⃣ Load dataset
 df = pd.read_csv(RAW_DATA)
 
-# 2️⃣ Data cleaning example
-# - Remove duplicates
+# 2️⃣ Data cleaning
 df = df.drop_duplicates()
-# - Fill missing values if any (example)
 df.fillna(0, inplace=True)
-
-# Save cleaned dataset
 df.to_csv(PROCESSED_DATA, index=False)
 
 # 3️⃣ Analysis & visualizations
-
-# Example: Revenue by Country
 if 'Country' in df.columns and 'Revenue' in df.columns:
     revenue_country = df.groupby('Country')['Revenue'].sum().sort_values(ascending=False)
     plt.figure(figsize=(10,6))
@@ -33,10 +30,9 @@ if 'Country' in df.columns and 'Revenue' in df.columns:
     plt.xticks(rotation=45)
     plt.title("Revenue by Country")
     plt.tight_layout()
-    plt.savefig(os.path.join(FIGURES_DIR, "revenue_by_country.png"))
+    plt.savefig(os.path.join(FIGURES_DIR, f"revenue_by_country_{timestamp}.png"))
     plt.close()
 
-# Example: Top Products
 if 'Product' in df.columns and 'Revenue' in df.columns:
     top_products = df.groupby('Product')['Revenue'].sum().sort_values(ascending=False).head(10)
     plt.figure(figsize=(10,6))
@@ -44,11 +40,11 @@ if 'Product' in df.columns and 'Revenue' in df.columns:
     plt.xticks(rotation=45)
     plt.title("Top 10 Products by Revenue")
     plt.tight_layout()
-    plt.savefig(os.path.join(FIGURES_DIR, "top_products.png"))
+    plt.savefig(os.path.join(FIGURES_DIR, f"top_products_{timestamp}.png"))
     plt.close()
 
-# 4️⃣ Summary statistics for Tableau or reporting
+# 4️⃣ Summary statistics
 summary = df.describe(include='all')
-summary.to_csv("reports/summary_statistics.csv")
+summary.to_csv(f"reports/summary_statistics_{timestamp}.csv")
 
-print("✅ Analysis completed. Figures and processed data saved.")
+print("✅ Analysis completed. Versioned figures and processed data saved.")
