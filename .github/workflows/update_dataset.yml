@@ -55,7 +55,6 @@ jobs:
 
           NEW_HASH=$(sha256sum dataset-metadata.json | cut -d " " -f1)
           OLD_HASH=$(cat .dataset_hash.txt 2>/dev/null || echo "")
-
           echo "OLD_HASH=$OLD_HASH"
           echo "NEW_HASH=$NEW_HASH"
 
@@ -99,6 +98,10 @@ jobs:
           git push origin $BRANCH
           echo "branch_name=$BRANCH" >> $GITHUB_OUTPUT
 
+      - name: Authenticate GH CLI
+        if: steps.hash-check.outputs.changed == 'true'
+        run: gh auth login --with-token <<< "${{ secrets.GITHUB_TOKEN }}"
+
       - name: Create Pull Request
         if: steps.hash-check.outputs.changed == 'true'
         uses: peter-evans/create-pull-request@v5
@@ -114,9 +117,10 @@ jobs:
       - name: Auto-merge PR if no conflicts
         if: steps.hash-check.outputs.changed == 'true'
         run: |
-          PR_NUMBER=$(gh pr list --head ${{ steps.commit-updates.outputs.branch_name }} --json number -q '.[0].number')
+          BRANCH="${{ steps.commit-updates.outputs.branch_name }}"
+          PR_NUMBER=$(gh pr list --state open --head $BRANCH --json number --jq '.[0].number')
           if [ "$PR_NUMBER" != "null" ]; then
-            STATUS=$(gh pr view $PR_NUMBER --json mergeable -q '.mergeable')
+            STATUS=$(gh pr view $PR_NUMBER --json mergeable --jq '.mergeable')
             if [ "$STATUS" == "MERGEABLE" ]; then
               gh pr merge $PR_NUMBER --merge --admin
               echo "✅ PR merged automatically"
