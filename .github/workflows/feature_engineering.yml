@@ -36,7 +36,7 @@ jobs:
           python-version: '3.11'
 
       - name: Install dependencies
-        run: pip install -r requirements.txt
+        run: pip install -r requirements.txt plotly kaleido
 
       - name: Check if CSV exists
         env:
@@ -65,23 +65,7 @@ jobs:
         if: steps.csv_changed.outputs.changed == 'true'
         env:
           CSV_PATH: data/processed/ecommerce_dataset_10000_cleaned.csv
-        run: |
-          cat << 'EOF' > tmp_preview.py
-import os
-import sys
-import pandas as pd
-
-csv_path = os.getenv("CSV_PATH")
-
-try:
-    df = pd.read_csv(csv_path, nrows=5)
-    print("Detected columns:", list(df.columns))
-    print(df.head().to_string(index=False))
-except Exception as e:
-    print("Error reading CSV preview:", e)
-    sys.exit(0)
-EOF
-          python tmp_preview.py
+        run: python src/scripts/preview_csv.py
 
       - name: Run feature engineering
         if: steps.csv_changed.outputs.changed == 'true'
@@ -89,16 +73,7 @@ EOF
 
       - name: Generate preview images (PNG)
         if: steps.csv_changed.outputs.changed == 'true'
-        run: |
-          pip install plotly kaleido
-          cat << 'EOF' > tmp_figures.py
-try:
-    import src.visualization.save_figures as viz
-    viz.main()
-except Exception as e:
-    print("No figures generated (maybe not enough data):", e)
-EOF
-          python tmp_figures.py || echo "Skipping figure generation."
+        run: python src/scripts/generate_figures.py
 
       - name: Upload preview artifacts (CSV + PNGs)
         if: steps.csv_changed.outputs.changed == 'true'
