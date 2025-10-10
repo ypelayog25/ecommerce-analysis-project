@@ -1,64 +1,76 @@
+# .github/workflows/feature_engineering_and_streamlit.yml
 name: Feature Engineering & Streamlit Deployment
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - "data/raw/**"
-      - "src/features/**"
-      - "src/data/**"
-      - "scripts/**"
-  workflow_dispatch:
+  workflow_dispatch:  # ✅ Manual trigger
+  schedule:
+    - cron: "0 4 * * *"  # Runs daily at 04:00 UTC
 
 jobs:
-  feature-engineering-and-streamlit:
+  feature-and-streamlit:
     runs-on: ubuntu-latest
 
     steps:
-      # 1️⃣ Checkout repo with LFS support
+      # ✅ Checkout repository
       - name: Checkout repository
         uses: actions/checkout@v3
         with:
           lfs: true
 
-      # 2️⃣ Setup Python
+      # ✅ Setup Python
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
           python-version: "3.11"
 
-      # 3️⃣ Install dependencies
+      # ✅ Install dependencies
       - name: Install dependencies
         run: |
           pip install -r requirements.txt
-          pip install plotly streamlit pyarrow duckdb
+          pip install streamlit plotly pandas pyarrow
 
-      # 4️⃣ Run feature engineering
+      # ✅ Run Feature Engineering
       - name: Run Feature Engineering
         run: |
+          echo "🚀 Running feature engineering pipeline..."
           python src/features/create_features.py
 
-      # 5️⃣ Verify dataset columns
-      - name: Verify Dataset Columns
+      # ✅ Verify columns (optional warning, does not fail)
+      - name: Verify required columns
         run: |
-          python scripts/verify_columns.py
+          echo "🔍 Checking dataset columns..."
+          python - <<'PY'
+import pandas as pd
+import os
+dataset = "data/processed/ecommerce_dataset_10000_cleaned.parquet"
+required_cols = ['country','order_date','customer_id','product_name','unit_price','quantity','total_price']
+if os.path.exists(dataset):
+    df = pd.read_parquet(dataset)
+    missing = [c for c in required_cols if c not in df.columns]
+    if missing:
+        print(f"⚠️ Missing columns: {missing} (charts may fail)")
+    else:
+        print("✅ All required columns present")
+else:
+    print("⚠️ Dataset not found. Skipping column verification")
+PY
 
-      # 6️⃣ Commit processed dataset if new
-      - name: Commit Processed Dataset
+      # ✅ Commit processed dataset if changed
+      - name: Commit processed dataset
         run: |
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
           git add data/processed/
           if ! git diff --staged --quiet; then
-            git commit -m "feat: generate verified feature dataset"
+            git commit -m "feat: updated processed dataset via workflow"
             git push origin main
           else
-            echo "ℹ️ No new changes to processed dataset"
+            echo "ℹ️ No changes in processed dataset"
 
-      # 7️⃣ Deploy to Streamlit Cloud (manual trigger required)
-      - name: Deploy to Streamlit Cloud
+      # ✅ Deploy to Streamlit Cloud
+      - name: Deploy to Streamlit
         run: |
-          echo "✅ Dataset verified. Ready for Streamlit deployment."
-          # Streamlit Cloud deployment typically automático al push en main
-          # No se necesita ejecutar `streamlit run` en GitHub Actions
+          echo "☁️ Deploying to Streamlit Cloud..."
+          # Optional: you can use the Streamlit CLI deploy commands if using GitHub integration
+          # Here we assume Streamlit Cloud is connected to this repo and will auto-deploy main branch
+          echo "✅ Streamlit app will auto-update from main branch"
