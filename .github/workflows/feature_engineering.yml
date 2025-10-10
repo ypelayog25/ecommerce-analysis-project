@@ -1,113 +1,70 @@
 name: Feature Engineering & Dataset Preparation
 
 on:
-  workflow_run:
-    workflows: ["Update Dataset and Run Analysis"]
-    types:
-      - completed
+  push:
+    branches:
+      - main
+    paths:
+      - "data/raw/**"
+      - "src/features/**"
+      - "src/data/**"
   workflow_dispatch:
 
 jobs:
   feature-engineering:
     runs-on: ubuntu-latest
-    if: >
-      github.event_name == 'workflow_run' ?
-      (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main') : true
 
     steps:
-      - name: Checkout repository
+      - name: ✅ Checkout repository
         uses: actions/checkout@v3
-        with:
-          lfs: true
 
-      - name: Ensure package init files and PYTHONPATH
-        run: |
-          for d in src src/data src/features src/models src/visualization; do
-            mkdir -p "$d"
-            if [ ! -f "$d/__init__.py" ]; then
-              echo "# package init" > "$d/__init__.py"
-            fi
-          done
-          echo "PYTHONPATH=$PWD" >> $GITHUB_ENV
-
-      - name: Setup Python
+      - name: 🐍 Setup Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.11'
+          python-version: "3.11"
 
-      - name: Install dependencies
-        run: pip install -r requirements.txt plotly kaleido
-
-      - name: Check if CSV exists
-        env:
-          CSV_PATH: data/processed/ecommerce_dataset_10000_cleaned.csv
-        id: check_csv
+      - name: 📦 Install required dependencies
         run: |
-          if [ -f "$CSV_PATH" ]; then
-            echo "exists=true" >> $GITHUB_OUTPUT
-          else
-            echo "exists=false" >> $GITHUB_OUTPUT
-            echo "CSV file not found at $CSV_PATH, skipping workflow steps."
+          pip install -r requirements.txt
 
-      - name: Check if CSV has changed
-        if: steps.check_csv.outputs.exists == 'true'
-        id: csv_changed
+      - name: 🔍 Check raw dataset existence (non-blocking)
         run: |
-          git fetch origin main
-          CHANGED=$(git diff --name-only origin/main -- "$CSV_PATH")
-          if [ -n "$CHANGED" ]; then
-            echo "changed=true" >> $GITHUB_OUTPUT
+          if [ ! -f "data/raw/dataset-metadata.json" ]; then
+            echo "⚠️ Raw dataset metadata not found. Continuing using CSV as official source..."
           else
-            echo "changed=false" >> $GITHUB_OUTPUT
-            echo "CSV has not changed compared to main. Skipping workflow steps."
+            echo "✅ Raw dataset metadata found."
+          fi
 
-      - name: Print preview of CSV columns
-        if: steps.csv_changed.outputs.changed == 'true'
-        env:
-          CSV_PATH: data/processed/ecommerce_dataset_10000_cleaned.csv
-        run: python src/scripts/preview_csv.py
+      - name: 🚀 Running Feature Engineering (create_features.py)
+        run: |
+          echo "Running Feature Engineering pipeline..."
+          python src/features/create_features.py
 
-      - name: Run feature engineering
-        if: steps.csv_changed.outputs.changed == 'true'
-        run: python src/features/create_features.py
+      - name: 📁 Verify generated files
+        run: |
+          echo "🔍 Checking processed outputs..."
+          ls -lh data/processed || echo "⚠ No processed directory found."
+          if [ -f "data/processed/ecommerce_dataset_10000_cleaned.csv" ]; then
+            echo "✅ CSV successfully generated."
+          else
+            echo "❌ CSV missing - check your script."
+            exit 1
+          fi
+          if [ -f "data/processed/ecommerce_dataset_10000_cleaned.parquet" ]; then
+            echo "✅ Parquet successfully generated."
+          else
+            echo "⚠ Parquet missing - but CSV exists, so dashboard will still work."
+          fi
 
-      - name: Generate preview images (PNG)
-        if: steps.csv_changed.outputs.changed == 'true'
-        run: python src/scripts/generate_figures.py
-
-      - name: Upload preview artifacts (CSV + PNGs)
-        if: steps.csv_changed.outputs.changed == 'true'
-        uses: actions/upload-artifact@v4
-        with:
-          name: feature-engineering-preview
-          path: |
-            data/processed/ecommerce_dataset_features_preview.csv
-            reports/figures/*.png
-            reports/columns.txt
-
-      - name: Commit and push processed files (create branch + push)
-        if: steps.csv_changed.outputs.changed == 'true'
-        id: commit
+      - name: 💾 Commit processed dataset updates (if any)
         run: |
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
-          BRANCH="auto/features-$(date +'%Y%m%d%H%M%S')"
-          git checkout -b "$BRANCH"
-          git add data/processed/ecommerce_dataset_features.parquet data/processed/ecommerce_dataset_features.csv data/processed/customer_summary.parquet data/processed/product_summary.parquet data/processed/country_revenue.parquet reports/columns.txt data/processed/ecommerce_dataset_features_preview.csv
+          git add data/processed/
           if git diff --staged --quiet; then
-            echo "no_changes=true" >> $GITHUB_OUTPUT
+            echo "ℹ️ No changes to commit in processed data."
           else
-            git commit -m 'feat: automated feature engineering output (parquet + csv + previews)'
-            git push --set-upstream origin "$BRANCH"
-            echo "branch_name=$BRANCH" >> $GITHUB_OUTPUT
-            echo "no_changes=false" >> $GITHUB_OUTPUT
-
-      - name: Create Pull Request (if new branch)
-        if: steps.commit.outputs.no_changes == 'false'
-        uses: peter-evans/create-pull-request@v5
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          branch: ${{ steps.commit.outputs.branch_name }}
-          base: main
-          title: "Automated Feature Dataset Update"
-          body: "This PR contains feature-engineered dataset (parquet + csv) and preview artifacts."
+            git commit -m "feat: automated feature engineering output update"
+            git push origin main
+            echo "✅ Processed dataset updated and committed."
+          fi
