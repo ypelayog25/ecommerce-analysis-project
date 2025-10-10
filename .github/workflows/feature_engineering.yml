@@ -17,6 +17,15 @@ jobs:
     steps:
       - name: ✅ Checkout repository
         uses: actions/checkout@v3
+        with:
+          lfs: true  # importante para descargar punteros LFS
+
+      - name: 🛠 Install Git LFS and pull large files
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y git-lfs
+          git lfs install
+          git lfs pull
 
       - name: 🐍 Setup Python
         uses: actions/setup-python@v4
@@ -24,36 +33,35 @@ jobs:
           python-version: "3.11"
 
       - name: 📦 Install required dependencies
-        run: |
-          pip install -r requirements.txt
+        run: pip install -r requirements.txt plotly kaleido pandas
 
-      - name: 🔍 Check raw dataset existence (non-blocking)
+      - name: 🔍 Verify CSV exists and preview
         run: |
-          if [ ! -f "data/raw/dataset-metadata.json" ]; then
-            echo "⚠️ Raw dataset metadata not found. Continuing using CSV as official source..."
-          else
-            echo "✅ Raw dataset metadata found."
+          CSV="data/processed/ecommerce_dataset_10000_cleaned.csv"
+          if [ ! -f "$CSV" ]; then
+            echo "❌ CSV not found. Make sure it's committed via LFS."
+            exit 1
           fi
+          echo "✅ CSV found: $CSV - Loading as source dataset..."
+          head -n 5 "$CSV"
 
       - name: 🚀 Running Feature Engineering (create_features.py)
-        run: |
-          echo "Running Feature Engineering pipeline..."
-          python src/features/create_features.py
+        run: python src/features/create_features.py
 
-      - name: 📁 Verify generated files
+      - name: 📁 Verify generated outputs
         run: |
           echo "🔍 Checking processed outputs..."
           ls -lh data/processed || echo "⚠ No processed directory found."
-          if [ -f "data/processed/ecommerce_dataset_10000_cleaned.csv" ]; then
-            echo "✅ CSV successfully generated."
+          if [ -f "data/processed/ecommerce_dataset_features.csv" ]; then
+            echo "✅ Features CSV successfully generated."
           else
-            echo "❌ CSV missing - check your script."
+            echo "❌ Features CSV missing - check create_features.py"
             exit 1
           fi
-          if [ -f "data/processed/ecommerce_dataset_10000_cleaned.parquet" ]; then
-            echo "✅ Parquet successfully generated."
+          if [ -f "data/processed/ecommerce_dataset_features.parquet" ]; then
+            echo "✅ Features Parquet successfully generated."
           else
-            echo "⚠ Parquet missing - but CSV exists, so dashboard will still work."
+            echo "⚠ Parquet missing - but CSV exists, workflow continues."
           fi
 
       - name: 💾 Commit processed dataset updates (if any)
@@ -67,4 +75,3 @@ jobs:
             git commit -m "feat: automated feature engineering output update"
             git push origin main
             echo "✅ Processed dataset updated and committed."
-          fi
