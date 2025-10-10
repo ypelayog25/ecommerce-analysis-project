@@ -5,10 +5,10 @@ on:
     branches:
       - main
     paths:
-      - "data/raw/**"           # Only trigger if raw dataset or metadata changed
+      - "data/raw/**"
       - "src/features/**"
       - "src/data/**"
-  workflow_dispatch:            # Allow manual execution from Actions tab
+  workflow_dispatch:
 
 jobs:
   feature-engineering:
@@ -27,11 +27,10 @@ jobs:
         run: |
           pip install -r requirements.txt
 
-      - name: 🔍 Check raw dataset existence
+      - name: 🔍 Check raw dataset existence (non-blocking)
         run: |
           if [ ! -f "data/raw/dataset-metadata.json" ]; then
-            echo "❌ Raw dataset metadata not found. Skipping feature engineering."
-            exit 1
+            echo "⚠️ Raw dataset metadata not found. Continuing using CSV as official source..."
           else
             echo "✅ Raw dataset metadata found."
           fi
