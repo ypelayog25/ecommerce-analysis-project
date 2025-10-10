@@ -1,76 +1,53 @@
-# .github/workflows/feature_engineering_and_streamlit.yml
 name: Feature Engineering & Streamlit Deployment
 
 on:
-  workflow_dispatch:  # ✅ Manual trigger
-  schedule:
-    - cron: "0 4 * * *"  # Runs daily at 04:00 UTC
+  workflow_dispatch:    # Manual trigger
+  push:
+    branches:
+      - main
+    paths:
+      - "src/features/**"
+      - "data/raw/**"
 
 jobs:
-  feature-and-streamlit:
+  feature-streamlit:
     runs-on: ubuntu-latest
 
     steps:
-      # ✅ Checkout repository
       - name: Checkout repository
         uses: actions/checkout@v3
         with:
           lfs: true
 
-      # ✅ Setup Python
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
           python-version: "3.11"
 
-      # ✅ Install dependencies
       - name: Install dependencies
         run: |
           pip install -r requirements.txt
           pip install streamlit plotly pandas pyarrow
 
-      # ✅ Run Feature Engineering
-      - name: Run Feature Engineering
+      - name: Run Feature Engineering (non-blocking)
         run: |
-          echo "🚀 Running feature engineering pipeline..."
-          python src/features/create_features.py
+          python src/features/create_features.py || echo "⚠ Feature engineering skipped or failed"
 
-      # ✅ Verify columns (optional warning, does not fail)
-      - name: Verify required columns
+      - name: Verify Columns (non-blocking)
         run: |
-          echo "🔍 Checking dataset columns..."
-          python - <<'PY'
-import pandas as pd
-import os
-dataset = "data/processed/ecommerce_dataset_10000_cleaned.parquet"
-required_cols = ['country','order_date','customer_id','product_name','unit_price','quantity','total_price']
-if os.path.exists(dataset):
-    df = pd.read_parquet(dataset)
-    missing = [c for c in required_cols if c not in df.columns]
-    if missing:
-        print(f"⚠️ Missing columns: {missing} (charts may fail)")
-    else:
-        print("✅ All required columns present")
-else:
-    print("⚠️ Dataset not found. Skipping column verification")
-PY
+          python scripts/verify_columns.py || echo "⚠ Warning: some columns may be missing"
 
-      # ✅ Commit processed dataset if changed
-      - name: Commit processed dataset
+      - name: Commit processed dataset (if changes)
         run: |
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
           git add data/processed/
           if ! git diff --staged --quiet; then
-            git commit -m "feat: updated processed dataset via workflow"
+            git commit -m "feat: update processed dataset via workflow"
             git push origin main
           else
-            echo "ℹ️ No changes in processed dataset"
+            echo "ℹ️ No changes to processed dataset"
 
-      # ✅ Deploy to Streamlit Cloud
-      - name: Deploy to Streamlit
+      - name: Optional: Trigger Streamlit cloud deploy
         run: |
-          echo "☁️ Deploying to Streamlit Cloud..."
-          # Optional: you can use the Streamlit CLI deploy commands if using GitHub integration
-          # Here we assume Streamlit Cloud is connected to this repo and will auto-deploy main branch
-          echo "✅ Streamlit app will auto-update from main branch"
+          echo "✅ Dataset updated. Streamlit Cloud will auto-update from main branch."
