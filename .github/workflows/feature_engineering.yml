@@ -2,7 +2,7 @@ name: Feature Engineering & Dataset Preparation
 
 on:
   workflow_run:
-    workflows: ["Update Dataset and Run Analysis"]  # trigger after dataset workflow completes
+    workflows: ["Update Dataset and Run Analysis"]
     types:
       - completed
   workflow_dispatch:
@@ -29,7 +29,6 @@ jobs:
             fi
           done
           echo "PYTHONPATH=$PWD" >> $GITHUB_ENV
-          echo "✅ Package structure ensured and PYTHONPATH set."
 
       - name: Setup Python
         uses: actions/setup-python@v4
@@ -37,33 +36,72 @@ jobs:
           python-version: '3.11'
 
       - name: Install dependencies
-        run: |
-          pip install -r requirements.txt
+        run: pip install -r requirements.txt
 
-      - name: Print preview of CSV columns (first rows)
+      - name: Check if CSV exists
+        env:
+          CSV_PATH: data/processed/ecommerce_dataset_10000_cleaned.csv
+        id: check_csv
         run: |
-          python - <<'PY'
-import pandas as pd, sys
-p = "data/processed/ecommerce_dataset_10000_cleaned.csv"
+          if [ -f "$CSV_PATH" ]; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+            echo "CSV file not found at $CSV_PATH, skipping workflow steps."
+
+      - name: Check if CSV has changed
+        if: steps.check_csv.outputs.exists == 'true'
+        id: csv_changed
+        run: |
+          git fetch origin main
+          CHANGED=$(git diff --name-only origin/main -- "$CSV_PATH")
+          if [ -n "$CHANGED" ]; then
+            echo "changed=true" >> $GITHUB_OUTPUT
+          else
+            echo "changed=false" >> $GITHUB_OUTPUT
+            echo "CSV has not changed compared to main. Skipping workflow steps."
+
+      - name: Print preview of CSV columns
+        if: steps.csv_changed.outputs.changed == 'true'
+        env:
+          CSV_PATH: data/processed/ecommerce_dataset_10000_cleaned.csv
+        run: |
+          cat << 'EOF' > tmp_preview.py
+import os
+import sys
+import pandas as pd
+
+csv_path = os.getenv("CSV_PATH")
+
 try:
-    df = pd.read_csv(p, nrows=5)
+    df = pd.read_csv(csv_path, nrows=5)
     print("Detected columns:", list(df.columns))
     print(df.head().to_string(index=False))
 except Exception as e:
     print("Error reading CSV preview:", e)
     sys.exit(0)
-PY
+EOF
+          python tmp_preview.py
 
       - name: Run feature engineering
-        run: |
-          python src/features/create_features.py
+        if: steps.csv_changed.outputs.changed == 'true'
+        run: python src/features/create_features.py
 
       - name: Generate preview images (PNG)
+        if: steps.csv_changed.outputs.changed == 'true'
         run: |
           pip install plotly kaleido
-          python src/visualization/save_figures.py || echo "No figures generated (maybe not enough data)"
+          cat << 'EOF' > tmp_figures.py
+try:
+    import src.visualization.save_figures as viz
+    viz.main()
+except Exception as e:
+    print("No figures generated (maybe not enough data):", e)
+EOF
+          python tmp_figures.py || echo "Skipping figure generation."
 
       - name: Upload preview artifacts (CSV + PNGs)
+        if: steps.csv_changed.outputs.changed == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: feature-engineering-preview
@@ -73,6 +111,7 @@ PY
             reports/columns.txt
 
       - name: Commit and push processed files (create branch + push)
+        if: steps.csv_changed.outputs.changed == 'true'
         id: commit
         run: |
           git config user.name "GitHub Actions"
@@ -82,13 +121,11 @@ PY
           git add data/processed/ecommerce_dataset_features.parquet data/processed/ecommerce_dataset_features.csv data/processed/customer_summary.parquet data/processed/product_summary.parquet data/processed/country_revenue.parquet reports/columns.txt data/processed/ecommerce_dataset_features_preview.csv
           if git diff --staged --quiet; then
             echo "no_changes=true" >> $GITHUB_OUTPUT
-            echo "No changes to commit."
           else
-            git commit -m "feat: automated feature engineering output (parquet + csv + previews)"
+            git commit -m 'feat: automated feature engineering output (parquet + csv + previews)'
             git push --set-upstream origin "$BRANCH"
             echo "branch_name=$BRANCH" >> $GITHUB_OUTPUT
             echo "no_changes=false" >> $GITHUB_OUTPUT
-          fi
 
       - name: Create Pull Request (if new branch)
         if: steps.commit.outputs.no_changes == 'false'
@@ -99,4 +136,3 @@ PY
           base: main
           title: "Automated Feature Dataset Update"
           body: "This PR contains feature-engineered dataset (parquet + csv) and preview artifacts."
-
