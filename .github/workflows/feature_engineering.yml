@@ -71,7 +71,7 @@ jobs:
             echo "⚠ Parquet missing - but CSV exists, workflow continues."
           fi
 
-      # 8️⃣ Commit y push solo si hay cambios
+      # 8️⃣ Commit y push solo si hay cambios (bash seguro)
       - name: 💾 Commit processed dataset updates (if any)
         run: |
           git config user.name "GitHub Actions"
@@ -83,3 +83,4 @@ jobs:
             git commit -m "feat: automated feature engineering output update"
             git push origin main
             echo "✅ Processed dataset updated and committed."
+          fi
