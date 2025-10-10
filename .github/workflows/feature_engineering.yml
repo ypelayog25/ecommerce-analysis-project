@@ -15,11 +15,13 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # 1️⃣ Checkout repo con LFS
       - name: ✅ Checkout repository
         uses: actions/checkout@v3
         with:
-          lfs: true  # importante para descargar punteros LFS
+          lfs: true
 
+      # 2️⃣ Instalar Git LFS y descargar archivos grandes
       - name: 🛠 Install Git LFS and pull large files
         run: |
           sudo apt-get update
@@ -27,27 +29,32 @@ jobs:
           git lfs install
           git lfs pull
 
+      # 3️⃣ Setup Python
       - name: 🐍 Setup Python
         uses: actions/setup-python@v4
         with:
           python-version: "3.11"
 
+      # 4️⃣ Instalar dependencias
       - name: 📦 Install required dependencies
         run: pip install -r requirements.txt plotly kaleido pandas
 
-      - name: 🔍 Verify CSV exists and preview
+      # 5️⃣ Verificar CSV
+      - name: 🔍 Verify CSV exists
         run: |
           CSV="data/processed/ecommerce_dataset_10000_cleaned.csv"
           if [ ! -f "$CSV" ]; then
             echo "❌ CSV not found. Make sure it's committed via LFS."
             exit 1
           fi
-          echo "✅ CSV found: $CSV - Loading as source dataset..."
+          echo "✅ CSV found: $CSV - Preview:"
           head -n 5 "$CSV"
 
+      # 6️⃣ Ejecutar Feature Engineering
       - name: 🚀 Running Feature Engineering (create_features.py)
         run: python src/features/create_features.py
 
+      # 7️⃣ Verificar outputs generados
       - name: 📁 Verify generated outputs
         run: |
           echo "🔍 Checking processed outputs..."
@@ -64,6 +71,7 @@ jobs:
             echo "⚠ Parquet missing - but CSV exists, workflow continues."
           fi
 
+      # 8️⃣ Commit y push solo si hay cambios
       - name: 💾 Commit processed dataset updates (if any)
         run: |
           git config user.name "GitHub Actions"
