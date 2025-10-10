@@ -1,8 +1,10 @@
 name: Update Dashboard
 
 on:
+  # Schedule workflow daily at midnight UTC
   schedule:
-    - cron: "0 0 * * *"  # Runs daily at midnight UTC
+    - cron: "0 0 * * *"
+  # Allow manual trigger
   workflow_dispatch:
 
 jobs:
@@ -10,23 +12,31 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # Checkout repository
       - name: Checkout repository
         uses: actions/checkout@v3
 
+      # Set up Python environment
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: "3.11"
 
+      # Install project dependencies
       - name: Install dependencies
         run: pip install -r requirements.txt
 
+      # Add calculated features
       - name: Add features
         run: python src/features/create_features.py
 
+      # Optional: generate customer segments
+      - name: Segment customers
+        run: python src/models/customer_segmentation.py || echo "No segmentation script found"
+
+      # Run Streamlit dashboard in headless mode
       - name: Run Streamlit dashboard
         run: |
-          # Launch Streamlit dashboard in headless mode
           streamlit run src/visualization/generate_dashboard.py \
           --server.headless true \
           --server.port 8501
