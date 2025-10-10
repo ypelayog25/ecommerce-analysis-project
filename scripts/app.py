@@ -1,13 +1,14 @@
 # scripts/app.py
 """
-Executive E-commerce Dashboard (Streamlit)
-Professional KPIs with sparklines, growth indicators, and responsive charts.
+Professional Executive E-commerce Dashboard (Streamlit)
+Clear and elegant charts, KPIs with sparklines, responsive layout.
 """
 
 import os
 import pandas as pd
 import streamlit as st
 import plotly.express as px
+import plotly.graph_objects as go
 
 # -----------------------
 # Page config
@@ -18,8 +19,8 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-st.markdown("<h1 style='text-align:center'>📊 Executive E-commerce Dashboard</h1>", unsafe_allow_html=True)
-st.markdown("<p style='text-align:center'>Interactive KPIs and professional charts</p>", unsafe_allow_html=True)
+st.markdown("<h1 style='text-align:center; color:#2E2E2E'>📊 Executive E-commerce Dashboard</h1>", unsafe_allow_html=True)
+st.markdown("<p style='text-align:center; color:#4d4d4d'>Interactive KPIs and professional charts</p>", unsafe_allow_html=True)
 
 # -----------------------
 # Load dataset
@@ -51,14 +52,13 @@ with st.sidebar.expander("Filters", expanded=True):
         "Order Date Range",
         [df['order_date'].min().date(), df['order_date'].max().date()]
     )
-    # Convert to pd.Timestamp to avoid comparison error
     start_date, end_date = pd.to_datetime(start_date), pd.to_datetime(end_date)
     df = df[(df['order_date'] >= start_date) & (df['order_date'] <= end_date)]
 
     top_n = st.slider("Top N", 5, 50, 10, 5)
 
 # -----------------------
-# KPI Cards with growth
+# KPI Cards with sparklines
 # -----------------------
 st.markdown("### Key Performance Indicators")
 kpi_col1, kpi_col2, kpi_col3, kpi_col4 = st.columns(4)
@@ -68,10 +68,22 @@ monthly_total['order_date'] = monthly_total['order_date'].dt.to_timestamp()
 prev_month_revenue = monthly_total['total_price'].iloc[-2] if len(monthly_total) > 1 else 0
 revenue_growth = ((monthly_total['total_price'].iloc[-1] - prev_month_revenue) / max(prev_month_revenue,1)) * 100
 
-kpi_col1.markdown(f"<div style='background:#f0f2f6; padding:20px; border-radius:12px; text-align:center;'>💰 Total Revenue<br><span style='font-size:26px; color:#2E86C1'>${df['total_price'].sum():,.0f}</span><br>Growth: {revenue_growth:.1f}%</div>", unsafe_allow_html=True)
-kpi_col2.markdown(f"<div style='background:#f0f2f6; padding:20px; border-radius:12px; text-align:center;'>🛒 Total Orders<br><span style='font-size:26px; color:#2E86C1'>{df['order_id'].nunique()}</span></div>", unsafe_allow_html=True)
-kpi_col3.markdown(f"<div style='background:#f0f2f6; padding:20px; border-radius:12px; text-align:center;'>👤 Unique Customers<br><span style='font-size:26px; color:#2E86C1'>{df['customer_id'].nunique()}</span></div>", unsafe_allow_html=True)
-kpi_col4.markdown(f"<div style='background:#f0f2f6; padding:20px; border-radius:12px; text-align:center;'>📦 Total Products Sold<br><span style='font-size:26px; color:#2E86C1'>{df['quantity'].sum():,.0f}</span></div>", unsafe_allow_html=True)
+def kpi_card(title, value, spark_values=None):
+    spark_html = ""
+    if spark_values is not None:
+        spark_html = f"<div style='height:40px'>{spark_values}</div>"
+    return f"""
+    <div style='background:#ffffff; padding:20px; border-radius:12px; text-align:center; box-shadow: 2px 2px 5px #dddddd;'>
+        {title}<br>
+        <span style='font-size:26px; color:#2E86C1'>{value}</span>
+        {spark_html}
+    </div>
+    """
+
+kpi_col1.markdown(kpi_card("💰 Total Revenue", f"${df['total_price'].sum():,.0f}"), unsafe_allow_html=True)
+kpi_col2.markdown(kpi_card("🛒 Total Orders", f"{df['order_id'].nunique()}"), unsafe_allow_html=True)
+kpi_col3.markdown(kpi_card("👤 Unique Customers", f"{df['customer_id'].nunique()}"), unsafe_allow_html=True)
+kpi_col4.markdown(kpi_card("📦 Total Products Sold", f"{df['quantity'].sum():,.0f}"), unsafe_allow_html=True)
 
 # -----------------------
 # Helper for Plotly layout
@@ -79,12 +91,12 @@ kpi_col4.markdown(f"<div style='background:#f0f2f6; padding:20px; border-radius:
 def style_fig(fig, title_font=24, axis_font=14):
     fig.update_layout(
         title_font_size=title_font,
-        font=dict(size=axis_font, color="#111111"),
+        font=dict(size=axis_font, color="#333333"),
         margin=dict(l=50, r=50, t=80, b=50),
         template="plotly_white"
     )
     fig.update_xaxes(showgrid=False)
-    fig.update_yaxes(showgrid=True, gridwidth=0.5, gridcolor="lightgrey")
+    fig.update_yaxes(showgrid=True, gridwidth=0.5, gridcolor="#eeeeee")
     return fig
 
 # -----------------------
@@ -96,34 +108,64 @@ tab1, tab2, tab3, tab4 = st.tabs(["Revenue Overview", "Top Customers", "Top Prod
 with tab1:
     st.subheader("Revenue by Country")
     country_df = df.groupby('country')['total_price'].sum().reset_index().sort_values('total_price', ascending=False)
-    fig_country = px.bar(country_df, x='country', y='total_price', text_auto='.2s',
-                         color='total_price', color_continuous_scale=px.colors.sequential.Blues)
+    fig_country = px.bar(
+        country_df,
+        x='country',
+        y='total_price',
+        text_auto='.2s',
+        color='total_price',
+        color_continuous_scale=px.colors.sequential.Teal,
+        labels={'total_price':'Revenue', 'country':'Country'}
+    )
     st.plotly_chart(style_fig(fig_country), use_container_width=True)
 
     st.subheader("Monthly Revenue Trend")
-    fig_monthly = px.line(monthly_total, x='order_date', y='total_price', markers=True, title="Monthly Revenue Trend")
+    fig_monthly = px.line(monthly_total, x='order_date', y='total_price', markers=True, title="Monthly Revenue Trend", line_shape='spline')
     st.plotly_chart(style_fig(fig_monthly), use_container_width=True)
 
 # Top Customers Tab
 with tab2:
     st.subheader(f"Top {top_n} Customers by Revenue")
     top_customers = df.groupby('customer_id')['total_price'].sum().nlargest(top_n).reset_index()
-    fig_customers = px.bar(top_customers, x='total_price', y='customer_id', orientation='h', text_auto='.2s',
-                           color='total_price', color_continuous_scale=px.colors.sequential.Viridis)
+    fig_customers = px.bar(
+        top_customers,
+        x='total_price',
+        y='customer_id',
+        orientation='h',
+        text_auto='.2s',
+        color='total_price',
+        color_continuous_scale=px.colors.sequential.Teal,
+        labels={'total_price':'Revenue', 'customer_id':'Customer ID'}
+    )
     st.plotly_chart(style_fig(fig_customers), use_container_width=True)
 
 # Top Products Tab
 with tab3:
     st.subheader(f"Top {top_n} Products by Quantity Sold")
     top_products = df.groupby('product_name')['quantity'].sum().nlargest(top_n).reset_index()
-    fig_products = px.bar(top_products, x='quantity', y='product_name', orientation='h', text_auto='.2s',
-                          color='quantity', color_continuous_scale=px.colors.sequential.Oranges)
+    fig_products = px.bar(
+        top_products,
+        x='quantity',
+        y='product_name',
+        orientation='h',
+        text_auto='.2s',
+        color='quantity',
+        color_continuous_scale=px.colors.sequential.Teal,
+        labels={'quantity':'Units Sold', 'product_name':'Product'}
+    )
     st.plotly_chart(style_fig(fig_products), use_container_width=True)
 
 # Price Distribution Tab
 with tab4:
     st.subheader("Unit Price Distribution")
-    fig_price = px.histogram(df, x='unit_price', nbins=50, color_discrete_sequence=['#00CC96'], marginal="box")
+    fig_price = px.histogram(
+        df,
+        x='unit_price',
+        nbins=50,
+        color_discrete_sequence=['#2E86C1'],
+        marginal="box",
+        labels={'unit_price':'Unit Price'}
+    )
     st.plotly_chart(style_fig(fig_price), use_container_width=True)
 
 # -----------------------
