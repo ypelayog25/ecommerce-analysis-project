@@ -1,17 +1,21 @@
 import pandas as pd
+from src.data.load_dataset import load_dataset
 
 def add_features(df):
-    # Calculate revenue for each order
+    """
+    Add calculated features to the dataset.
+    """
+    # Revenue per order
     df['Revenue'] = df['Quantity'] * df['UnitPrice']
-    # Extract order month from OrderDate
+    # Extract order month for time series
     df['OrderMonth'] = pd.to_datetime(df['OrderDate']).dt.to_period('M')
     return df
 
 if __name__ == "__main__":
-    # Load cleaned dataset
-    df = pd.read_parquet("data/processed/ecommerce_dataset_10000_cleaned.parquet")
-    # Add calculated features
+    # Load dataset
+    df = load_dataset()
+    # Add features
     df = add_features(df)
-    # Save the updated dataset
+    # Save dataset with new features
     df.to_parquet("data/processed/ecommerce_dataset_10000_cleaned.parquet", index=False)
     print("Features added successfully.")
