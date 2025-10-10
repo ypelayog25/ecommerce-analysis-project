@@ -1,12 +1,14 @@
-name: 🔧 Feature Engineering & Export
+name: Feature Engineering & Dataset Preparation
 
 on:
   push:
+    branches:
+      - main
     paths:
-      - "data/raw/**"
+      - "data/raw/**"           # Only trigger if raw dataset or metadata changed
       - "src/features/**"
       - "src/data/**"
-  workflow_dispatch:
+  workflow_dispatch:            # Allow manual execution from Actions tab
 
 jobs:
   feature-engineering:
@@ -16,18 +18,18 @@ jobs:
       - name: ✅ Checkout repository
         uses: actions/checkout@v3
 
-      - name: 🐍 Set up Python
+      - name: 🐍 Setup Python
         uses: actions/setup-python@v4
         with:
           python-version: "3.11"
 
-      - name: 📦 Install dependencies
+      - name: 📦 Install required dependencies
         run: |
           pip install --upgrade pip
           pip install -r requirements.txt || echo "⚠ requirements.txt no encontrado, instalando mínimos..."
           pip install pandas pyarrow
 
-      - name: 📁 Ensure Python package structure (auto __init__.py)
+      - name: 📂 Ensure Python package structure (auto __init__.py)
         run: |
           echo "📂 Ensuring Python package structure..."
           python - << 'EOF'
@@ -50,15 +52,44 @@ for directory in PACKAGE_DIRS:
         print(f"✔ Exists: {init_path}")
 EOF
 
-      - name: 🚀 Run Feature Engineering (no metadata check required)
+      - name: 🔍 Check raw dataset existence (non-blocking)
         run: |
-          echo "🔧 Running feature engineering..."
+          if [ ! -f "data/raw/dataset-metadata.json" ]; then
+            echo "⚠ dataset-metadata.json no encontrado, pero continuamos igual..."
+          else
+            echo "✅ Raw dataset metadata found."
+          fi
+
+      - name: 🚀 Running Feature Engineering (create_features.py)
+        run: |
+          echo "Running Feature Engineering pipeline..."
           python src/features/create_features.py || echo "⚠ Script returned a warning, but continuing..."
 
-      - name: 📤 Upload processed dataset as artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: processed-dataset
-          path: |
-            data/processed/*.csv
-            data/processed/*.parquet
+      - name: 📁 Verify generated files
+        run: |
+          echo "🔍 Checking processed outputs..."
+          ls -lh data/processed || echo "⚠ No processed directory found."
+          if [ -f "data/processed/ecommerce_dataset_10000_cleaned.csv" ]; then
+            echo "✅ CSV successfully generated."
+          else
+            echo "❌ CSV missing - check your script."
+            exit 1
+          fi
+          if [ -f "data/processed/ecommerce_dataset_10000_cleaned.parquet" ]; then
+            echo "✅ Parquet successfully generated."
+          else
+            echo "⚠ Parquet missing - but CSV exists, so dashboard will still work."
+          fi
+
+      - name: 💾 Commit processed dataset updates (if any)
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git add data/processed/
+          if git diff --staged --quiet; then
+            echo "ℹ️ No changes to commit in processed data."
+          else
+            git commit -m "feat: automated feature engineering output update"
+            git push origin main
+            echo "✅ Processed dataset updated and committed."
+          fi
