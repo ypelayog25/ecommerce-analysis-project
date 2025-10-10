@@ -1,0 +1,112 @@
+name: Feature Engineering - Dashboard Ready Data
+
+on:
+  workflow_dispatch:  # ✅ Ejecución manual
+  schedule:
+    - cron: "0 4 * * *"  # ✅ Cada día a las 2 AM UTC (ajustable)
+
+jobs:
+  feature_engineering:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: 📥 Checkout repository
+      uses: actions/checkout@v3
+
+    - name: ⚙ Ensure src is recognized as package (auto __init__.py)
+      run: |
+        for dir in src src/data src/features src/models src/visualization; do
+          if [ ! -f "$dir/__init__.py" ]; then
+            echo "Creating $dir/__init__.py"
+            touch "$dir/__init__.py"
+          fi
+        done
+
+    - name: 📦 Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.10"
+
+    - name: 📚 Install dependencies
+      run: |
+        pip install -r requirements.txt
+
+    - name: 🔍 Detect changes in dataset before processing
+      id: hash_check
+      run: |
+        DATASET="data/processed/ecommerce_dataset_10000_cleaned.parquet"
+        HASH_FILE="data/processed/.features_hash.txt"
+
+        if [ -f "$DATASET" ]; then
+          NEW_HASH=$(sha256sum "$DATASET" | awk '{print $1}')
+        else
+          echo "❌ Dataset base no encontrado en $DATASET"
+          exit 1
+        fi
+
+        echo "NEW_HASH=$NEW_HASH" >> $GITHUB_ENV
+
+        if [ -f "$HASH_FILE" ]; then
+          OLD_HASH=$(cat "$HASH_FILE")
+        else
+          OLD_HASH=""
+        fi
+
+        if [ "$NEW_HASH" = "$OLD_HASH" ]; then
+          echo "✅ No changes detected. Skipping feature engineering."
+          echo "skip=true" >> $GITHUB_ENV
+        else
+          echo "🔄 Changes detected. Proceeding..."
+          echo "skip=false" >> $GITHUB_ENV
+        fi
+
+    - name: 🚀 Run Feature Engineering Script
+      if: env.skip == 'false'
+      run: |
+        echo "Running: src/features/create_features.py"
+        python src/features/create_features.py
+
+    - name: 💾 Save new feature hash
+      if: env.skip == 'false'
+      run: |
+        echo "$NEW_HASH" > data/processed/.features_hash.txt
+
+    - name: 🧾 Generate CSV from Parquet (for Tableau Public)
+      if: env.skip == 'false'
+      run: |
+        python - << 'EOF'
+        import pandas as pd
+        df = pd.read_parquet("data/processed/ecommerce_dataset_features.parquet")
+        df.to_csv("data/processed/ecommerce_dataset_features.csv", index=False)
+        print("CSV export completed.")
+        EOF
+
+    - name: 📌 Commit and Push Changes (if any)
+      if: env.skip == 'false'
+      run: |
+        BRANCH="auto/features-$(date +'%Y%m%d%H%M%S')"
+        git config user.name "GitHub Actions"
+        git config user.email "actions@github.com"
+        git checkout -b "$BRANCH"
+        git add data/processed/ecommerce_dataset_features.* data/processed/.features_hash.txt
+        git commit -m "feat: update feature-engineered dataset 🚀"
+        git push origin "$BRANCH"
+
+    - name: 🔁 Create Pull Request
+      if: env.skip == 'false'
+      uses: peter-evans/create-pull-request@v5
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        branch: ${{ steps.feature_engineering.outputs.branch }}
+        title: "✨ Auto Feature Engineering Update"
+        body: "Dataset enriched automatically for dashboard use."
+
+    - name: 🏷 Auto Tag Version
+      if: env.skip == 'false'
+      run: |
+        LAST_TAG=$(git describe --tags --abbrev=0 || echo "v1.0.0")
+        IFS='.' read -r -a PARTS <<< "${LAST_TAG#v}"
+        PATCH=$((PARTS[2] + 1))
+        NEW_TAG="v${PARTS[0]}.${PARTS[1]}.$PATCH"
+        git tag "$NEW_TAG"
+        git push origin "$NEW_TAG"
