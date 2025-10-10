@@ -1,71 +1,59 @@
-name: Feature Engineering & Dataset Preparation
+import os
+import pandas as pd
 
-on:
-  push:
-    branches:
-      - main
-    paths:
-      - "data/raw/**"           # Only trigger if raw dataset or metadata changed
-      - "src/features/**"
-      - "src/data/**"
-  workflow_dispatch:            # Allow manual execution from Actions tab
+# Paths
+CSV_PATH = "data/processed/ecommerce_dataset_10000_cleaned.csv"
+PARQUET_PATH = "data/processed/ecommerce_dataset_10000_cleaned.parquet"
 
-jobs:
-  feature-engineering:
-    runs-on: ubuntu-latest
+def load_source_data():
+    """
+    Load the dataset from CSV as the official data source.
+    Regenerate a valid Parquet file if missing or corrupted.
+    """
+    if not os.path.exists(CSV_PATH):
+        raise FileNotFoundError(f"❌ CSV source not found at {CSV_PATH}. Ensure update_dataset.yml generated it.")
 
-    steps:
-      - name: ✅ Checkout repository
-        uses: actions/checkout@v3
+    print(f"✅ CSV found: {CSV_PATH} - Loading as source dataset...")
+    df = pd.read_csv(CSV_PATH)
 
-      - name: 🐍 Setup Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: "3.11"
+    # Validate Parquet or regenerate it if corrupted
+    if not os.path.exists(PARQUET_PATH):
+        print("⚠ Parquet file missing. Creating new Parquet file...")
+        df.to_parquet(PARQUET_PATH, index=False)
+        print(f"✅ New Parquet file created: {PARQUET_PATH}")
+    else:
+        try:
+            pd.read_parquet(PARQUET_PATH)
+            print("✔ Existing Parquet file is valid.")
+        except Exception:
+            print("⚠ Parquet file corrupted. Regenerating...")
+            df.to_parquet(PARQUET_PATH, index=False)
+            print(f"✅ Parquet file regenerated successfully: {PARQUET_PATH}")
 
-      - name: 📦 Install required dependencies
-        run: |
-          pip install -r requirements.txt
+    return df
 
-      - name: 🔍 Check raw dataset existence
-        run: |
-          if [ ! -f "data/raw/dataset-metadata.json" ]; then
-            echo "❌ Raw dataset metadata not found. Skipping feature engineering."
-            exit 1
-          else
-            echo "✅ Raw dataset metadata found."
-          fi
+def create_features(df):
+    """
+    Add calculated fields such as Revenue and OrderMonth for dashboard analytics.
+    """
+    print("🔧 Creating new features (Revenue, OrderMonth)...")
+    df["Revenue"] = df["UnitPrice"] * df["Quantity"]
+    df["OrderMonth"] = pd.to_datetime(df["InvoiceDate"]).dt.to_period("M").astype(str)
+    return df
 
-      - name: 🚀 Running Feature Engineering (create_features.py)
-        run: |
-          echo "Running Feature Engineering pipeline..."
-          python src/features/create_features.py
+def save_outputs(df):
+    """
+    Save processed dataset back into both Parquet and CSV formats.
+    """
+    print("💾 Saving updated dataset with features...")
+    df.to_parquet(PARQUET_PATH, index=False)
+    df.to_csv(CSV_PATH, index=False)
+    print(f"✅ Saved: {PARQUET_PATH}")
+    print(f"✅ Saved: {CSV_PATH}")
 
-      - name: 📁 Verify generated files
-        run: |
-          echo "🔍 Checking processed outputs..."
-          ls -lh data/processed || echo "⚠ No processed directory found."
-          if [ -f "data/processed/ecommerce_dataset_10000_cleaned.csv" ]; then
-            echo "✅ CSV successfully generated."
-          else
-            echo "❌ CSV missing - check your script."
-            exit 1
-          fi
-          if [ -f "data/processed/ecommerce_dataset_10000_cleaned.parquet" ]; then
-            echo "✅ Parquet successfully generated."
-          else
-            echo "⚠ Parquet missing - but CSV exists, so dashboard will still work."
-          fi
-
-      - name: 💾 Commit processed dataset updates (if any)
-        run: |
-          git config user.name "GitHub Actions"
-          git config user.email "actions@github.com"
-          git add data/processed/
-          if git diff --staged --quiet; then
-            echo "ℹ️ No changes to commit in processed data."
-          else
-            git commit -m "feat: automated feature engineering output update"
-            git push origin main
-            echo "✅ Processed dataset updated and committed."
-          fi
+if __name__ == "__main__":
+    print("🚀 Running feature engineering pipeline...")
+    df = load_source_data()
+    df = create_features(df)
+    save_outputs(df)
+    print("🎉 Feature engineering completed successfully!")
