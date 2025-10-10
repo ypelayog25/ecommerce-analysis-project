@@ -1,0 +1,64 @@
+name: Feature Engineering & Streamlit Deployment
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "data/raw/**"
+      - "src/features/**"
+      - "src/data/**"
+      - "scripts/**"
+  workflow_dispatch:
+
+jobs:
+  feature-engineering-and-streamlit:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1️⃣ Checkout repo with LFS support
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          lfs: true
+
+      # 2️⃣ Setup Python
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+
+      # 3️⃣ Install dependencies
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install plotly streamlit pyarrow duckdb
+
+      # 4️⃣ Run feature engineering
+      - name: Run Feature Engineering
+        run: |
+          python src/features/create_features.py
+
+      # 5️⃣ Verify dataset columns
+      - name: Verify Dataset Columns
+        run: |
+          python scripts/verify_columns.py
+
+      # 6️⃣ Commit processed dataset if new
+      - name: Commit Processed Dataset
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git add data/processed/
+          if ! git diff --staged --quiet; then
+            git commit -m "feat: generate verified feature dataset"
+            git push origin main
+          else
+            echo "ℹ️ No new changes to processed dataset"
+
+      # 7️⃣ Deploy to Streamlit Cloud (manual trigger required)
+      - name: Deploy to Streamlit Cloud
+        run: |
+          echo "✅ Dataset verified. Ready for Streamlit deployment."
+          # Streamlit Cloud deployment typically automático al push en main
+          # No se necesita ejecutar `streamlit run` en GitHub Actions
