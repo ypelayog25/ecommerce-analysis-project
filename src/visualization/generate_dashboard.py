@@ -2,7 +2,7 @@ import pandas as pd
 import plotly.express as px
 import streamlit as st
 
-# Load cleaned dataset
+# Load dataset
 df = pd.read_parquet("data/processed/ecommerce_dataset_10000_cleaned.parquet")
 
 # --- Dashboard Title ---
@@ -13,7 +13,7 @@ total_revenue = df['Revenue'].sum()
 total_orders = len(df)
 top_customer = df.groupby('CustomerID')['Revenue'].sum().idxmax()
 
-# Display KPIs in columns
+# Display KPIs in 3 columns
 col1, col2, col3 = st.columns(3)
 col1.metric("Total Revenue", f"${total_revenue:,.2f}")
 col2.metric("Total Orders", total_orders)
