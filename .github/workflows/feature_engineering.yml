@@ -1,10 +1,9 @@
 name: Feature Engineering - Dashboard Ready Data
 
 on:
-  workflow_dispatch:  # ✅ Ejecución manual
+  workflow_dispatch:  
   schedule:
-    - cron: "0 4 * * *"  # ✅ Cada día a las 2 AM UTC (ajustable)
-
+    - cron: "0 2 * * *"  
 jobs:
   feature_engineering:
     runs-on: ubuntu-latest
