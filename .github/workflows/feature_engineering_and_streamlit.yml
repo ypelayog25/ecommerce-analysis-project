@@ -16,87 +16,43 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # -----------------------
       # ✅ Checkout repository
-      # -----------------------
       - name: Checkout repository
         uses: actions/checkout@v3
         with:
           lfs: true
 
-      # -----------------------
-      # 🐍 Setup Python
-      # -----------------------
+      # ✅ Setup Python environment
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
           python-version: "3.11"
 
-      # -----------------------
-      # 📦 Install dependencies
-      # -----------------------
+      # ✅ Install dependencies
       - name: Install dependencies
         run: |
           pip install -r requirements.txt
           pip install plotly streamlit
 
-      # -----------------------
-      # 🚀 Run feature engineering
-      # -----------------------
+      # ✅ Run feature engineering
       - name: Run feature engineering
         run: |
           python src/features/create_features.py
 
-      # -----------------------
-      # 🔍 Verify dataset columns
-      # -----------------------
+      # ✅ Verify processed dataset
       - name: Verify dataset columns
         run: |
           python scripts/verify_columns.py || echo "⚠ Dataset missing required columns, Streamlit may fail."
 
-      # -----------------------
-      # 💾 Commit processed datasets if changed
-      # -----------------------
-      - name: Commit processed datasets
-        run: |
-          git config user.name "GitHub Actions"
-          git config user.email "actions@github.com"
-          git add data/processed/
-          if ! git diff --staged --quiet; then
-            BRANCH="auto/features-$(date +'%Y%m%d%H%M%S')"
-            git checkout -b "$BRANCH"
-            git commit -m "feat: automated feature engineering output"
-            git push --set-upstream origin "$BRANCH"
-            echo "branch_name=$BRANCH" >> $GITHUB_OUTPUT
-          else
-            echo "ℹ️ No new changes to processed dataset"
-
-      # -----------------------
-      # ✅ Create Pull Request if new branch
-      # -----------------------
-      - name: Create Pull Request
-        if: steps.Commit_processed_datasets.outcome == 'success' && steps.Commit_processed_datasets.outputs.branch_name
-        uses: peter-evans/create-pull-request@v5
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          branch: ${{ steps.Commit_processed_datasets.outputs.branch_name }}
-          base: main
-          title: "Automated Feature Dataset Update"
-          body: "This PR contains feature-engineered datasets and updated preview artifacts."
-
-      # -----------------------
-      # 📊 Test Streamlit app
-      # -----------------------
+      # ✅ Deploy Streamlit app (just check if works locally)
       - name: Test Streamlit app
         run: |
           streamlit run scripts/app.py --server.headless true --server.port 8501 --server.enableCORS false &
           sleep 10
           echo "✅ Streamlit test run complete"
 
-      # -----------------------
-      # 📁 Upload artifacts
-      # -----------------------
-      - name: Upload dashboard artifacts
+      # ✅ Save artifacts (optional PNGs or CSVs)
+      - name: Upload preview artifacts
         uses: actions/upload-artifact@v4
         with:
           name: dashboard-artifacts
