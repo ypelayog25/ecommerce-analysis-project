@@ -1,6 +1,6 @@
 # scripts/verify_columns.py
 """
-Verify that the processed dataset contains all required columns
+Verify that the processed dataset contains all required columns.
 """
 
 import pandas as pd
@@ -19,7 +19,6 @@ REQUIRED_COLUMNS = [
     'total_price'
 ]
 
-# Check if dataset exists
 if not os.path.exists(DATA_FILE):
     print(f"❌ Dataset not found: {DATA_FILE}")
     sys.exit(1)
@@ -30,7 +29,6 @@ except Exception as e:
     print(f"❌ Error loading dataset: {e}")
     sys.exit(1)
 
-# Check missing columns
 missing = [col for col in REQUIRED_COLUMNS if col not in df.columns]
 
 if missing:
