@@ -1,70 +1,102 @@
 name: Feature Engineering & Dataset Preparation
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - "data/raw/**"
-      - "src/features/**"
-      - "src/data/**"
+  workflow_run:
+    workflows: ["Update Dataset and Run Analysis"]  # trigger after dataset workflow completes
+    types:
+      - completed
   workflow_dispatch:
 
 jobs:
   feature-engineering:
     runs-on: ubuntu-latest
+    if: >
+      github.event_name == 'workflow_run' ?
+      (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main') : true
 
     steps:
-      - name: ✅ Checkout repository
+      - name: Checkout repository
         uses: actions/checkout@v3
+        with:
+          lfs: true
 
-      - name: 🐍 Setup Python
+      - name: Ensure package init files and PYTHONPATH
+        run: |
+          for d in src src/data src/features src/models src/visualization; do
+            mkdir -p "$d"
+            if [ ! -f "$d/__init__.py" ]; then
+              echo "# package init" > "$d/__init__.py"
+            fi
+          done
+          echo "PYTHONPATH=$PWD" >> $GITHUB_ENV
+          echo "✅ Package structure ensured and PYTHONPATH set."
+
+      - name: Setup Python
         uses: actions/setup-python@v4
         with:
-          python-version: "3.11"
+          python-version: '3.11'
 
-      - name: 📦 Install required dependencies
+      - name: Install dependencies
         run: |
           pip install -r requirements.txt
 
-      - name: 🔍 Check raw dataset existence (non-blocking)
+      - name: Print preview of CSV columns (first rows)
         run: |
-          if [ ! -f "data/raw/dataset-metadata.json" ]; then
-            echo "⚠️ Raw dataset metadata not found. Continuing using CSV as official source..."
-          else
-            echo "✅ Raw dataset metadata found."
-          fi
+          python - <<'PY'
+import pandas as pd, sys
+p = "data/processed/ecommerce_dataset_10000_cleaned.csv"
+try:
+    df = pd.read_csv(p, nrows=5)
+    print("Detected columns:", list(df.columns))
+    print(df.head().to_string(index=False))
+except Exception as e:
+    print("Error reading CSV preview:", e)
+    sys.exit(0)
+PY
 
-      - name: 🚀 Running Feature Engineering (create_features.py)
+      - name: Run feature engineering
         run: |
-          echo "Running Feature Engineering pipeline..."
           python src/features/create_features.py
 
-      - name: 📁 Verify generated files
+      - name: Generate preview images (PNG)
         run: |
-          echo "🔍 Checking processed outputs..."
-          ls -lh data/processed || echo "⚠ No processed directory found."
-          if [ -f "data/processed/ecommerce_dataset_10000_cleaned.csv" ]; then
-            echo "✅ CSV successfully generated."
-          else
-            echo "❌ CSV missing - check your script."
-            exit 1
-          fi
-          if [ -f "data/processed/ecommerce_dataset_10000_cleaned.parquet" ]; then
-            echo "✅ Parquet successfully generated."
-          else
-            echo "⚠ Parquet missing - but CSV exists, so dashboard will still work."
-          fi
+          pip install plotly kaleido
+          python src/visualization/save_figures.py || echo "No figures generated (maybe not enough data)"
 
-      - name: 💾 Commit processed dataset updates (if any)
+      - name: Upload preview artifacts (CSV + PNGs)
+        uses: actions/upload-artifact@v4
+        with:
+          name: feature-engineering-preview
+          path: |
+            data/processed/ecommerce_dataset_features_preview.csv
+            reports/figures/*.png
+            reports/columns.txt
+
+      - name: Commit and push processed files (create branch + push)
+        id: commit
         run: |
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
-          git add data/processed/
+          BRANCH="auto/features-$(date +'%Y%m%d%H%M%S')"
+          git checkout -b "$BRANCH"
+          git add data/processed/ecommerce_dataset_features.parquet data/processed/ecommerce_dataset_features.csv data/processed/customer_summary.parquet data/processed/product_summary.parquet data/processed/country_revenue.parquet reports/columns.txt data/processed/ecommerce_dataset_features_preview.csv
           if git diff --staged --quiet; then
-            echo "ℹ️ No changes to commit in processed data."
+            echo "no_changes=true" >> $GITHUB_OUTPUT
+            echo "No changes to commit."
           else
-            git commit -m "feat: automated feature engineering output update"
-            git push origin main
-            echo "✅ Processed dataset updated and committed."
+            git commit -m "feat: automated feature engineering output (parquet + csv + previews)"
+            git push --set-upstream origin "$BRANCH"
+            echo "branch_name=$BRANCH" >> $GITHUB_OUTPUT
+            echo "no_changes=false" >> $GITHUB_OUTPUT
           fi
+
+      - name: Create Pull Request (if new branch)
+        if: steps.commit.outputs.no_changes == 'false'
+        uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          branch: ${{ steps.commit.outputs.branch_name }}
+          base: main
+          title: "Automated Feature Dataset Update"
+          body: "This PR contains feature-engineered dataset (parquet + csv) and preview artifacts."
+
