@@ -1,42 +1,97 @@
 name: Update Dashboard
 
 on:
-  # Schedule workflow daily at midnight UTC
+  workflow_dispatch:  # ✅ Manual trigger
   schedule:
-    - cron: "0 0 * * *"
-  # Allow manual trigger
-  workflow_dispatch:
+    - cron: "0 3 * * *"  # ✅ Runs daily at 03:00 UTC, does NOT conflict with update_dataset.yml
 
 jobs:
-  build-dashboard:
+  update-dashboard:
     runs-on: ubuntu-latest
 
     steps:
-      # Checkout repository
+      # ✅ Checkout repo
       - name: Checkout repository
         uses: actions/checkout@v3
+        with:
+          lfs: true
 
-      # Set up Python environment
-      - name: Set up Python
+      # ✅ Setup Python environment
+      - name: Setup Python
         uses: actions/setup-python@v4
         with:
           python-version: "3.11"
 
-      # Install project dependencies
+      # ✅ Install dependencies (use same libs as analysis pipeline)
       - name: Install dependencies
-        run: pip install -r requirements.txt
-
-      # Add calculated features
-      - name: Add features
-        run: python src/features/create_features.py
-
-      # Optional: generate customer segments
-      - name: Segment customers
-        run: python src/models/customer_segmentation.py || echo "No segmentation script found"
-
-      # Run Streamlit dashboard in headless mode
-      - name: Run Streamlit dashboard
         run: |
-          streamlit run src/visualization/generate_dashboard.py \
-          --server.headless true \
-          --server.port 8501
+          pip install pandas numpy matplotlib pyarrow duckdb streamlit
+
+      # ✅ Detect if dataset changed by hash comparison
+      - name: Check dataset hash
+        id: dashboard-hash
+        run: |
+          FILE="data/processed/ecommerce_dataset_10000_cleaned.parquet"
+          HASH_FILE="data/processed/.dashboard_hash.txt"
+
+          if [ ! -f "$FILE" ]; then
+            echo "❌ Dataset file not found: $FILE"
+            exit 1
+          fi
+
+          NEW_HASH=$(sha256sum $FILE | cut -d " " -f1)
+          echo "🔍 NEW_HASH=$NEW_HASH"
+
+          if [ -f "$HASH_FILE" ]; then
+            OLD_HASH=$(cat $HASH_FILE)
+          else
+            OLD_HASH=""
+          fi
+
+          echo "ℹ️ OLD_HASH=$OLD_HASH"
+
+          if [[ "$NEW_HASH" != "$OLD_HASH" ]]; then
+            echo "✅ Dataset change detected, dashboard will be updated."
+            echo "changed=true" >> $GITHUB_OUTPUT
+          else
+            echo "ℹ️ No dataset changes. Skipping dashboard update."
+            echo "changed=false" >> $GITHUB_OUTPUT
+          fi
+
+      # ✅ Run feature engineering
+      - name: Run feature engineering
+        if: steps.dashboard-hash.outputs.changed == 'true'
+        run: |
+          echo "🚀 Running feature engineering..."
+          python src/features/create_features.py
+
+      # ✅ Run optional customer segmentation model if script exists
+      - name: Run customer segmentation (optional)
+        if: steps.dashboard-hash.outputs.changed == 'true' && hashFiles('src/models/customer_segmentation.py') != ''
+        run: |
+          echo "🧠 Running optional customer segmentation model..."
+          python src/models/customer_segmentation.py || echo "⚠️ Skipped - models script optional"
+
+      # ✅ Generate dashboard visuals
+      - name: Generate dashboard visuals
+        if: steps.dashboard-hash.outputs.changed == 'true'
+        run: |
+          echo "📊 Generating dashboard PNG exports..."
+          python src/visualization/generate_dashboard.py
+
+      # ✅ Save new hash
+      - name: Save new dashboard hash
+        if: steps.dashboard-hash.outputs.changed == 'true'
+        run: |
+          FILE="data/processed/ecommerce_dataset_10000_cleaned.parquet"
+          NEW_HASH=$(sha256sum $FILE | cut -d " " -f1)
+          echo "$NEW_HASH" > data/processed/.dashboard_hash.txt
+          echo "✅ Hash updated"
+
+      # ✅ Upload visual assets (PNG charts) for preview/download
+      - name: Upload dashboard artifacts
+        if: steps.dashboard-hash.outputs.changed == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: dashboard-figures
+          path: reports/figures/*.png
