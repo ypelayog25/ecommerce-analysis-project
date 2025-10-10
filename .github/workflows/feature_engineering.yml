@@ -1,4 +1,4 @@
-name: 🔧 Feature Engineering & Dataset Preparation
+name: 🔧 Feature Engineering & Export
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
       - "data/raw/**"
       - "src/features/**"
       - "src/data/**"
-  workflow_dispatch:  # Permite ejecución manual
+  workflow_dispatch:
 
 jobs:
   feature-engineering:
