@@ -1,6 +1,6 @@
 pandas
-plotly
-streamlit
-scikit-learn
 pyarrow
-duckdb
+numpy
+plotly
+kaleido
+scikit-learn
