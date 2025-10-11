@@ -1,7 +1,11 @@
 # scripts/app.py
 """
-Power-BI style KPIs + Theme toggle + Adaptive Plotly (Light/Dark)
-KPI cards animated and responsive for mobile.
+Executive E-commerce Dashboard — Power BI inspired (refined)
+- Light/Dark theme toggle
+- Animated KPI cards with tooltips
+- Adaptive Plotly charts
+- Loading splash + elegant footer with personal branding
+- Clean separators (no stray <div>)
 """
 
 from __future__ import annotations
@@ -16,32 +20,36 @@ import plotly.express as px
 import streamlit as st
 
 # -----------------------
-# Page config
+# Page config & fast splash
 # -----------------------
 st.set_page_config(
-    page_title="Executive E-commerce Dashboard (KPIs)",
+    page_title="Executive E-commerce Dashboard",
     layout="wide",
     initial_sidebar_state="expanded",
     page_icon="📊",
 )
+
+# Small splash while caching loads
+with st.spinner("Loading dashboard assets and dataset…"):
+    time.sleep(0.2)  # tiny pause to show spinner briefly (feel free to remove)
 
 # -----------------------
 # Theme palettes (light + dark)
 # -----------------------
 PALETTES = {
     "light": {
-        "bg": "#F4F6F8",
+        "app_bg": "#F4F6F8",
         "panel": "#FFFFFF",
         "text": "#2B2B2B",
         "subtext": "#5B6366",
-        "accent": "#0F62FE",   # auto-picked, clean blue
+        "accent": "#0F62FE",   # clean blue
         "accent_dark": "#0057B8",
         "warn": "#FFB900",
         "neg": "#D13438",
         "border": "rgba(16,24,32,0.06)"
     },
     "dark": {
-        "bg": "#0F1720",
+        "app_bg": "#0F1720",
         "panel": "#0B1116",
         "text": "#E6EEF3",
         "subtext": "#9AA6B2",
@@ -54,7 +62,7 @@ PALETTES = {
 }
 
 # -----------------------
-# Inject CSS for cards & responsiveness
+# Inject CSS for cards & responsiveness (clean)
 # -----------------------
 def inject_css():
     st.markdown(
@@ -63,20 +71,21 @@ def inject_css():
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
         html, body, [data-testid="stAppViewContainer"] { font-family: 'Inter', sans-serif; }
         .kpi-card {
-            border-radius: 12px;
-            padding: 14px;
-            box-shadow: 0 6px 18px rgba(11,18,24,0.08);
+            border-radius: 10px;
+            padding: 12px;
             transition: transform .18s ease, box-shadow .18s ease;
         }
-        .kpi-card:hover { transform: translateY(-6px); box-shadow: 0 12px 30px rgba(11,18,24,0.12); }
-        .kpi-title { font-size:12px; font-weight:600; letter-spacing:0.6px; margin-bottom:6px; }
-        .kpi-value { font-size:26px; font-weight:800; margin:0; }
-        .kpi-delta { font-size:13px; font-weight:700; margin-top:6px; }
-        /* mobile spacing tweaks */
+        .kpi-card:hover { transform: translateY(-6px); }
+        .kpi-title { font-size:12px; font-weight:600; letter-spacing:0.6px; margin-bottom:6px; color:inherit }
+        .kpi-value { font-size:26px; font-weight:800; margin:0; color:inherit }
+        .kpi-delta { font-size:13px; font-weight:700; margin-top:6px; color:inherit }
+        .tiny-note { font-size:12px; color:inherit; }
         @media (max-width: 640px) {
             .kpi-title { font-size:11px; }
             .kpi-value { font-size:20px; }
         }
+        /* subtle divider style we will reuse */
+        .thin-divider { height:1px; background: rgba(0,0,0,0.06); margin:12px 0; border-radius:1px; }
         </style>
         """,
         unsafe_allow_html=True,
@@ -130,7 +139,7 @@ if df is None or df.empty:
 # -----------------------
 with st.sidebar:
     st.markdown("## Controls")
-    dark_mode = st.checkbox("🌙 Dark mode", value=True)
+    dark_mode = st.checkbox("🌙 Dark mode", value=False)
     theme = "dark" if dark_mode else "light"
     pal = PALETTES[theme]
 
@@ -150,12 +159,13 @@ with st.sidebar:
     # Top N
     top_n = st.slider("Top N", min_value=5, max_value=50, value=10, step=5)
 
-# Set background colors via small HTML (Streamlit still caps ability to style deeply)
+# Apply some background styling depending on theme (best-effort)
 st.markdown(
     f"""
     <style>
-    .reportview-container .main {{ background: {pal['bg']}; }}
-    .stApp {{ background: {pal['bg']}; color: {pal['text']}; }}
+    .reportview-container .main {{ background: {pal['app_bg']}; }}
+    .stApp {{ background: {pal['app_bg']}; color: {pal['text']}; }}
+    .kpi-card {{ color: {pal['text']}; background: {pal['panel']}; border:1px solid {pal['border']}; }}
     </style>
     """,
     unsafe_allow_html=True,
@@ -223,38 +233,48 @@ def compute_metrics(curr: pd.DataFrame, all_df: pd.DataFrame) -> Dict[str, float
 metrics = compute_metrics(df_filtered, df)
 
 # -----------------------
-# Animated KPI helper
+# Animated KPI helper (keeps final value stable across reruns using session_state)
 # -----------------------
-def animate_number(value: float, fmt: str = "{:,.0f}", seconds: float = 0.9):
-    """Animate a number from 0 to value in `seconds` using st.empty()."""
+def animate_number(value: float, fmt: str = "{:,.0f}", seconds: float = 0.9, key: str = ""):
     placeholder = st.empty()
-    steps = int(max(10, min(60, seconds * 30)))  # between 10 and 60 frames
+    # If already animated in this session for this key, show static final value
+    animated_key = f"_animated_{key}"
+    if key and st.session_state.get(animated_key, False):
+        try:
+            placeholder.markdown(f"<div class='kpi-value' style='color:{pal['accent']};'>{fmt.format(value)}</div>", unsafe_allow_html=True)
+        except Exception:
+            placeholder.markdown(f"<div class='kpi-value' style='color:{pal['accent']};'>{int(value):,}</div>", unsafe_allow_html=True)
+        return
+    # animate once
+    steps = int(max(8, min(48, seconds * 30)))
     start = 0.0
     for i in range(1, steps + 1):
         frac = i / steps
-        current = start + (value - start) * (frac ** 0.8)  # easing
+        current = start + (value - start) * (frac ** 0.85)
         try:
-            placeholder.markdown(f"<div style='font-size:26px; font-weight:800; color:{pal['accent']};'>{fmt.format(current)}</div>", unsafe_allow_html=True)
+            placeholder.markdown(f"<div class='kpi-value' style='color:{pal['accent']};'>{fmt.format(current)}</div>", unsafe_allow_html=True)
         except Exception:
-            placeholder.markdown(f"<div style='font-size:26px; font-weight:800; color:{pal['accent']};'>{int(current):,}</div>", unsafe_allow_html=True)
+            placeholder.markdown(f"<div class='kpi-value' style='color:{pal['accent']};'>{int(current):,}</div>", unsafe_allow_html=True)
         time.sleep(seconds / steps)
     # final
-    placeholder.markdown(f"<div style='font-size:26px; font-weight:800; color:{pal['accent']};'>{fmt.format(value)}</div>", unsafe_allow_html=True)
+    placeholder.markdown(f"<div class='kpi-value' style='color:{pal['accent']};'>{fmt.format(value)}</div>", unsafe_allow_html=True)
+    if key:
+        st.session_state[animated_key] = True
 
 # -----------------------
 # KPI Cards (Power BI-style) - responsive
 # -----------------------
-st.markdown("<div style='padding:6px 0'></div>")
+st.markdown("")  # small spacer
 st.markdown("### Key Performance Indicators")
+
 cols = st.columns([2,1,1,1,1], gap="large")
 
-# Card 1: Total Revenue (big)
+# Card 1: Total Revenue (big) with tooltip (abbr)
 with cols[0]:
     card_style = f"background:{pal['panel']}; border:1px solid {pal['border']};"
-    st.markdown(f"<div class='kpi-card' style='{card_style}'>", unsafe_allow_html=True)
-    st.markdown(f"<div class='kpi-title' style='color:{pal['subtext']};'>TOTAL REVENUE</div>", unsafe_allow_html=True)
-    # animated value
-    animate_number(metrics["total_revenue"], fmt="${:,.0f}", seconds=0.9)
+    st.markdown(f"<div class='kpi-card' style='{card_style}' title='Total revenue within the selected filters (currency).'>", unsafe_allow_html=True)
+    st.markdown(f"<div class='kpi-title'>{'<abbr title=\"Total revenue in selected period\">💰 TOTAL REVENUE</abbr>'}</div>", unsafe_allow_html=True)
+    animate_number(metrics["total_revenue"], fmt="${:,.0f}", seconds=0.9, key="rev")
     # delta
     delta = metrics["revenue_delta_pct"]
     delta_color = pal["accent"] if delta >= 0 else pal["neg"]
@@ -264,9 +284,9 @@ with cols[0]:
 # Card 2: Total Orders
 with cols[1]:
     card_style = f"background:{pal['panel']}; border:1px solid {pal['border']};"
-    st.markdown(f"<div class='kpi-card' style='{card_style}'>", unsafe_allow_html=True)
-    st.markdown(f"<div class='kpi-title' style='color:{pal['subtext']};'>TOTAL ORDERS</div>", unsafe_allow_html=True)
-    animate_number(metrics["total_orders"], fmt="{:,.0f}", seconds=0.7)
+    st.markdown(f"<div class='kpi-card' style='{card_style}' title='Unique orders (if order_id exists) or rows in filtered selection.'>", unsafe_allow_html=True)
+    st.markdown(f"<div class='kpi-title'>{'<abbr title=\"Count of unique orders\">🛒 TOTAL ORDERS</abbr>'}</div>", unsafe_allow_html=True)
+    animate_number(metrics["total_orders"], fmt="{:,.0f}", seconds=0.7, key="orders")
     delta_o = metrics["orders_delta_pct"]
     dc = pal["accent"] if delta_o >= 0 else pal["neg"]
     st.markdown(f"<div class='kpi-delta' style='color:{dc};'>{delta_o:+.1f}% vs prev</div>", unsafe_allow_html=True)
@@ -275,31 +295,32 @@ with cols[1]:
 # Card 3: Avg Order Value
 with cols[2]:
     card_style = f"background:{pal['panel']}; border:1px solid {pal['border']};"
-    st.markdown(f"<div class='kpi-card' style='{card_style}'>", unsafe_allow_html=True)
-    st.markdown(f"<div class='kpi-title' style='color:{pal['subtext']};'>AVG ORDER VALUE</div>", unsafe_allow_html=True)
-    animate_number(metrics["avg_order_value"], fmt="${:,.2f}", seconds=0.7)
+    st.markdown(f"<div class='kpi-card' style='{card_style}' title='Average order value = Total revenue / Orders.'>", unsafe_allow_html=True)
+    st.markdown(f"<div class='kpi-title'>{'<abbr title=\"Average order value (AOV)\">📊 AVG ORDER VALUE</abbr>'}</div>", unsafe_allow_html=True)
+    animate_number(metrics["avg_order_value"], fmt="${:,.2f}", seconds=0.7, key="aov")
     st.markdown("</div>", unsafe_allow_html=True)
 
 # Card 4: Unique Customers
 with cols[3]:
     card_style = f"background:{pal['panel']}; border:1px solid {pal['border']};"
-    st.markdown(f"<div class='kpi-card' style='{card_style}'>", unsafe_allow_html=True)
-    st.markdown(f"<div class='kpi-title' style='color:{pal['subtext']};'>UNIQUE CUSTOMERS</div>", unsafe_allow_html=True)
-    animate_number(metrics["unique_customers"], fmt="{:,.0f}", seconds=0.7)
+    st.markdown(f"<div class='kpi-card' style='{card_style}' title='Unique customers in the filtered set.'>", unsafe_allow_html=True)
+    st.markdown(f"<div class='kpi-title'>{'<abbr title=\"Number of unique customers\">👥 UNIQUE CUSTOMERS</abbr>'}</div>", unsafe_allow_html=True)
+    animate_number(metrics["unique_customers"], fmt="{:,.0f}", seconds=0.7, key="customers")
     st.markdown("</div>", unsafe_allow_html=True)
 
 # Card 5: Countries Active
 with cols[4]:
     card_style = f"background:{pal['panel']}; border:1px solid {pal['border']};"
-    st.markdown(f"<div class='kpi-card' style='{card_style}'>", unsafe_allow_html=True)
-    st.markdown(f"<div class='kpi-title' style='color:{pal['subtext']};'>COUNTRIES ACTIVE</div>", unsafe_allow_html=True)
-    animate_number(metrics["countries_active"], fmt="{:,.0f}", seconds=0.7)
+    st.markdown(f"<div class='kpi-card' style='{card_style}' title='Number of distinct countries with sales.'>", unsafe_allow_html=True)
+    st.markdown(f"<div class='kpi-title'>{'<abbr title=\"Active countries in filters\">🌍 COUNTRIES ACTIVE</abbr>'}</div>", unsafe_allow_html=True)
+    animate_number(metrics["countries_active"], fmt="{:,.0f}", seconds=0.7, key="countries")
     st.markdown("</div>", unsafe_allow_html=True)
 
-st.markdown("<div style='height:8px'></div>")
+# Elegant thin divider (instead of raw div spacer)
+st.markdown("<div class='thin-divider' style='opacity:0.6'></div>", unsafe_allow_html=True)
 
 # -----------------------
-# Small example chart to show adaptive Plotly colors
+# Small example chart to show adaptive Plotly colors (vertical bars + values on top)
 # -----------------------
 def plot_monthly_revenue_adaptive(df_in: pd.DataFrame, palette: dict):
     monthly = df_in.groupby(df_in["order_date"].dt.to_period("M"))["total_price"].sum().reset_index()
@@ -316,18 +337,26 @@ def plot_monthly_revenue_adaptive(df_in: pd.DataFrame, palette: dict):
     fig.update_layout(
         plot_bgcolor="rgba(0,0,0,0)",
         paper_bgcolor="rgba(0,0,0,0)",
-        title=dict(text="Monthly Revenue", x=0.5, xanchor="center", font=dict(color=palette["text"])),
+        title=dict(text="Monthly Revenue", x=0.5, xanchor="center", font=dict(color=palette["text"], size=16)),
         font=dict(color=palette["text"]),
-        yaxis=dict(gridcolor="rgba(0,0,0,0.05)"),
-        xaxis=dict(tickangle=-45)
+        yaxis=dict(gridcolor="rgba(0,0,0,0.04)", tickformat=","),
+        xaxis=dict(tickangle=-45, tickfont=dict(size=11))
     )
-    fig.update_yaxes(tickformat=",")
+    # make bars readable on small screens (reduce margins)
+    fig.update_layout(margin=dict(l=40, r=20, t=60, b=80))
     return fig
 
 st.plotly_chart(plot_monthly_revenue_adaptive(df_filtered, pal), use_container_width=True)
 
 # -----------------------
-# Done (footer)
+# Footer (elegant, right aligned, personal branding)
 # -----------------------
-st.markdown("<hr style='opacity:0.08'/>", unsafe_allow_html=True)
-st.caption("Responsive, animated KPIs • Light/Dark adaptive charts • Designed for clarity & legibility")
+st.markdown("<div style='height:8px'></div>", unsafe_allow_html=True)  # slight space before footer
+footer_html = f"""
+<div style='width:100%; display:flex; justify-content:flex-end;'>
+  <div style='text-align:right; color:{pal['subtext']}; font-size:12px;'>
+    Executive Dashboard • Powered by <b>Python</b> & <b>Streamlit</b> • Designed by <b>Yenismara Pelayo</b>
+  </div>
+</div>
+"""
+st.markdown(footer_html, unsafe_allow_html=True)
