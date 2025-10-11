@@ -1,6 +1,354 @@
-"""
+# -----------------------
+# Export Section (Mobile Responsive)
+# -----------------------
+st.markdown("<hr style='margin: 35px 0; border: 1px solid rgba(79, 195, 247, 0.3);'>", unsafe_allow_html=True)
+
+st.markdown("""
+    <div style='text-align: center; margin-bottom: 20px;'>
+        <h2 style='color: #4fc3f7; font-size: 28px;'>📥 EXPORT CENTER</h2>
+        <p style='color: #b0bec5; font-size: 13px;'>Download reports and datasets</p>
+    </div>
+""", unsafe_allow_html=True)
+
+col1, col2, col3, col4 = st.columns(4)
+
+with col1:
+    st.download_button(
+        "📊 DATASET",
+        df_filtered.to_csv(index=False).encode('utf-8'),
+        file_name=f"data_{datetime.now().strftime('%Y%m%d_%H%M')}.csv",
+        mime="text/csv",
+        use_container_width=True
+    )
+
+with col2:
+    st.download_button(
+        "🏆 CUSTOMERS",
+        top_customers.to_csv(index=False).encode('utf-8'),
+        file_name=f"customers_{datetime.now().strftime('%Y%m%d_%H%M')}.csv",
+        mime="text/csv",
+        use_container_width=True
+    )
+
+with col3:
+    st.download_button(
+        "📦 PRODUCTS",
+        top_products_rev.to_csv(index=False).encode('utf-8'),
+        file_name=f"products_{datetime.now().strftime('%Y%m%d_%H%M')}.csv",
+        mime="text/csv",
+        use_container_width=True
+    )
+
+with col4:
+    st.download_button(
+        "🌍 COUNTRIES",
+        display_df.to_csv(index=False).encode('utf-8'),
+        file_name=f"countries_{datetime.now().strftime('%Y%m%d_%H%M')}.csv",
+        mime="text/csv",
+        use_container_width=True
+    )
+
+# -----------------------
+# ADVANCED FEATURES SECTION
+# -----------------------
+st.markdown("<hr style='margin: 40px 0; border: 1px solid rgba(79, 195, 247, 0.3);'>", unsafe_allow_html=True)
+
+st.markdown("""
+    <div style='text-align: center; margin-bottom: 25px;'>
+        <h2 style='color: #4fc3f7; font-size: 32px;'>🚀 ADVANCED FEATURES</h2>
+        <p style='color: #b0bec5; font-size: 14px;'>AI-Powered Insights & Smart Analytics</p>
+    </div>
+""", unsafe_allow_html=True)
+
+# Create tabs for advanced features
+adv_tab1, adv_tab2, adv_tab3, adv_tab4 = st.tabs([
+    "🔔 SMART ALERTS",
+    "📈 ML PREDICTIONS", 
+    "📊 YoY COMPARISON",
+    "📄 PDF REPORT"
+])
+
+# === SMART ALERTS TAB ===
+with adv_tab1:
+    st.markdown("<h3 style='color: #4fc3f7;'>🔔 INTELLIGENT ALERTS</h3>", unsafe_allow_html=True)
+    
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        st.markdown("#### 📉 Performance Alerts")
+        
+        # Revenue drop alert
+        if metrics['revenue_delta'] < -10:
+            st.error(f"🚨 **CRITICAL:** Revenue dropped {abs(metrics['revenue_delta']):.1f}% vs previous period!")
+        elif metrics['revenue_delta'] < 0:
+            st.warning(f"⚠️ **WARNING:** Revenue declined {abs(metrics['revenue_delta']):.1f}%")
+        else:
+            st.success(f"✅ **HEALTHY:** Revenue grew {metrics['revenue_delta']:.1f}%")
+        
+        # Customer retention alert
+        if metrics['customers_delta'] < -5:
+            st.error(f"🚨 **ATTENTION:** Lost {abs(metrics['customers_delta']):.1f}% of customers!")
+        elif metrics['customers_delta'] < 0:
+            st.warning(f"⚠️ Customer count decreased by {abs(metrics['customers_delta']):.1f}%")
+        else:
+            st.success(f"✅ Customer base grew {metrics['customers_delta']:.1f}%")
+    
+    with col2:
+        st.markdown("#### 📊 Threshold Monitoring")
+        
+        # Average order value check
+        aov_threshold = 100
+        if metrics['avg_order_value'] < aov_threshold:
+            st.warning(f"⚠️ Avg Order Value (${metrics['avg_order_value']:.2f}) below target (${aov_threshold})")
+        else:
+            st.success(f"✅ Avg Order Value (${metrics['avg_order_value']:.2f}) exceeds target")
+        
+        # Top customer concentration
+        top_5_revenue_pct = (top_customers['total_revenue'].head(5).sum() / metrics['total_revenue']) * 100
+        if top_5_revenue_pct > 50:
+            st.warning(f"⚠️ Top 5 customers represent {top_5_revenue_pct:.1f}% of revenue - High concentration risk!")
+        else:
+            st.info(f"ℹ️ Top 5 customers: {top_5_revenue_pct:.1f}% of revenue")
+    
+    st.markdown("#### 🎯 Key Recommendations")
+    recommendations = []
+    
+    if metrics['revenue_delta'] < 0:
+        recommendations.append("💡 Focus on customer retention campaigns")
+    if metrics['avg_order_value'] < aov_threshold:
+        recommendations.append("💡 Implement upselling strategies to increase AOV")
+    if top_5_revenue_pct > 50:
+        recommendations.append("💡 Diversify customer base to reduce concentration risk")
+    if metrics['customers_delta'] > 10:
+        recommendations.append("💡 Capitalize on growth momentum with loyalty programs")
+    
+    if recommendations:
+        for rec in recommendations:
+            st.markdown(f"""
+                <div style='background: rgba(79, 195, 247, 0.1); padding: 12px; border-radius: 8px; margin: 8px 0; border-left: 3px solid #4fc3f7;'>
+                    <p style='margin: 0; color: #c5cae9;'>{rec}</p>
+                </div>
+            """, unsafe_allow_html=True)
+    else:
+        st.success("✅ All metrics are performing well! Keep up the great work.")
+
+# === ML PREDICTIONS TAB ===
+with adv_tab2:
+    st.markdown("<h3 style='color: #4fc3f7;'>📈 REVENUE FORECASTING</h3>", unsafe_allow_html=True)
+    
+    # Simple linear regression for forecasting
+    monthly_rev_data = df_filtered.groupby(df_filtered['order_date'].dt.to_period('M'))['total_price'].sum().reset_index()
+    monthly_rev_data['order_date'] = monthly_rev_data['order_date'].dt.to_timestamp()
+    monthly_rev_data['month_num'] = range(len(monthly_rev_data))
+    
+    if len(monthly_rev_data) >= 3:
+        # Fit polynomial (degree 2) for better forecasting
+        z = np.polyfit(monthly_rev_data['month_num'], monthly_rev_data['total_price'], 2)
+        p = np.poly1d(z)
+        
+        # Forecast next 3 months
+        future_months = 3
+        last_month_num = monthly_rev_data['month_num'].max()
+        future_month_nums = range(last_month_num + 1, last_month_num + future_months + 1)
+        future_predictions = [p(x) for x in future_month_nums]
+        
+        # Create future dates
+        last_date = monthly_rev_data['order_date'].max()
+        future_dates = [last_date + timedelta(days=30 * (i+1)) for i in range(future_months)]
+        
+        # Combine historical and predictions
+        forecast_df = pd.DataFrame({
+            'date': list(monthly_rev_data['order_date']) + future_dates,
+            'revenue': list(monthly_rev_data['total_price']) + future_predictions,
+            'type': ['Historical'] * len(monthly_rev_data) + ['Forecast'] * future_months
+        })
+        
+        col1, col2 = st.columns([2, 1])
+        
+        with col1:
+            fig_forecast = go.Figure()
+            
+            # Historical data
+            historical = forecast_df[forecast_df['type'] == 'Historical']
+            fig_forecast.add_trace(go.Scatter(
+                x=historical['date'],
+                y=historical['revenue'],
+                mode='lines+markers',
+                name='Historical',
+                line=dict(color='#4fc3f7', width=3),
+                marker=dict(size=8)
+            ))
+            
+            # Forecast data
+            forecast = forecast_df[forecast_df['type'] == 'Forecast']
+            fig_forecast.add_trace(go.Scatter(
+                x=forecast['date'],
+                y=forecast['revenue'],
+                mode='lines+markers',
+                name='Forecast',
+                line=dict(color='#ec407a', width=3, dash='dash'),
+                marker=dict(size=10, symbol='diamond')
+            ))
+            
+            # Add confidence interval (simplified)
+            std_dev = monthly_rev_data['total_price'].std()
+            fig_forecast.add_trace(go.Scatter(
+                x=forecast['date'].tolist() + forecast['date'].tolist()[::-1],
+                y=(forecast['revenue'] + std_dev).tolist() + (forecast['revenue'] - std_dev).tolist()[::-1],
+                fill='toself',
+                fillcolor='rgba(236, 64, 122, 0.2)',
+                line=dict(color='rgba(255,255,255,0)'),
+                name='Confidence Interval',
+                showlegend=True
+            ))
+            
+            st.plotly_chart(style_fig(fig_forecast, "Revenue Forecast - Next 3 Months"), use_container_width=True)
+        
+        with col2:
+            st.markdown("#### 🎯 Forecast Summary")
+            for i, (date, pred) in enumerate(zip(future_dates, future_predictions), 1):
+                st.metric(
+                    f"Month +{i}",
+                    f"${pred:,.0f}",
+                    delta=f"{((pred - monthly_rev_data['total_price'].iloc[-1]) / monthly_rev_data['total_price'].iloc[-1] * 100):.1f}%"
+                )
+            
+            st.markdown("#### 📊 Model Info")
+            st.info(f"""
+                **Method:** Polynomial Regression (Degree 2)
+                
+                **Training Data:** {len(monthly_rev_data)} months
+                
+                **Confidence:** ±${std_dev:,.0f}
+            """)
+    else:
+        st.warning("⚠️ Need at least 3 months of data for forecasting")
+
+# === YoY COMPARISON TAB ===
+with adv_tab3:
+    st.markdown("<h3 style='color: #4fc3f7;'>📊 YEAR-OVER-YEAR ANALYSIS</h3>", unsafe_allow_html=True)
+    
+    # Get years available
+    years_available = sorted(df['order_date'].dt.year.unique())
+    
+    if len(years_available) >= 2:
+        col1, col2 = st.columns(2)
+        with col1:
+            year1 = st.selectbox("Compare Year", years_available[:-1] if len(years_available) > 1 else years_available, index=0)
+        with col2:
+            year2 = st.selectbox("With Year", [y for y in years_available if y > year1], index=0)
+        
+        # Filter data for each year
+        df_year1 = df[df['order_date'].dt.year == year1]
+        df_year2 = df[df['order_date'].dt.year == year2]
+        
+        # Monthly comparison
+        monthly_y1 = df_year1.groupby(df_year1['order_date'].dt.month)['total_price'].sum().reset_index()
+        monthly_y2 = df_year2.groupby(df_year2['order_date'].dt.month)['total_price'].sum().reset_index()
+        monthly_y1.columns = ['month', 'revenue']
+        monthly_y2.columns = ['month', 'revenue']
+        
+        month_names = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+        monthly_y1['month_name'] = monthly_y1['month'].apply(lambda x: month_names[x-1])
+        monthly_y2['month_name'] = monthly_y2['month'].apply(lambda x: month_names[x-1])
+        
+        fig_yoy = go.Figure()
+        
+        fig_yoy.add_trace(go.Bar(
+            x=monthly_y1['month_name'],
+            y=monthly_y1['revenue'],
+            name=str(year1),
+            marker=dict(color='#4fc3f7'),
+            text=[f"${val:,.0f}" for val in monthly_y1['revenue']],
+            textposition='outside'
+        ))
+        
+        fig_yoy.add_trace(go.Bar(
+            x=monthly_y2['month_name'],
+            y=monthly_y2['revenue'],
+            name=str(year2),
+            marker=dict(color='#7e57c2'),
+            text=[f"${val:,.0f}" for val in monthly_y2['revenue']],
+            textposition='outside'
+        ))
+        
+        st.plotly_chart(style_fig(fig_yoy, f"Monthly Revenue: {year1} vs {year2}"), use_container_width=True)
+        
+        # YoY Metrics
+        st.markdown("#### 📈 Year-over-Year Metrics")
+        col1, col2, col3, col4 = st.columns(4)
+        
+        y1_revenue = df_year1['total_price'].sum()
+        y2_revenue = df_year2['total_price'].sum()
+        yoy_revenue_growth = ((y2_revenue - y1_revenue) / y1_revenue * 100) if y1_revenue > 0 else 0
+        
+        y1_orders = df_year1['order_id'].nunique()
+        y2_orders = df_year2['order_id'].nunique()
+        yoy_orders_growth = ((y2_orders - y1_orders) / y1_orders * 100) if y1_orders > 0 else 0
+        
+        y1_customers = df_year1['customer_id'].nunique()
+        y2_customers = df_year2['customer_id'].nunique()
+        yoy_customers_growth = ((y2_customers - y1_customers) / y1_customers * 100) if y1_customers > 0 else 0
+        
+        y1_aov = y1_revenue / y1_orders if y1_orders > 0 else 0
+        y2_aov = y2_revenue / y2_orders if y2_orders > 0 else 0
+        yoy_aov_growth = ((y2_aov - y1_aov) / y1_aov * 100) if y1_aov > 0 else 0
+        
+        with col1:
+            st.metric(f"Revenue {year2}", f"${y2_revenue:,.0f}", f"{yoy_revenue_growth:+.1f}%")
+        with col2:
+            st.metric(f"Orders {year2}", f"{y2_orders:,}", f"{yoy_orders_growth:+.1f}%")
+        with col3:
+            st.metric(f"Customers {year2}", f"{y2_customers:,}", f"{yoy_customers_growth:+.1f}%")
+        with col4:
+            st.metric(f"AOV {year2}", f"${y2_aov:.2f}", f"{yoy_aov_growth:+.1f}%")
+        
+    else:
+        st.info("ℹ️ Year-over-year comparison requires data from at least 2 different years")
+
+# === PDF REPORT TAB ===
+with adv_tab4:
+    st.markdown("<h3 style='color: #4fc3f7;'>📄 EXECUTIVE PDF REPORT</h3>", unsafe_allow_html=True)
+    
+    st.markdown("""
+        <div style='background: rgba(79, 195, 247, 0.1); padding: 20px; border-radius: 12px; border: 1px solid rgba(79, 195, 247, 0.3);'>
+            <h4 style='color: #4fc3f7; margin-top: 0;'>📋 Report Contents</h4>
+            <ul style='color: #c5cae9;'>
+                <li>✅ Executive Summary with Key Metrics</li>
+                <li>✅ Performance Trends & Growth Analysis</li>
+                <li>✅ Top Customers & Products Tables</li>
+                <li>✅ Geographic Distribution</li>
+                <li>✅ Customer Segmentation (RFM)</li>
+                <li>✅ Smart Alerts & Recommendations</li>
+            </ul>
+        </div>
+    """, unsafe_allow_html=True)
+    
+    col1, col2, col3 = st.columns([1, 1, 1])
+    
+    with col2:
+        if st.button("🔄 GENERATE PDF REPORT", use_container_width=True, type="primary"):
+            with st.spinner("Generating comprehensive PDF report..."):
+                # Create HTML report
+                html_content = f"""
+                <html>
+                <head>
+                    <style>
+                        body {{ font-family: 'Arial', sans-serif; margin: 40px; background: #f5f5f5; }}
+                        .header {{ background: linear-gradient(135deg, #5e35b1 0%, #512da8 100%); color: white; padding: 30px; border-radius: 10px; text-align: center; }}
+                        .metric-card {{ background: white; padding: 20px; margin: 15px 0; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }}
+                        .metric-value {{ font-size: 32px; color: #4fc3f7; font-weight: bold; }}
+                        .metric-label {{ font-size: 14px; color: #666; text-transform: uppercase; }}
+                        table {{ width: 100%; border-collapse: collapse; margin: 20px 0; background: white; }}
+                        th {{ background: #5e35b1; color: white; padding: 12px; text-align: left; }}
+                        td {{ padding: 10px; border-bottom: 1px solid #ddd; }}
+                        h2 {{ color: #5e35b1; border-bottom: 2px solid #4fc3f7; padding-bottom: 10px; }}
+                    </style>
+                </head>
+                """
 Professional Executive E-commerce Dashboard (Streamlit)
-Premium responsive design with professional color scheme
+Premium responsive design with advanced features:
+- PDF Export, Smart Alerts, ML Predictions, Interactive Maps, YoY Comparison
 """
 
 import os
@@ -10,6 +358,8 @@ import streamlit as st
 import plotly.express as px
 import plotly.graph_objects as go
 from datetime import datetime, timedelta
+import io
+from PIL import Image
 
 # -----------------------
 # Page config
@@ -53,13 +403,29 @@ st.markdown("""
     
     /* Sidebar Expander Fix - Dark background when expanded */
     [data-testid="stSidebar"] div[data-testid="stExpander"] {
-        background-color: rgba(15, 12, 41, 0.8) !important;
-        border: 1px solid rgba(0, 255, 135, 0.2);
+        background-color: #2d2d44 !important;
+        border: 1px solid rgba(79, 195, 247, 0.3);
     }
     
-    /* Sidebar Expander Content Area */
-    [data-testid="stSidebar"] div[data-testid="stExpander"] > div {
-        background-color: rgba(15, 12, 41, 0.6) !important;
+    /* Sidebar Expander Content Area - Gray background */
+    [data-testid="stSidebar"] div[data-testid="stExpander"] > div > div {
+        background-color: #3a3a52 !important;
+        padding: 15px;
+        border-radius: 8px;
+    }
+    
+    /* Sidebar Expander Summary */
+    [data-testid="stSidebar"] details[data-testid="stExpander"] summary {
+        background-color: #2d2d44 !important;
+        padding: 12px 15px !important;
+        border-radius: 8px;
+    }
+    
+    /* Sidebar Expander when open */
+    [data-testid="stSidebar"] details[open] > summary {
+        background-color: #3a3a52 !important;
+        border-bottom: 1px solid rgba(79, 195, 247, 0.2);
+        margin-bottom: 10px;
     }
     
     /* Date Input in Sidebar - Dark background, light text */
@@ -403,14 +769,14 @@ if df is None or df.empty:
     st.stop()
 
 # -----------------------
-# Professional Header
+# Professional Header with Better Visibility
 # -----------------------
 st.markdown("""
-    <div style='text-align:center; padding: 30px 0 20px 0;'>
-        <h1 class='glowing-title' style='font-size: 42px; margin-bottom: 8px; color: #ffffff;'>
+    <div style='text-align:center; padding: 35px 0 25px 0; background: rgba(26, 26, 46, 0.4); border-radius: 20px; margin-bottom: 20px; border: 1px solid rgba(79, 195, 247, 0.2);'>
+        <h1 style='font-size: 46px; margin-bottom: 10px; color: #ffffff; font-weight: 800; text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.5);'>
             📊 EXECUTIVE E-COMMERCE DASHBOARD
         </h1>
-        <p style='font-size: 16px; color: #b0bec5; font-weight: 500; letter-spacing: 1.5px;'>
+        <p style='font-size: 17px; color: #c5cae9; font-weight: 500; letter-spacing: 2px; text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.3);'>
             Real-Time Business Intelligence & Advanced Analytics
         </p>
     </div>
@@ -470,7 +836,33 @@ with st.sidebar:
     
     with st.expander("⚙️ DISPLAY SETTINGS", expanded=False):
         top_n = st.slider("Top N Items", 5, 50, 10, 5)
-        chart_theme = st.selectbox("Chart Theme", ["plotly_dark", "plotly_white", "seaborn", "ggplot2"])
+        chart_theme = st.selectbox("Chart Theme", ["plotly_dark", "plotly_white", "seaborn", "ggplot2"], key="theme_selector")
+        
+        # Store theme in session state
+        if 'selected_theme' not in st.session_state:
+            st.session_state.selected_theme = chart_theme
+        else:
+            st.session_state.selected_theme = chart_theme
+    
+    st.markdown("<hr style='border-color: rgba(79, 195, 247, 0.2); margin: 25px 0;'>", unsafe_allow_html=True)
+    
+    # Save/Load Preferences Section
+    st.markdown("<p style='color: #c5cae9; font-weight: 600; margin-bottom: 10px;'>💾 PREFERENCES</p>", unsafe_allow_html=True)
+    
+    if st.button("💾 Save Current Filters", use_container_width=True):
+        # Save to session state
+        st.session_state.saved_filters = {
+            'start_date': start_date,
+            'end_date': end_date,
+            'countries': selected_countries,
+            'top_n': top_n
+        }
+        st.success("✅ Filters saved!")
+    
+    if 'saved_filters' in st.session_state:
+        if st.button("🔄 Load Saved Filters", use_container_width=True):
+            saved = st.session_state.saved_filters
+            st.info(f"📌 Saved: {saved['start_date']} to {saved['end_date']}")
     
     st.markdown("<hr style='border-color: rgba(79, 195, 247, 0.2); margin: 25px 0;'>", unsafe_allow_html=True)
     
@@ -582,6 +974,9 @@ st.markdown("<hr style='margin: 25px 0; border: 1px solid rgba(79, 195, 247, 0.2
 # -----------------------
 def style_fig(fig, title="", title_font=20, axis_font=12):
     """Apply professional dark theme styling to Plotly figures"""
+    # Use the theme from session state
+    theme_to_use = st.session_state.get('selected_theme', 'plotly_dark')
+    
     fig.update_layout(
         title=dict(
             text=title, 
@@ -591,9 +986,9 @@ def style_fig(fig, title="", title_font=20, axis_font=12):
         ),
         font=dict(size=axis_font, color="#b0bec5", family="Inter"),
         margin=dict(l=50, r=50, t=70, b=50),
-        template="plotly_dark",
+        template=theme_to_use,
         hovermode='x unified',
-        plot_bgcolor='rgba(26, 26, 46, 0.5)',
+        plot_bgcolor='rgba(26, 26, 46, 0.5)' if theme_to_use == 'plotly_dark' else 'rgba(255, 255, 255, 0.9)',
         paper_bgcolor='rgba(0, 0, 0, 0)',
         hoverlabel=dict(
             bgcolor="rgba(94, 53, 177, 0.9)",
@@ -602,21 +997,41 @@ def style_fig(fig, title="", title_font=20, axis_font=12):
             font_color="#ffffff"
         )
     )
-    fig.update_xaxes(
-        showgrid=True, 
-        gridwidth=0.4, 
-        gridcolor='rgba(255, 255, 255, 0.08)',
-        showline=True, 
-        linewidth=1, 
-        linecolor='rgba(255, 255, 255, 0.15)',
-        title_font=dict(color="#c5cae9")
-    )
-    fig.update_yaxes(
-        showgrid=True, 
-        gridwidth=0.4, 
-        gridcolor='rgba(255, 255, 255, 0.08)',
-        title_font=dict(color="#c5cae9")
-    )
+    
+    # Adjust colors based on theme
+    if theme_to_use in ['plotly_white', 'seaborn', 'ggplot2']:
+        fig.update_xaxes(
+            showgrid=True, 
+            gridwidth=0.4, 
+            gridcolor='rgba(0, 0, 0, 0.1)',
+            showline=True, 
+            linewidth=1, 
+            linecolor='rgba(0, 0, 0, 0.2)',
+            title_font=dict(color="#2c3e50")
+        )
+        fig.update_yaxes(
+            showgrid=True, 
+            gridwidth=0.4, 
+            gridcolor='rgba(0, 0, 0, 0.1)',
+            title_font=dict(color="#2c3e50")
+        )
+    else:
+        fig.update_xaxes(
+            showgrid=True, 
+            gridwidth=0.4, 
+            gridcolor='rgba(255, 255, 255, 0.08)',
+            showline=True, 
+            linewidth=1, 
+            linecolor='rgba(255, 255, 255, 0.15)',
+            title_font=dict(color="#c5cae9")
+        )
+        fig.update_yaxes(
+            showgrid=True, 
+            gridwidth=0.4, 
+            gridcolor='rgba(255, 255, 255, 0.08)',
+            title_font=dict(color="#c5cae9")
+        )
+    
     return fig
 
 # Professional Color Palettes
@@ -1180,16 +1595,26 @@ st.markdown("<hr style='margin: 35px 0; border: 1px solid rgba(79, 195, 247, 0.2
 st.markdown(f"""
     <div style='text-align: center; padding: 25px; background: rgba(255, 255, 255, 0.03); border-radius: 16px; border: 1px solid rgba(79, 195, 247, 0.2);'>
         <div style='font-size: 40px; margin-bottom: 12px;'>⚡</div>
-        <h3 style='color: #4fc3f7; margin: 8px 0; font-size: 22px;'>EXECUTIVE DASHBOARD v2.0</h3>
+        <h3 style='color: #4fc3f7; margin: 8px 0; font-size: 22px;'>EXECUTIVE DASHBOARD v3.0</h3>
         <p style='color: #b0bec5; font-size: 13px; margin: 8px 0;'>
-            Built with Streamlit & Plotly
+            Built with Streamlit, Plotly & Advanced ML
         </p>
+        <div style='display: flex; justify-content: center; gap: 15px; margin: 15px 0; flex-wrap: wrap;'>
+            <span style='background: rgba(79, 195, 247, 0.2); padding: 6px 12px; border-radius: 20px; font-size: 11px; color: #4fc3f7;'>🔔 Smart Alerts</span>
+            <span style='background: rgba(126, 87, 194, 0.2); padding: 6px 12px; border-radius: 20px; font-size: 11px; color: #7e57c2;'>📈 ML Forecasting</span>
+            <span style='background: rgba(236, 64, 122, 0.2); padding: 6px 12px; border-radius: 20px; font-size: 11px; color: #ec407a;'>📊 YoY Analysis</span>
+            <span style='background: rgba(38, 198, 218, 0.2); padding: 6px 12px; border-radius: 20px; font-size: 11px; color: #26c6da;'>📄 PDF Reports</span>
+            <span style='background: rgba(255, 190, 11, 0.2); padding: 6px 12px; border-radius: 20px; font-size: 11px; color: #ffbe0b;'>💾 Save Configs</span>
+        </div>
         <p style='color: #7e57c2; font-size: 11px; margin: 5px 0;'>
             📅 Updated: {datetime.now().strftime('%B %d, %Y - %H:%M')}
         </p>
         <div style='margin-top: 15px; padding-top: 15px; border-top: 1px solid rgba(255, 255, 255, 0.08);'>
             <p style='color: #b0bec5; font-size: 10px; margin: 0;'>
-                💼 Data Analytics Portfolio Project
+                💼 Data Analytics & Business Intelligence Portfolio
+            </p>
+            <p style='color: #7e57c2; font-size: 9px; margin: 5px 0 0 0;'>
+                🎯 Featuring: RFM Segmentation • Pareto Analysis • Predictive Analytics • Interactive Visualizations
             </p>
         </div>
     </div>
