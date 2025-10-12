@@ -1,27 +1,4 @@
-fig_forecast.add_trace(go.Scatter(
-                x=hist['date'], y=hist['revenue'],
-                mode='lines+markers', name='Historical',
-                line=dict(color='rgb(96, 165, 250)', width=3),
-                marker=dict(size=8, color='rgb(96, 165, 250)')
-            ))
-            
-            fore = forecast_df[forecast_df['type'] == 'Forecast']
-            fig_forecast.add_trace(go.Scatter(
-                x=fore['date'], y=fore['revenue'],
-                mode='lines+markers', name='Forecast',
-                line=dict(color='rgb(251, 146, 60)', width=3, dash='dash'),
-                marker=dict(size=10, symbol='diamond', color='rgb(251, 146, 60)')
-            ))
-            
-            std_dev = monthly_data['total_price'].std()
-            fig_forecast.add_trace(go.Scatter(
-                x=fore['date'].tolist() + fore['date'].tolist()[::-1],
-                y=(fore['revenue'] + std_dev).tolist() + (fore['revenue'] - std_dev).tolist()[::-1],
-                fill='toself',
-                fillcolor='rgba(251, 146, 60, 0.15)',
-                line=dict(color='rgba(255,255,255,0)'),
-                name='Confidence Interval'
-            ))"""
+"""
 Professional Executive E-commerce Dashboard (Streamlit)
 Premium responsive design with advanced features:
 - PDF Export, Smart Alerts, ML Predictions, YoY Comparison, Save Configs
@@ -46,240 +23,128 @@ st.set_page_config(
 # Professional Dark Theme CSS
 st.markdown("""
     <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Roboto:wght@300;400;500;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
     
-    * { 
-        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
-        -webkit-font-smoothing: antialiased;
-        -moz-osx-font-smoothing: grayscale;
-    }
+    * { font-family: 'Inter', sans-serif; }
     
-    .main { 
-        background: linear-gradient(135deg, rgb(17, 24, 39) 0%, rgb(31, 41, 55) 50%, rgb(17, 24, 39) 100%);
-    }
+    .main { background: linear-gradient(135deg, rgb(15, 12, 41) 0%, rgb(48, 43, 99) 50%, rgb(36, 36, 62) 100%); }
     
-    [data-testid="stSidebar"] { 
-        background: linear-gradient(180deg, rgb(31, 41, 55) 0%, rgb(17, 24, 39) 100%);
-    }
+    [data-testid="stSidebar"] { background: linear-gradient(180deg, rgb(26, 26, 46) 0%, rgb(22, 33, 62) 100%); }
     
     [data-testid="stSidebar"] h2, [data-testid="stSidebar"] h3, [data-testid="stSidebar"] label,
     [data-testid="stSidebar"] p, [data-testid="stSidebar"] span, [data-testid="stSidebar"] div {
-        color: rgb(229, 231, 235) !important;
-        font-weight: 500;
+        color: rgb(232, 234, 246) !important;
     }
     
     [data-testid="stSidebar"] div[data-testid="stExpander"] {
-        background-color: rgb(55, 65, 81) !important;
-        border: 1px solid rgb(75, 85, 99);
+        background-color: rgb(45, 45, 68) !important;
+        border: 1px solid rgba(79, 195, 247, 0.3);
     }
     
     [data-testid="stSidebar"] div[data-testid="stExpander"] > div > div {
-        background-color: rgb(55, 65, 81) !important;
+        background-color: rgb(58, 58, 82) !important;
         padding: 15px;
         border-radius: 8px;
     }
     
     [data-testid="stSidebar"] input[type="date"], [data-testid="stSidebar"] input[type="text"] {
-        background-color: rgb(55, 65, 81) !important;
-        color: rgb(243, 244, 246) !important;
-        border: 1px solid rgb(75, 85, 99) !important;
-        border-radius: 6px;
+        background-color: rgb(45, 45, 68) !important;
+        color: rgb(255, 255, 255) !important;
+        border: 1px solid rgba(79, 195, 247, 0.3) !important;
+        border-radius: 8px;
         padding: 10px;
-        font-weight: 500;
     }
     
-    h1 { 
-        color: rgb(243, 244, 246) !important;
-        font-weight: 700 !important;
-        letter-spacing: -0.5px;
-    }
-    
-    h2 { 
-        color: rgb(229, 231, 235) !important;
-        font-weight: 600 !important;
-        letter-spacing: -0.3px;
-    }
-    
-    h3 { 
-        color: rgb(209, 213, 219) !important;
-        font-weight: 600 !important;
-        letter-spacing: -0.2px;
-    }
+    h1 { color: rgb(255, 255, 255) !important; font-weight: 800 !important; }
+    h2 { color: rgb(224, 224, 224) !important; font-weight: 700 !important; }
+    h3 { color: rgb(176, 176, 176) !important; font-weight: 600 !important; }
     
     [data-testid="stMetricValue"] {
         font-size: 32px !important;
-        font-weight: 700 !important;
-        color: rgb(96, 165, 250) !important;
-        letter-spacing: -0.5px;
+        font-weight: 800 !important;
+        color: rgb(79, 195, 247) !important;
+        text-shadow: 0 2px 8px rgba(79, 195, 247, 0.3);
     }
     
     [data-testid="stMetricLabel"] {
-        font-size: 12px !important;
-        font-weight: 600 !important;
-        color: rgb(156, 163, 175) !important;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-    }
-    
-    [data-testid="stMetricDelta"] {
         font-size: 13px !important;
         font-weight: 600 !important;
+        color: rgb(197, 202, 233) !important;
+        text-transform: uppercase;
+        letter-spacing: 1.2px;
     }
     
     div[data-testid="metric-container"] {
-        background: linear-gradient(135deg, rgb(30, 58, 138) 0%, rgb(29, 78, 216) 100%);
-        padding: 22px;
-        border-radius: 12px;
-        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
-        border: 1px solid rgba(59, 130, 246, 0.3);
+        background: linear-gradient(135deg, rgb(94, 53, 177) 0%, rgb(81, 45, 168) 100%);
+        padding: 20px;
+        border-radius: 16px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+        border: 1px solid rgba(255, 255, 255, 0.08);
         transition: all 0.3s ease;
     }
     
     div[data-testid="metric-container"]:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 8px 24px rgba(59, 130, 246, 0.4);
-        border-color: rgba(96, 165, 250, 0.5);
+        transform: translateY(-5px);
+        box-shadow: 0 12px 32px rgba(94, 53, 177, 0.5);
     }
     
     .stTabs [data-baseweb="tab-list"] {
-        gap: 8px;
-        background-color: rgb(31, 41, 55);
-        padding: 6px;
-        border-radius: 10px;
-        border: 1px solid rgb(55, 65, 81);
+        gap: 6px;
+        background-color: rgba(26, 26, 46, 0.7);
+        padding: 8px;
+        border-radius: 12px;
     }
     
     .stTabs [data-baseweb="tab"] {
-        height: 44px;
-        background-color: rgba(55, 65, 81, 0.5);
+        height: 45px;
+        background-color: rgba(255, 255, 255, 0.04);
         border-radius: 8px;
-        color: rgb(156, 163, 175);
+        color: rgb(176, 190, 197);
         font-weight: 600;
-        font-size: 13px;
+        font-size: 14px;
         padding: 0 20px;
-        border: 1px solid transparent;
-        transition: all 0.2s ease;
-        letter-spacing: 0.3px;
-    }
-    
-    .stTabs [data-baseweb="tab"]:hover {
-        background-color: rgb(55, 65, 81);
-        color: rgb(209, 213, 219);
+        border: 1px solid rgba(255, 255, 255, 0.08);
     }
     
     .stTabs [aria-selected="true"] {
-        background: linear-gradient(135deg, rgb(30, 58, 138) 0%, rgb(29, 78, 216) 100%);
-        color: rgb(243, 244, 246) !important;
-        border-color: rgba(59, 130, 246, 0.5);
-        box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+        background: linear-gradient(135deg, rgb(94, 53, 177) 0%, rgb(81, 45, 168) 100%);
+        color: rgb(255, 255, 255) !important;
+        box-shadow: 0 4px 16px rgba(94, 53, 177, 0.4);
     }
     
     .stButton button {
-        background: linear-gradient(135deg, rgb(30, 58, 138) 0%, rgb(29, 78, 216) 100%);
-        color: rgb(243, 244, 246) !important;
-        border: 1px solid rgba(59, 130, 246, 0.5);
+        background: linear-gradient(135deg, rgb(94, 53, 177) 0%, rgb(81, 45, 168) 100%);
+        color: white !important;
+        border: none;
         border-radius: 8px;
         padding: 10px 20px;
         font-weight: 600;
         font-size: 13px;
-        transition: all 0.2s ease;
-        letter-spacing: 0.3px;
-    }
-    
-    .stButton button:hover {
-        background: linear-gradient(135deg, rgb(37, 99, 235) 0%, rgb(59, 130, 246) 100%);
-        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
-        transform: translateY(-1px);
+        transition: all 0.3s ease;
     }
     
     .stDownloadButton button {
-        background: linear-gradient(135deg, rgb(5, 150, 105) 0%, rgb(16, 185, 129) 100%);
-        color: rgb(243, 244, 246) !important;
-        border: 1px solid rgba(16, 185, 129, 0.5);
-        font-weight: 600;
+        background: linear-gradient(135deg, rgb(38, 198, 218) 0%, rgb(0, 172, 193) 100%);
+        color: rgb(255, 255, 255) !important;
+        font-weight: 700;
     }
     
-    .stDownloadButton button:hover {
-        background: linear-gradient(135deg, rgb(16, 185, 129) 0%, rgb(52, 211, 153) 100%);
-        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
-    }
-    
-    p, span, label { 
-        color: rgb(209, 213, 219) !important;
-        font-size: 14px;
-        font-weight: 400;
-        line-height: 1.6;
-    }
+    p, span, label { color: rgb(176, 190, 197) !important; font-size: 14px; }
     
     .stMarkdown h3 {
-        color: rgb(96, 165, 250) !important;
+        color: rgb(79, 195, 247) !important;
         font-weight: 700;
         margin-top: 20px;
-        margin-bottom: 16px;
-        padding-left: 14px;
-        border-left: 4px solid rgb(59, 130, 246);
-        letter-spacing: -0.3px;
-    }
-    
-    .stMarkdown h4 {
-        color: rgb(156, 163, 175) !important;
-        font-weight: 600;
-        font-size: 16px;
         margin-bottom: 12px;
-        letter-spacing: -0.2px;
-    }
-    
-    [data-testid="stDataFrame"] {
-        border: 1px solid rgb(55, 65, 81);
-        border-radius: 8px;
-    }
-    
-    .stAlert {
-        background-color: rgba(30, 58, 138, 0.2);
-        border-radius: 8px;
-        border-left: 4px solid rgb(59, 130, 246);
-        color: rgb(229, 231, 235) !important;
-        font-weight: 500;
-    }
-    
-    hr {
-        border-color: rgb(55, 65, 81);
-        margin: 30px 0;
-    }
-    
-    /* Success, Warning, Error colors */
-    .stSuccess {
-        background-color: rgba(5, 150, 105, 0.15);
-        border-left-color: rgb(16, 185, 129);
-        color: rgb(209, 250, 229) !important;
-    }
-    
-    .stWarning {
-        background-color: rgba(217, 119, 6, 0.15);
-        border-left-color: rgb(251, 146, 60);
-        color: rgb(254, 243, 199) !important;
-    }
-    
-    .stError {
-        background-color: rgba(220, 38, 38, 0.15);
-        border-left-color: rgb(239, 68, 68);
-        color: rgb(254, 226, 226) !important;
-    }
-    
-    .stInfo {
-        background-color: rgba(30, 58, 138, 0.15);
-        border-left-color: rgb(59, 130, 246);
-        color: rgb(219, 234, 254) !important;
+        padding-left: 12px;
+        border-left: 3px solid rgb(79, 195, 247);
     }
     
     @media (max-width: 768px) {
         h1 { font-size: 28px !important; }
-        h2 { font-size: 22px !important; }
-        h3 { font-size: 18px !important; }
         [data-testid="stMetricValue"] { font-size: 24px !important; }
-        div[data-testid="metric-container"] { padding: 16px; margin-bottom: 12px; }
-        .stButton button { width: 100%; font-size: 13px !important; }
-        p, span, label { font-size: 13px; }
+        div[data-testid="metric-container"] { padding: 15px; margin-bottom: 10px; }
+        .stButton button { width: 100%; font-size: 12px !important; }
     }
     </style>
 """, unsafe_allow_html=True)
@@ -317,11 +182,11 @@ if df is None or df.empty:
 
 # Header
 st.markdown("""
-    <div style='text-align:center; padding: 40px 0 30px 0; background: linear-gradient(135deg, rgba(31, 41, 55, 0.8) 0%, rgba(17, 24, 39, 0.9) 100%); border-radius: 16px; margin-bottom: 30px; border: 1px solid rgb(55, 65, 81);'>
-        <h1 style='font-size: 42px; margin-bottom: 12px; color: rgb(243, 244, 246); font-weight: 700; letter-spacing: -1px;'>
-            📊 Executive E-Commerce Dashboard
+    <div style='text-align:center; padding: 35px 0 25px 0; background: rgba(26, 26, 46, 0.4); border-radius: 20px; margin-bottom: 20px; border: 1px solid rgba(79, 195, 247, 0.2);'>
+        <h1 style='font-size: 46px; margin-bottom: 10px; color: rgb(255, 255, 255); font-weight: 800; text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.5);'>
+            📊 EXECUTIVE E-COMMERCE DASHBOARD
         </h1>
-        <p style='font-size: 16px; color: rgb(156, 163, 175); font-weight: 500; letter-spacing: 1px;'>
+        <p style='font-size: 17px; color: rgb(197, 202, 233); font-weight: 500; letter-spacing: 2px;'>
             Real-Time Business Intelligence & Advanced Analytics
         </p>
     </div>
@@ -330,11 +195,9 @@ st.markdown("""
 # Sidebar
 with st.sidebar:
     st.markdown("""
-        <div style='text-align: center; padding: 20px 0 15px 0;'>
-            <div style='font-size: 44px; margin-bottom: 10px;'>⚡</div>
-            <h2 style='margin: 0; font-size: 20px; color: rgb(96, 165, 250); font-weight: 700; letter-spacing: 0.5px;'>
-                Control Center
-            </h2>
+        <div style='text-align: center; padding: 15px 0;'>
+            <div style='font-size: 48px; margin-bottom: 8px;'>⚡</div>
+            <h2 style='margin: 0; font-size: 22px; color: rgb(79, 195, 247);'>CONTROL CENTER</h2>
         </div>
     """, unsafe_allow_html=True)
     
@@ -470,30 +333,24 @@ def style_fig(fig, title=""):
     theme = st.session_state.get('selected_theme', 'plotly_dark')
     
     fig.update_layout(
-        title=dict(
-            text=title, 
-            font=dict(size=20, color="rgb(229, 231, 235)", family="Inter"),
-            x=0.5, 
-            xanchor='center'
-        ),
-        font=dict(size=12, color="rgb(209, 213, 219)", family="Inter"),
+        title=dict(text=title, font=dict(size=20, color="rgb(79, 195, 247)"), x=0.5, xanchor='center'),
+        font=dict(size=12, color="rgb(176, 190, 197)"),
         margin=dict(l=50, r=50, t=70, b=50),
         template=theme,
         hovermode='x unified',
-        paper_bgcolor='rgba(0, 0, 0, 0)',
-        plot_bgcolor='rgba(31, 41, 55, 0.3)' if theme == 'plotly_dark' else 'rgba(255, 255, 255, 0.9)'
+        paper_bgcolor='rgba(0, 0, 0, 0)'
     )
     
     if theme in ['plotly_white', 'seaborn', 'ggplot2']:
-        fig.update_xaxes(showgrid=True, gridcolor='rgba(0, 0, 0, 0.08)')
-        fig.update_yaxes(showgrid=True, gridcolor='rgba(0, 0, 0, 0.08)')
+        fig.update_xaxes(showgrid=True, gridcolor='rgba(0, 0, 0, 0.1)')
+        fig.update_yaxes(showgrid=True, gridcolor='rgba(0, 0, 0, 0.1)')
     else:
-        fig.update_xaxes(showgrid=True, gridcolor='rgba(75, 85, 99, 0.3)')
-        fig.update_yaxes(showgrid=True, gridcolor='rgba(75, 85, 99, 0.3)')
+        fig.update_xaxes(showgrid=True, gridcolor='rgba(255, 255, 255, 0.08)')
+        fig.update_yaxes(showgrid=True, gridcolor='rgba(255, 255, 255, 0.08)')
     
     return fig
 
-colors = ['rgb(96, 165, 250)', 'rgb(129, 140, 248)', 'rgb(167, 139, 250)', 'rgb(236, 72, 153)', 'rgb(251, 146, 60)']
+colors = ['rgb(79, 195, 247)', 'rgb(126, 87, 194)', 'rgb(236, 64, 122)', 'rgb(255, 112, 67)', 'rgb(38, 198, 218)']
 
 # Dashboard Tabs
 tab1, tab2, tab3, tab4, tab5 = st.tabs(["📊 REVENUE", "👥 CUSTOMERS", "📦 PRODUCTS", "🌍 GEOGRAPHY", "🔬 ADVANCED"])
@@ -511,9 +368,8 @@ with tab1:
         fig_trend.add_trace(go.Scatter(
             x=monthly_revenue['order_date'], y=monthly_revenue['total_price'],
             mode='lines+markers', name='Revenue',
-            line=dict(color='rgb(96, 165, 250)', width=3),
-            marker=dict(size=8, color='rgb(96, 165, 250)'),
-            fill='tozeroy', fillcolor='rgba(96, 165, 250, 0.1)'
+            line=dict(color='rgb(79, 195, 247)', width=3),
+            fill='tozeroy', fillcolor='rgba(79, 195, 247, 0.15)'
         ))
         
         z = np.polyfit(range(len(monthly_revenue)), monthly_revenue['total_price'], 1)
@@ -521,7 +377,7 @@ with tab1:
         fig_trend.add_trace(go.Scatter(
             x=monthly_revenue['order_date'], y=p(range(len(monthly_revenue))),
             mode='lines', name='Trend',
-            line=dict(color='rgb(251, 146, 60)', width=2.5, dash='dash')
+            line=dict(color='rgb(236, 64, 122)', width=2.5, dash='dash')
         ))
         
         st.plotly_chart(style_fig(fig_trend, "Monthly Performance"), use_container_width=True)
@@ -697,7 +553,7 @@ with tab5:
         growth_data['growth_rate'] = growth_data['total_price'].pct_change() * 100
         
         fig_growth = go.Figure()
-        colors_growth = ['rgb(16, 185, 129)' if x >= 0 else 'rgb(239, 68, 68)' for x in growth_data['growth_rate']]
+        colors_growth = ['rgb(79, 195, 247)' if x >= 0 else 'rgb(236, 64, 122)' for x in growth_data['growth_rate']]
         fig_growth.add_trace(go.Bar(
             x=growth_data['order_date'], y=growth_data['growth_rate'],
             marker=dict(color=colors_growth),
@@ -715,13 +571,12 @@ with tab5:
         fig_pareto = go.Figure()
         fig_pareto.add_trace(go.Bar(
             x=prod_rev.index[:20], y=prod_rev['total_price'][:20],
-            name='Revenue', marker=dict(color='rgb(129, 140, 248)')
+            name='Revenue', marker=dict(color='rgb(126, 87, 194)')
         ))
         fig_pareto.add_trace(go.Scatter(
             x=prod_rev.index[:20], y=prod_rev['cumulative_pct'][:20],
             name='Cumulative %', mode='lines+markers',
-            marker=dict(color='rgb(96, 165, 250)', size=6),
-            line=dict(color='rgb(96, 165, 250)', width=2.5),
+            marker=dict(color='rgb(79, 195, 247)', size=6),
             yaxis='y2'
         ))
         fig_pareto.update_layout(yaxis2=dict(overlaying='y', side='right', range=[0, 100]))
@@ -953,15 +808,13 @@ with adv_tab3:
         fig_yoy = go.Figure()
         fig_yoy.add_trace(go.Bar(
             x=m_y1['month_name'], y=m_y1['revenue'], name=str(year1),
-            marker=dict(color='rgb(96, 165, 250)'),
-            text=[f"${v:,.0f}" for v in m_y1['revenue']], textposition='outside',
-            textfont=dict(color='rgb(209, 213, 219)')
+            marker=dict(color='rgb(79, 195, 247)'),
+            text=[f"${v:,.0f}" for v in m_y1['revenue']], textposition='outside'
         ))
         fig_yoy.add_trace(go.Bar(
             x=m_y2['month_name'], y=m_y2['revenue'], name=str(year2),
-            marker=dict(color='rgb(129, 140, 248)'),
-            text=[f"${v:,.0f}" for v in m_y2['revenue']], textposition='outside',
-            textfont=dict(color='rgb(209, 213, 219)')
+            marker=dict(color='rgb(126, 87, 194)'),
+            text=[f"${v:,.0f}" for v in m_y2['revenue']], textposition='outside'
         ))
         
         st.plotly_chart(style_fig(fig_yoy, f"{year1} vs {year2}"), use_container_width=True)
@@ -1079,21 +932,11 @@ with adv_tab4:
 # Footer
 st.markdown("---")
 st.markdown(f"""
-    <div style='text-align: center; padding: 30px; background: linear-gradient(135deg, rgba(31, 41, 55, 0.6) 0%, rgba(17, 24, 39, 0.8) 100%); border-radius: 12px; border: 1px solid rgb(55, 65, 81);'>
-        <div style='font-size: 36px; margin-bottom: 12px;'>⚡</div>
-        <h3 style='color: rgb(243, 244, 246); margin: 10px 0; font-size: 22px; font-weight: 700; letter-spacing: -0.5px;'>Executive Dashboard v3.0</h3>
-        <p style='color: rgb(156, 163, 175); font-size: 13px; margin: 10px 0; font-weight: 500;'>Built with Streamlit, Plotly & Machine Learning</p>
-        <div style='display: flex; justify-content: center; gap: 12px; margin: 20px 0; flex-wrap: wrap;'>
-            <span style='background: rgba(96, 165, 250, 0.2); padding: 6px 14px; border-radius: 20px; font-size: 11px; color: rgb(147, 197, 253); font-weight: 600; border: 1px solid rgba(96, 165, 250, 0.3);'>🔔 Smart Alerts</span>
-            <span style='background: rgba(129, 140, 248, 0.2); padding: 6px 14px; border-radius: 20px; font-size: 11px; color: rgb(165, 180, 252); font-weight: 600; border: 1px solid rgba(129, 140, 248, 0.3);'>📈 ML Forecasting</span>
-            <span style='background: rgba(251, 146, 60, 0.2); padding: 6px 14px; border-radius: 20px; font-size: 11px; color: rgb(253, 186, 116); font-weight: 600; border: 1px solid rgba(251, 146, 60, 0.3);'>📊 YoY Analysis</span>
-            <span style='background: rgba(16, 185, 129, 0.2); padding: 6px 14px; border-radius: 20px; font-size: 11px; color: rgb(110, 231, 183); font-weight: 600; border: 1px solid rgba(16, 185, 129, 0.3);'>📄 PDF Reports</span>
-            <span style='background: rgba(236, 72, 153, 0.2); padding: 6px 14px; border-radius: 20px; font-size: 11px; color: rgb(244, 114, 182); font-weight: 600; border: 1px solid rgba(236, 72, 153, 0.3);'>💾 Save Configs</span>
-        </div>
-        <p style='color: rgb(107, 114, 128); font-size: 11px; margin: 12px 0; font-weight: 500;'>📅 Last Updated: {datetime.now().strftime('%B %d, %Y - %H:%M')}</p>
-        <div style='margin-top: 18px; padding-top: 18px; border-top: 1px solid rgb(55, 65, 81);'>
-            <p style='color: rgb(156, 163, 175); font-size: 10px; margin: 0; font-weight: 500;'>💼 Data Analytics & Business Intelligence Portfolio</p>
-            <p style='color: rgb(107, 114, 128); font-size: 9px; margin: 8px 0 0 0; font-weight: 400;'>🎯 RFM Segmentation • Pareto Analysis • Predictive Analytics • Interactive Visualizations</p>
-        </div>
+    <div style='text-align: center; padding: 25px; background: rgba(255, 255, 255, 0.03); border-radius: 16px;'>
+        <div style='font-size: 40px; margin-bottom: 12px;'>⚡</div>
+        <h3 style='color: rgb(79, 195, 247);'>EXECUTIVE DASHBOARD v3.0</h3>
+        <p style='color: rgb(176, 190, 197); font-size: 13px;'>Built with Streamlit, Plotly & ML</p>
+        <p style='color: rgb(126, 87, 194); font-size: 11px;'>📅 Updated: {datetime.now().strftime('%B %d, %Y - %H:%M')}</p>
+        <p style='color: rgb(176, 190, 197); font-size: 10px;'>💼 Data Analytics & Business Intelligence Portfolio</p>
     </div>
 """, unsafe_allow_html=True)
