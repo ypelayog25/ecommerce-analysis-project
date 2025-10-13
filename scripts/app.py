@@ -5,24 +5,24 @@ fig_forecast.add_trace(go.Scatter(
                 marker=dict(size=8, color='rgb(96, 165, 250)')
             ))
             
-            hist = forecast_df[forecast_df['type'] == 'Historical']
-            fig_forecast.add_trace(go.Scatter(
+hist = forecast_df[forecast_df['type'] == 'Historical']
+fig_forecast.add_trace(go.Scatter(
                 x=hist['date'], y=hist['revenue'],
                 mode='lines+markers', name='Historical',
                 line=dict(color='rgb(96, 165, 250)', width=3),
                 marker=dict(size=8, color='rgb(96, 165, 250)')
             ))
             
-            fore = forecast_df[forecast_df['type'] == 'Forecast']
-            fig_forecast.add_trace(go.Scatter(
+fore = forecast_df[forecast_df['type'] == 'Forecast']
+fig_forecast.add_trace(go.Scatter(
                 x=fore['date'], y=fore['revenue'],
                 mode='lines+markers', name='Forecast',
                 line=dict(color='rgb(251, 146, 60)', width=3, dash='dash'),
                 marker=dict(size=10, symbol='diamond', color='rgb(251, 146, 60)')
             ))
             
-            std_dev = monthly_data['total_price'].std()
-            fig_forecast.add_trace(go.Scatter(
+std_dev = monthly_data['total_price'].std()
+fig_forecast.add_trace(go.Scatter(
                 x=fore['date'].tolist() + fore['date'].tolist()[::-1],
                 y=(fore['revenue'] + std_dev).tolist() + (fore['revenue'] - std_dev).tolist()[::-1],
                 fill='toself',
