@@ -92,10 +92,10 @@ st.markdown("""
 
 st.write("")  # Spacer
 
-# ✅ Dictionary of available dashboards
+# ✅ Dashboard entries (ROUTE FIXED ✅)
 apps = {
     "📊 E-commerce Dashboard": {
-        "path": "apps/ecommerce_app.py",
+        "path": "pages/E-commerce Dashboard.py",   # ✅ Correct for Streamlit
         "description": "Advanced analytics for sales performance, customers, and revenue optimization."
     }
 }
@@ -115,4 +115,3 @@ for index, (app_name, app_info) in enumerate(apps.items()):
             </div>
         """, unsafe_allow_html=True)
         st.write("")
-
