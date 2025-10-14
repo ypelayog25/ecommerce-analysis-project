@@ -5,14 +5,11 @@ import streamlit as st
 import plotly.express as px
 import plotly.graph_objects as go
 from datetime import datetime, timedelta
+import streamlit as st
 
 # Page Configuration
-st.set_page_config(
-    page_title="Executive E-commerce Dashboard",
-    layout="wide",
-    initial_sidebar_state="expanded",
-    page_icon="📊"
-)
+st.set_page_config(page_title="E-commerce Dashboard", page_icon="📊", layout="wide")
+st.title("📊 E-commerce Dashboard")
 
 # Professional Dark Theme CSS
 st.markdown("""
