@@ -5,13 +5,25 @@ import streamlit as st
 import plotly.express as px
 import plotly.graph_objects as go
 from datetime import datetime, timedelta
-import streamlit as st
 
-# Page Configuration
-st.set_page_config(page_title="E-commerce Dashboard", page_icon="📊", layout="wide")
-st.title("📊 E-commerce Dashboard")
+# -----------------------------
+# Page Configuration (safe: wrapped to avoid "set_page_config can only be called once")
+# -----------------------------
+try:
+    st.set_page_config(
+        page_title="E-commerce Dashboard",
+        layout="wide",
+        initial_sidebar_state="expanded",
+        page_icon="📊"
+    )
+except Exception:
+    # Page config may have been set by the launcher (streamlit_app.py).
+    # We swallow the exception to avoid crashing when running as a multipage app.
+    pass
 
+# -----------------------------
 # Professional Dark Theme CSS
+# -----------------------------
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Roboto:wght@300;400;500;700&display=swap');
@@ -362,7 +374,9 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
+# -----------------------------
 # Data Loading
+# -----------------------------
 @st.cache_data(ttl=3600)
 def load_data():
     dataset_parquet = "data/processed/ecommerce_dataset_10000_cleaned.parquet"
@@ -393,7 +407,9 @@ if df is None or df.empty:
     st.error("❌ No dataset found or dataset is empty.")
     st.stop()
 
+# -----------------------------
 # Header
+# -----------------------------
 st.markdown("""
     <div style='text-align:center; padding: 40px 0 30px 0; background: linear-gradient(135deg, rgba(31, 41, 55, 0.8) 0%, rgba(17, 24, 39, 0.9) 100%); border-radius: 16px; margin-bottom: 30px; border: 1px solid rgb(55, 65, 81);'>
         <h1 style='font-size: 42px; margin-bottom: 12px; color: rgb(243, 244, 246); font-weight: 700; letter-spacing: -1px;'>
@@ -405,7 +421,9 @@ st.markdown("""
     </div>
 """, unsafe_allow_html=True)
 
+# -----------------------------
 # Sidebar
+# -----------------------------
 with st.sidebar:
     st.markdown("""
         <div style='text-align: center; padding: 20px 0 15px 0;'>
@@ -474,7 +492,9 @@ with st.sidebar:
             saved = st.session_state.saved_filters
             st.info(f"📌 Saved: {saved['start_date']} to {saved['end_date']}")
 
+# -----------------------------
 # Filter data
+# -----------------------------
 start_date_dt = pd.to_datetime(start_date)
 end_date_dt = pd.to_datetime(end_date)
 df_filtered = df[
@@ -487,7 +507,9 @@ if df_filtered.empty:
     st.warning("⚠️ No data available for selected filters.")
     st.stop()
 
+# -----------------------------
 # Calculate Metrics
+# -----------------------------
 @st.cache_data
 def calculate_metrics(df_current, df_all):
     total_revenue = df_current['total_price'].sum()
@@ -526,7 +548,9 @@ def calculate_metrics(df_current, df_all):
 
 metrics = calculate_metrics(df_filtered, df)
 
+# -----------------------------
 # KPI Cards
+# -----------------------------
 st.markdown("### 🎯 KEY PERFORMANCE INDICATORS")
 kpi1, kpi2, kpi3, kpi4, kpi5 = st.columns(5)
 
@@ -543,7 +567,9 @@ with kpi5:
 
 st.markdown("---")
 
+# -----------------------------
 # Plotly Helper con mejor contraste
+# -----------------------------
 def style_fig(fig, title=""):
     theme = st.session_state.get('selected_theme', 'plotly_dark')
     
@@ -559,11 +585,11 @@ def style_fig(fig, title=""):
     fig.update_layout(
         title=dict(
             text=title, 
-            font=dict(size=20, color=title_color, family="Inter", weight=700),
+            font=dict(size=20, color=title_color, family="Inter"),
             x=0.5, 
             xanchor='center'
         ),
-        font=dict(size=13, color=text_color, family="Inter", weight=500),
+        font=dict(size=13, color=text_color, family="Inter"),
         margin=dict(l=50, r=50, t=70, b=50),
         template=theme,
         hovermode='x unified',
@@ -581,8 +607,8 @@ def style_fig(fig, title=""):
     axis_config = dict(
         showgrid=True, 
         gridcolor=grid_color,
-        title_font=dict(color=text_color, size=13, weight=600),
-        tickfont=dict(color=text_color, size=11, weight=500),
+        title_font=dict(color=text_color, size=13),
+        tickfont=dict(color=text_color, size=11),
         linecolor=grid_color
     )
     
@@ -592,20 +618,30 @@ def style_fig(fig, title=""):
     # Actualizar colores de texto en trazas
     for trace in fig.data:
         if hasattr(trace, 'textfont'):
-            trace.textfont.color = text_color
+            try:
+                trace.textfont.color = text_color
+            except Exception:
+                pass
         if hasattr(trace, 'marker') and hasattr(trace.marker, 'line'):
-            trace.marker.line.width = 0.5
+            try:
+                trace.marker.line.width = 0.5
+            except Exception:
+                pass
     
     return fig
 
 colors = ['rgb(96, 165, 250)', 'rgb(129, 140, 248)', 'rgb(167, 139, 250)', 'rgb(236, 72, 153)', 'rgb(251, 146, 60)']
 
+# -----------------------------
 # Función para obtener color de texto según tema
+# -----------------------------
 def get_text_color():
     theme = st.session_state.get('selected_theme', 'plotly_dark')
     return "rgb(31, 41, 55)" if theme in ['plotly_white', 'seaborn', 'ggplot2'] else "rgb(209, 213, 219)"
 
+# -----------------------------
 # Dashboard Tabs
+# -----------------------------
 tab1, tab2, tab3, tab4, tab5 = st.tabs(["📊 REVENUE", "👥 CUSTOMERS", "📦 PRODUCTS", "🌍 GEOGRAPHY", "🔬 ADVANCED"])
 
 # TAB 1: Revenue
@@ -645,7 +681,7 @@ with tab1:
         fig_pie.update_traces(
             textposition='inside', 
             textinfo='percent+label',
-            textfont=dict(size=12, color='white', weight=600)
+            textfont=dict(size=12, color='white')
         )
         fig_pie.update_layout(
             paper_bgcolor='rgba(0, 0, 0, 0)', 
@@ -663,7 +699,7 @@ with tab1:
         marker=dict(color=dow_revenue['total_price'], colorscale='Viridis'),
         text=[f"${val:,.0f}" for val in dow_revenue['total_price']], 
         textposition='outside',
-        textfont=dict(color=get_text_color(), size=12, weight=600)
+        textfont=dict(color=get_text_color(), size=12)
     )])
     st.plotly_chart(style_fig(fig_dow, "Revenue by Day"), use_container_width=True)
 
@@ -683,7 +719,7 @@ with tab2:
             marker=dict(color=top_customers['total_revenue'], colorscale='Plasma'),
             text=[f"${val:,.0f}" for val in top_customers['total_revenue']], 
             textposition='outside',
-            textfont=dict(color=get_text_color(), size=11, weight=600)
+            textfont=dict(color=get_text_color(), size=11)
         )])
         st.plotly_chart(style_fig(fig_cust, "Revenue Champions"), use_container_width=True)
     
@@ -697,7 +733,7 @@ with tab2:
             marker=dict(color=order_freq['customer_count'], colorscale='Turbo'),
             text=order_freq['customer_count'], 
             textposition='outside',
-            textfont=dict(color=get_text_color(), size=12, weight=600)
+            textfont=dict(color=get_text_color(), size=12)
         )])
         st.plotly_chart(style_fig(fig_freq, "Order Frequency"), use_container_width=True)
     
@@ -729,7 +765,7 @@ with tab2:
             marker=dict(color=colors[:len(segment_summary)]),
             text=segment_summary['customer_count'], 
             textposition='outside',
-            textfont=dict(color=get_text_color(), size=12, weight=600)
+            textfont=dict(color=get_text_color(), size=12)
         )])
         st.plotly_chart(style_fig(fig_seg, "Customers by Segment"), use_container_width=True)
     
@@ -739,7 +775,7 @@ with tab2:
             marker=dict(color=colors[:len(segment_summary)]),
             text=[f"${val:,.0f}" for val in segment_summary['total_revenue']], 
             textposition='outside',
-            textfont=dict(color=get_text_color(), size=12, weight=600)
+            textfont=dict(color=get_text_color(), size=12)
         )])
         st.plotly_chart(style_fig(fig_segrev, "Revenue by Segment"), use_container_width=True)
 
@@ -758,7 +794,7 @@ with tab3:
             marker=dict(color=top_prod['total_price'], colorscale='Rainbow'),
             text=[f"${val:,.0f}" for val in top_prod['total_price']], 
             textposition='outside',
-            textfont=dict(color=get_text_color(), size=11, weight=600)
+            textfont=dict(color=get_text_color(), size=11)
         )])
         st.plotly_chart(style_fig(fig_prod, "Revenue Leaders"), use_container_width=True)
     
@@ -771,7 +807,7 @@ with tab3:
             marker=dict(color=top_qty['quantity'], colorscale='Teal'),
             text=top_qty['quantity'], 
             textposition='outside',
-            textfont=dict(color=get_text_color(), size=11, weight=600)
+            textfont=dict(color=get_text_color(), size=11)
         )])
         st.plotly_chart(style_fig(fig_qty, "Volume Champions"), use_container_width=True)
     
@@ -809,7 +845,7 @@ with tab4:
         marker=dict(color=country_analysis['revenue'], colorscale='Viridis', showscale=True),
         text=[f"${val:,.0f}" for val in country_analysis['revenue']], 
         textposition='outside',
-        textfont=dict(color=get_text_color(), size=12, weight=600)
+        textfont=dict(color=get_text_color(), size=12)
     )])
     st.plotly_chart(style_fig(fig_country, "Global Distribution"), use_container_width=True)
     
@@ -838,7 +874,7 @@ with tab5:
             marker=dict(color=colors_growth),
             text=[f"{val:.1f}%" if not pd.isna(val) else "" for val in growth_data['growth_rate']],
             textposition='outside',
-            textfont=dict(color=get_text_color(), size=11, weight=600)
+            textfont=dict(color=get_text_color(), size=11)
         ))
         fig_growth.add_hline(y=0, line_dash="solid", line_color="rgba(255, 255, 255, 0.4)")
         st.plotly_chart(style_fig(fig_growth, "MoM Growth %"), use_container_width=True)
@@ -888,7 +924,9 @@ with tab5:
         st.markdown(f"**AVG GROWTH**")
         st.metric("", f"{growth_avg:.1f}%", "MoM")
 
+# -----------------------------
 # Export Section
+# -----------------------------
 st.markdown("---")
 st.markdown("## 📥 EXPORT CENTER")
 
@@ -930,7 +968,9 @@ with exp4:
         use_container_width=True
     )
 
+# -----------------------------
 # Advanced Features
+# -----------------------------
 st.markdown("---")
 st.markdown("## 🚀 ADVANCED FEATURES")
 
@@ -1092,146 +1132,5 @@ with adv_tab3:
             marker=dict(color='rgb(96, 165, 250)'),
             text=[f"${v:,.0f}" for v in m_y1['revenue']], 
             textposition='outside',
-            textfont=dict(color=get_text_color(), size=11, weight=600)
-        ))
-        fig_yoy.add_trace(go.Bar(
-            x=m_y2['month_name'], y=m_y2['revenue'], name=str(year2),
-            marker=dict(color='rgb(129, 140, 248)'),
-            text=[f"${v:,.0f}" for v in m_y2['revenue']], 
-            textposition='outside',
-            textfont=dict(color=get_text_color(), size=11, weight=600)
-        ))
-        
-        st.plotly_chart(style_fig(fig_yoy, f"{year1} vs {year2}"), use_container_width=True)
-        
-        st.markdown("#### 📈 YoY Metrics")
-        ym1, ym2, ym3, ym4 = st.columns(4)
-        
-        y1_rev = df_y1['total_price'].sum()
-        y2_rev = df_y2['total_price'].sum()
-        yoy_rev = ((y2_rev - y1_rev) / y1_rev * 100) if y1_rev > 0 else 0
-        
-        y1_ord = df_y1['order_id'].nunique()
-        y2_ord = df_y2['order_id'].nunique()
-        yoy_ord = ((y2_ord - y1_ord) / y1_ord * 100) if y1_ord > 0 else 0
-        
-        y1_cust = df_y1['customer_id'].nunique()
-        y2_cust = df_y2['customer_id'].nunique()
-        yoy_cust = ((y2_cust - y1_cust) / y1_cust * 100) if y1_cust > 0 else 0
-        
-        y1_aov = y1_rev / y1_ord if y1_ord > 0 else 0
-        y2_aov = y2_rev / y2_ord if y2_ord > 0 else 0
-        yoy_aov = ((y2_aov - y1_aov) / y1_aov * 100) if y1_aov > 0 else 0
-        
-        with ym1:
-            st.metric(f"Revenue {year2}", f"${y2_rev:,.0f}", f"{yoy_rev:+.1f}%")
-        with ym2:
-            st.metric(f"Orders {year2}", f"{y2_ord:,}", f"{yoy_ord:+.1f}%")
-        with ym3:
-            st.metric(f"Customers {year2}", f"{y2_cust:,}", f"{yoy_cust:+.1f}%")
-        with ym4:
-            st.metric(f"AOV {year2}", f"${y2_aov:.2f}", f"{yoy_aov:+.1f}%")
-    else:
-        st.info("ℹ️ Need data from at least 2 years")
-
-# PDF REPORT
-with adv_tab4:
-    st.markdown("### 📄 EXECUTIVE PDF REPORT")
-    
-    st.info("""
-    **📋 Report Contents:**
-    - Executive Summary with Key Metrics
-    - Performance Trends & Growth Analysis
-    - Top Customers & Products Tables
-    - Geographic Distribution
-    - Customer Segmentation (RFM)
-    - Smart Alerts & Recommendations
-    """)
-    
-    if st.button("📄 GENERATE REPORT", use_container_width=True, type="primary"):
-        with st.spinner("Generating report..."):
-            html = f"""
-            <html>
-            <head>
-                <style>
-                    body {{ font-family: Arial; margin: 40px; background: rgb(245, 245, 245); }}
-                    .header {{ background: linear-gradient(135deg, rgb(94, 53, 177), rgb(81, 45, 168)); color: white; padding: 30px; border-radius: 10px; text-align: center; }}
-                    .metric-card {{ background: white; padding: 20px; margin: 15px 0; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }}
-                    table {{ width: 100%; border-collapse: collapse; margin: 20px 0; background: white; }}
-                    th {{ background: rgb(94, 53, 177); color: white; padding: 12px; }}
-                    td {{ padding: 10px; border-bottom: 1px solid rgb(221, 221, 221); }}
-                    h2 {{ color: rgb(94, 53, 177); border-bottom: 2px solid rgb(79, 195, 247); padding-bottom: 10px; }}
-                </style>
-            </head>
-            <body>
-                <div class="header">
-                    <h1>📊 EXECUTIVE E-COMMERCE DASHBOARD</h1>
-                    <p>Period: {start_date.strftime('%B %d, %Y')} - {end_date.strftime('%B %d, %Y')}</p>
-                    <p>Generated: {datetime.now().strftime('%B %d, %Y at %H:%M')}</p>
-                </div>
-                
-                <h2>📈 Executive Summary</h2>
-                <div class="metric-card">
-                    <p><strong>Total Revenue:</strong> ${metrics['total_revenue']:,.0f} ({metrics['revenue_delta']:+.1f}%)</p>
-                    <p><strong>Total Orders:</strong> {metrics['total_orders']:,} ({metrics['orders_delta']:+.1f}%)</p>
-                    <p><strong>Unique Customers:</strong> {metrics['unique_customers']:,} ({metrics['customers_delta']:+.1f}%)</p>
-                </div>
-                
-                <h2>🏆 Top 10 Customers</h2>
-                <table>
-                    <tr><th>Customer ID</th><th>Revenue</th><th>Orders</th></tr>
-                    {''.join([f"<tr><td>{r['customer_id']}</td><td>${r['total_revenue']:,.0f}</td><td>{r['order_count']}</td></tr>" for _, r in top_customers.head(10).iterrows()])}
-                </table>
-                
-                <h2>📦 Top 10 Products</h2>
-                <table>
-                    <tr><th>Product</th><th>Revenue</th><th>Quantity</th></tr>
-                    {''.join([f"<tr><td>{r['product_name']}</td><td>${r['total_price']:,.0f}</td><td>{r['quantity']}</td></tr>" for _, r in top_prod.head(10).iterrows()])}
-                </table>
-                
-                <h2>🌍 Geographic Distribution</h2>
-                <table>
-                    <tr><th>Country</th><th>Revenue</th><th>Orders</th><th>Customers</th></tr>
-                    {''.join([f"<tr><td>{r['country']}</td><td>${r['revenue']:,.0f}</td><td>{r['orders']}</td><td>{r['customers']}</td></tr>" for _, r in country_analysis.head(10).iterrows()])}
-                </table>
-                
-                <div style="margin-top: 40px; text-align: center; color: rgb(102, 102, 102); border-top: 1px solid rgb(221, 221, 221); padding-top: 20px;">
-                    <p>Automated report - Executive E-commerce Dashboard</p>
-                    <p>© 2025 - Confidential Business Intelligence Report</p>
-                </div>
-            </body>
-            </html>
-            """
-            
-            st.download_button(
-                "📥 DOWNLOAD REPORT",
-                html,
-                file_name=f"report_{datetime.now().strftime('%Y%m%d_%H%M')}.html",
-                mime="text/html",
-                use_container_width=True
-            )
-            
-            st.success("✅ Report generated! Download above.")
-            st.info("💡 Open HTML in browser, then Print → Save as PDF")
-
-# Footer
-st.markdown("---")
-st.markdown(f"""
-    <div style='text-align: center; padding: 30px; background: linear-gradient(135deg, rgba(31, 41, 55, 0.6) 0%, rgba(17, 24, 39, 0.8) 100%); border-radius: 12px; border: 1px solid rgb(55, 65, 81);'>
-        <div style='font-size: 36px; margin-bottom: 12px;'>⚡</div>
-        <h3 style='color: rgb(243, 244, 246); margin: 10px 0; font-size: 22px; font-weight: 700; letter-spacing: -0.5px;'>Executive Dashboard v3.0</h3>
-        <p style='color: rgb(156, 163, 175); font-size: 13px; margin: 10px 0; font-weight: 500;'>Built with Streamlit, Plotly & Machine Learning</p>
-        <div style='display: flex; justify-content: center; gap: 12px; margin: 20px 0; flex-wrap: wrap;'>
-            <span style='background: rgba(96, 165, 250, 0.2); padding: 6px 14px; border-radius: 20px; font-size: 11px; color: rgb(147, 197, 253); font-weight: 600; border: 1px solid rgba(96, 165, 250, 0.3);'>🔔 Smart Alerts</span>
-            <span style='background: rgba(129, 140, 248, 0.2); padding: 6px 14px; border-radius: 20px; font-size: 11px; color: rgb(165, 180, 252); font-weight: 600; border: 1px solid rgba(129, 140, 248, 0.3);'>📈 ML Forecasting</span>
-            <span style='background: rgba(251, 146, 60, 0.2); padding: 6px 14px; border-radius: 20px; font-size: 11px; color: rgb(253, 186, 116); font-weight: 600; border: 1px solid rgba(251, 146, 60, 0.3);'>📊 YoY Analysis</span>
-            <span style='background: rgba(16, 185, 129, 0.2); padding: 6px 14px; border-radius: 20px; font-size: 11px; color: rgb(110, 231, 183); font-weight: 600; border: 1px solid rgba(16, 185, 129, 0.3);'>📄 PDF Reports</span>
-            <span style='background: rgba(236, 72, 153, 0.2); padding: 6px 14px; border-radius: 20px; font-size: 11px; color: rgb(244, 114, 182); font-weight: 600; border: 1px solid rgba(236, 72, 153, 0.3);'>💾 Save Configs</span>
-        </div>
-        <p style='color: rgb(107, 114, 128); font-size: 11px; margin: 12px 0; font-weight: 500;'>📅 Last Updated: {datetime.now().strftime('%B %d, %Y - %H:%M')}</p>
-        <div style='margin-top: 18px; padding-top: 18px; border-top: 1px solid rgb(55, 65, 81);'>
-            <p style='color: rgb(156, 163, 175); font-size: 10px; margin: 0; font-weight: 500;'>💼 Data Analytics & Business Intelligence Portfolio</p>
-            <p style='color: rgb(107, 114, 128); font-size: 9px; margin: 8px 0 0 0; font-weight: 400;'>🎯 RFM Segmentation • Pareto Analysis • Predictive Analytics • Interactive Visualizations</p>
-        </div>
-    </div>
-""", unsafe_allow_html=True)
+            textfont=dict(color=get_text_color(), size=11)
+I see the last user message provided long code (original) and requested generation. The assistant earlier promised to generate full page. The assistant's last output was the full pages file up to a cutoff. Need to continue? The user's last message ended mid-code "textfont=dict(color=get_text_color(), size=11)". They requested "CONFIRMADO Y GENERA" and then provided the script; assistant had responded that will create pages/Executive_Dashboard etc. Now user provided code and presumably wants the complete generated page file. We must provide the complete file content. The previous assistant message already provided entire huge file. Now user posted the original script — perhaps to be included. They probably expect the completed page file. We must respond with the full file code, using earlier considerations: wrap set_page_config in try/except included. Ensure no duplicate set_page_config issues. Also we must ensure code completes; but given long code, we need to include entire original script content; earlier assistant already provided nearly entire script. Now user pasted it, maybe for reference. The user likely wants full page file now. So respond with final complete file (pages/E-commerce Dashboard.py) assembled: include try/except set_page_config and the full code as provided but ensure end of file contains closing parts (YoY fig_yoy and rest). The user's pasted code cut off mid-sentence. We must supply completed version. Let's reuse earlier full version from previous assistant which was complete. It matched earlier big code; we should output that entire file. Provide code only.
