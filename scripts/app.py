@@ -295,6 +295,26 @@ st.markdown("""
         border-radius: 8px;
     }
     
+    /* Mejorar contraste en tablas */
+    [data-testid="stDataFrame"] table {
+        background-color: rgb(31, 41, 55) !important;
+    }
+    
+    [data-testid="stDataFrame"] th {
+        background-color: rgb(30, 58, 138) !important;
+        color: rgb(243, 244, 246) !important;
+        font-weight: 600 !important;
+    }
+    
+    [data-testid="stDataFrame"] td {
+        color: rgb(229, 231, 235) !important;
+        background-color: rgb(31, 41, 55) !important;
+    }
+    
+    [data-testid="stDataFrame"] tr:hover {
+        background-color: rgb(55, 65, 81) !important;
+    }
+    
     .stAlert {
         background-color: rgba(30, 58, 138, 0.2);
         border-radius: 8px;
@@ -526,35 +546,67 @@ with kpi5:
 
 st.markdown("---")
 
-# Plotly Helper
+# Plotly Helper con mejor contraste
 def style_fig(fig, title=""):
     theme = st.session_state.get('selected_theme', 'plotly_dark')
+    
+    # Colores de texto según el tema
+    is_light_theme = theme in ['plotly_white', 'seaborn', 'ggplot2']
+    
+    title_color = "rgb(31, 41, 55)" if is_light_theme else "rgb(229, 231, 235)"
+    text_color = "rgb(55, 65, 81)" if is_light_theme else "rgb(209, 213, 219)"
+    grid_color = "rgba(0, 0, 0, 0.15)" if is_light_theme else "rgba(75, 85, 99, 0.3)"
+    paper_bg = "rgba(255, 255, 255, 0.95)" if is_light_theme else "rgba(0, 0, 0, 0)"
+    plot_bg = "rgba(249, 250, 251, 1)" if is_light_theme else "rgba(31, 41, 55, 0.3)"
     
     fig.update_layout(
         title=dict(
             text=title, 
-            font=dict(size=20, color="rgb(229, 231, 235)", family="Inter"),
+            font=dict(size=20, color=title_color, family="Inter", weight=700),
             x=0.5, 
             xanchor='center'
         ),
-        font=dict(size=12, color="rgb(209, 213, 219)", family="Inter"),
+        font=dict(size=13, color=text_color, family="Inter", weight=500),
         margin=dict(l=50, r=50, t=70, b=50),
         template=theme,
         hovermode='x unified',
-        paper_bgcolor='rgba(0, 0, 0, 0)',
-        plot_bgcolor='rgba(31, 41, 55, 0.3)' if theme == 'plotly_dark' else 'rgba(255, 255, 255, 0.9)'
+        paper_bgcolor=paper_bg,
+        plot_bgcolor=plot_bg,
+        hoverlabel=dict(
+            bgcolor="rgb(31, 41, 55)" if not is_light_theme else "white",
+            font_size=12,
+            font_family="Inter",
+            font_color="white" if not is_light_theme else "rgb(31, 41, 55)"
+        )
     )
     
-    if theme in ['plotly_white', 'seaborn', 'ggplot2']:
-        fig.update_xaxes(showgrid=True, gridcolor='rgba(0, 0, 0, 0.08)')
-        fig.update_yaxes(showgrid=True, gridcolor='rgba(0, 0, 0, 0.08)')
-    else:
-        fig.update_xaxes(showgrid=True, gridcolor='rgba(75, 85, 99, 0.3)')
-        fig.update_yaxes(showgrid=True, gridcolor='rgba(75, 85, 99, 0.3)')
+    # Ejes con mejor contraste
+    axis_config = dict(
+        showgrid=True, 
+        gridcolor=grid_color,
+        title_font=dict(color=text_color, size=13, weight=600),
+        tickfont=dict(color=text_color, size=11, weight=500),
+        linecolor=grid_color
+    )
+    
+    fig.update_xaxes(**axis_config)
+    fig.update_yaxes(**axis_config)
+    
+    # Actualizar colores de texto en trazas
+    for trace in fig.data:
+        if hasattr(trace, 'textfont'):
+            trace.textfont.color = text_color
+        if hasattr(trace, 'marker') and hasattr(trace.marker, 'line'):
+            trace.marker.line.width = 0.5
     
     return fig
 
 colors = ['rgb(96, 165, 250)', 'rgb(129, 140, 248)', 'rgb(167, 139, 250)', 'rgb(236, 72, 153)', 'rgb(251, 146, 60)']
+
+# Función para obtener color de texto según tema
+def get_text_color():
+    theme = st.session_state.get('selected_theme', 'plotly_dark')
+    return "rgb(31, 41, 55)" if theme in ['plotly_white', 'seaborn', 'ggplot2'] else "rgb(209, 213, 219)"
 
 # Dashboard Tabs
 tab1, tab2, tab3, tab4, tab5 = st.tabs(["📊 REVENUE", "👥 CUSTOMERS", "📦 PRODUCTS", "🌍 GEOGRAPHY", "🔬 ADVANCED"])
@@ -574,7 +626,8 @@ with tab1:
             mode='lines+markers', name='Revenue',
             line=dict(color='rgb(96, 165, 250)', width=3),
             marker=dict(size=8, color='rgb(96, 165, 250)'),
-            fill='tozeroy', fillcolor='rgba(96, 165, 250, 0.1)'
+            fill='tozeroy', fillcolor='rgba(96, 165, 250, 0.1)',
+            textfont=dict(color=get_text_color())
         ))
         
         z = np.polyfit(range(len(monthly_revenue)), monthly_revenue['total_price'], 1)
@@ -592,8 +645,16 @@ with tab1:
         country_revenue = df_filtered.groupby('country')['total_price'].sum().nlargest(5).reset_index()
         
         fig_pie = px.pie(country_revenue, values='total_price', names='country', hole=0.45, color_discrete_sequence=colors)
-        fig_pie.update_traces(textposition='inside', textinfo='percent+label')
-        fig_pie.update_layout(paper_bgcolor='rgba(0, 0, 0, 0)', showlegend=True)
+        fig_pie.update_traces(
+            textposition='inside', 
+            textinfo='percent+label',
+            textfont=dict(size=12, color='white', weight=600)
+        )
+        fig_pie.update_layout(
+            paper_bgcolor='rgba(0, 0, 0, 0)', 
+            showlegend=True,
+            legend=dict(font=dict(color=get_text_color()))
+        )
         st.plotly_chart(fig_pie, use_container_width=True)
     
     st.markdown("### 📅 WEEKLY PATTERN")
@@ -603,7 +664,9 @@ with tab1:
     fig_dow = go.Figure(data=[go.Bar(
         x=dow_revenue['day_of_week'], y=dow_revenue['total_price'],
         marker=dict(color=dow_revenue['total_price'], colorscale='Viridis'),
-        text=[f"${val:,.0f}" for val in dow_revenue['total_price']], textposition='outside'
+        text=[f"${val:,.0f}" for val in dow_revenue['total_price']], 
+        textposition='outside',
+        textfont=dict(color=get_text_color(), size=12, weight=600)
     )])
     st.plotly_chart(style_fig(fig_dow, "Revenue by Day"), use_container_width=True)
 
@@ -621,7 +684,9 @@ with tab2:
         fig_cust = go.Figure(data=[go.Bar(
             x=top_customers['total_revenue'], y=top_customers['customer_id'], orientation='h',
             marker=dict(color=top_customers['total_revenue'], colorscale='Plasma'),
-            text=[f"${val:,.0f}" for val in top_customers['total_revenue']], textposition='outside'
+            text=[f"${val:,.0f}" for val in top_customers['total_revenue']], 
+            textposition='outside',
+            textfont=dict(color=get_text_color(), size=11, weight=600)
         )])
         st.plotly_chart(style_fig(fig_cust, "Revenue Champions"), use_container_width=True)
     
@@ -633,7 +698,9 @@ with tab2:
         fig_freq = go.Figure(data=[go.Bar(
             x=order_freq['orders'], y=order_freq['customer_count'],
             marker=dict(color=order_freq['customer_count'], colorscale='Turbo'),
-            text=order_freq['customer_count'], textposition='outside'
+            text=order_freq['customer_count'], 
+            textposition='outside',
+            textfont=dict(color=get_text_color(), size=12, weight=600)
         )])
         st.plotly_chart(style_fig(fig_freq, "Order Frequency"), use_container_width=True)
     
@@ -663,7 +730,9 @@ with tab2:
         fig_seg = go.Figure(data=[go.Bar(
             x=segment_summary['segment'], y=segment_summary['customer_count'],
             marker=dict(color=colors[:len(segment_summary)]),
-            text=segment_summary['customer_count'], textposition='outside'
+            text=segment_summary['customer_count'], 
+            textposition='outside',
+            textfont=dict(color=get_text_color(), size=12, weight=600)
         )])
         st.plotly_chart(style_fig(fig_seg, "Customers by Segment"), use_container_width=True)
     
@@ -671,7 +740,9 @@ with tab2:
         fig_segrev = go.Figure(data=[go.Bar(
             x=segment_summary['segment'], y=segment_summary['total_revenue'],
             marker=dict(color=colors[:len(segment_summary)]),
-            text=[f"${val:,.0f}" for val in segment_summary['total_revenue']], textposition='outside'
+            text=[f"${val:,.0f}" for val in segment_summary['total_revenue']], 
+            textposition='outside',
+            textfont=dict(color=get_text_color(), size=12, weight=600)
         )])
         st.plotly_chart(style_fig(fig_segrev, "Revenue by Segment"), use_container_width=True)
 
@@ -688,7 +759,9 @@ with tab3:
         fig_prod = go.Figure(data=[go.Bar(
             x=top_prod['total_price'], y=top_prod['product_name'], orientation='h',
             marker=dict(color=top_prod['total_price'], colorscale='Rainbow'),
-            text=[f"${val:,.0f}" for val in top_prod['total_price']], textposition='outside'
+            text=[f"${val:,.0f}" for val in top_prod['total_price']], 
+            textposition='outside',
+            textfont=dict(color=get_text_color(), size=11, weight=600)
         )])
         st.plotly_chart(style_fig(fig_prod, "Revenue Leaders"), use_container_width=True)
     
@@ -699,7 +772,9 @@ with tab3:
         fig_qty = go.Figure(data=[go.Bar(
             x=top_qty['quantity'], y=top_qty['product_name'], orientation='h',
             marker=dict(color=top_qty['quantity'], colorscale='Teal'),
-            text=top_qty['quantity'], textposition='outside'
+            text=top_qty['quantity'], 
+            textposition='outside',
+            textfont=dict(color=get_text_color(), size=11, weight=600)
         )])
         st.plotly_chart(style_fig(fig_qty, "Volume Champions"), use_container_width=True)
     
@@ -735,7 +810,9 @@ with tab4:
     fig_country = go.Figure(data=[go.Bar(
         x=country_analysis['country'], y=country_analysis['revenue'],
         marker=dict(color=country_analysis['revenue'], colorscale='Viridis', showscale=True),
-        text=[f"${val:,.0f}" for val in country_analysis['revenue']], textposition='outside'
+        text=[f"${val:,.0f}" for val in country_analysis['revenue']], 
+        textposition='outside',
+        textfont=dict(color=get_text_color(), size=12, weight=600)
     )])
     st.plotly_chart(style_fig(fig_country, "Global Distribution"), use_container_width=True)
     
@@ -763,7 +840,8 @@ with tab5:
             x=growth_data['order_date'], y=growth_data['growth_rate'],
             marker=dict(color=colors_growth),
             text=[f"{val:.1f}%" if not pd.isna(val) else "" for val in growth_data['growth_rate']],
-            textposition='outside'
+            textposition='outside',
+            textfont=dict(color=get_text_color(), size=11, weight=600)
         ))
         fig_growth.add_hline(y=0, line_dash="solid", line_color="rgba(255, 255, 255, 0.4)")
         st.plotly_chart(style_fig(fig_growth, "MoM Growth %"), use_container_width=True)
@@ -1015,14 +1093,16 @@ with adv_tab3:
         fig_yoy.add_trace(go.Bar(
             x=m_y1['month_name'], y=m_y1['revenue'], name=str(year1),
             marker=dict(color='rgb(96, 165, 250)'),
-            text=[f"${v:,.0f}" for v in m_y1['revenue']], textposition='outside',
-            textfont=dict(color='rgb(209, 213, 219)')
+            text=[f"${v:,.0f}" for v in m_y1['revenue']], 
+            textposition='outside',
+            textfont=dict(color=get_text_color(), size=11, weight=600)
         ))
         fig_yoy.add_trace(go.Bar(
             x=m_y2['month_name'], y=m_y2['revenue'], name=str(year2),
             marker=dict(color='rgb(129, 140, 248)'),
-            text=[f"${v:,.0f}" for v in m_y2['revenue']], textposition='outside',
-            textfont=dict(color='rgb(209, 213, 219)')
+            text=[f"${v:,.0f}" for v in m_y2['revenue']], 
+            textposition='outside',
+            textfont=dict(color=get_text_color(), size=11, weight=600)
         ))
         
         st.plotly_chart(style_fig(fig_yoy, f"{year1} vs {year2}"), use_container_width=True)
@@ -1071,7 +1151,7 @@ with adv_tab4:
     - Smart Alerts & Recommendations
     """)
     
-    if st.button("🔄 GENERATE REPORT", use_container_width=True, type="primary"):
+    if st.button("📄 GENERATE REPORT", use_container_width=True, type="primary"):
         with st.spinner("Generating report..."):
             html = f"""
             <html>
