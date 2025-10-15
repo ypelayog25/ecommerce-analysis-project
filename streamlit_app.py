@@ -11,25 +11,20 @@ st.set_page_config(
 # Custom CSS for professional dark theme
 st.markdown("""
 <style>
-    /* Import Inter font */
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
     
-    /* Global styles */
     * {
         font-family: 'Inter', sans-serif;
     }
     
-    /* Hide Streamlit branding */
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
     header {visibility: hidden;}
     
-    /* Main background */
     .stApp {
         background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
     }
     
-    /* Header styling */
     .main-header {
         background: linear-gradient(135deg, #1E293B 0%, #334155 100%);
         padding: 2rem 3rem;
@@ -54,7 +49,6 @@ st.markdown("""
         font-weight: 400;
     }
     
-    /* Dashboard card */
     .dashboard-card {
         background: linear-gradient(135deg, #1E293B 0%, #334155 100%);
         border-radius: 12px;
@@ -107,7 +101,6 @@ st.markdown("""
         letter-spacing: 0.05em;
     }
     
-    /* Section title */
     .section-title {
         color: #F8FAFC;
         font-size: 1.5rem;
@@ -116,7 +109,6 @@ st.markdown("""
         letter-spacing: -0.01em;
     }
     
-    /* Streamlit button override */
     .stButton > button {
         width: 100%;
         background: transparent;
@@ -136,7 +128,7 @@ st.markdown("""
 st.markdown("""
 <div class="main-header">
     <h1>📊 Business Intelligence Platform</h1>
-    <p>Plataforma de análisis empresarial y dashboards interactivos</p>
+    <p>Interactive dashboards and executive analytics suite</p>
 </div>
 """, unsafe_allow_html=True)
 
@@ -145,49 +137,49 @@ dashboards = [
     {
         "icon": "🛒",
         "title": "E-commerce Dashboard",
-        "description": "Análisis completo de ventas online, productos top, conversión y métricas de rendimiento del negocio digital.",
+        "description": "Full analytics for online sales, performance insights, top products and conversion tracking.",
         "page": "pages/01_📊_Ecommerce_Dashboard.py",
-        "badge": "Principal"
+        "badge": "Primary"
     },
     {
         "icon": "📈",
         "title": "Sales Analytics",
-        "description": "Métricas de ventas, tendencias temporales, análisis de vendedores y proyecciones de ingresos.",
+        "description": "Sales metrics, trend analysis, revenue projections and sales rep performance.",
         "page": "pages/02_📈_Sales_Analytics.py",
-        "badge": "Ejecutivo"
+        "badge": "Executive"
     },
     {
         "icon": "👥",
         "title": "Customer Insights",
-        "description": "Segmentación de clientes, análisis de comportamiento, retención y valor de tiempo de vida (LTV).",
+        "description": "Customer segmentation, behavioral insights, retention and lifetime value (LTV) analysis.",
         "page": "pages/03_👥_Customer_Insights.py",
         "badge": "CRM"
     },
     {
         "icon": "📦",
         "title": "Inventory Control",
-        "description": "Gestión de inventario, stock alerts, rotación de productos y análisis de almacenes.",
+        "description": "Inventory management, automated alerts, stock rotation and warehouse analytics.",
         "page": "pages/04_📦_Inventory_Control.py",
-        "badge": "Operaciones"
+        "badge": "Operations"
     },
     {
         "icon": "💰",
         "title": "Financial Overview",
-        "description": "Estados financieros, P&L, flujo de caja, análisis de costos y rentabilidad por categoría.",
+        "description": "Financial statements, P&L breakdown, cashflow tracking and profitability analysis.",
         "page": "pages/05_💰_Financial_Overview.py",
-        "badge": "Finanzas"
+        "badge": "Finance"
     },
     {
         "icon": "🎯",
         "title": "Marketing Performance",
-        "description": "ROI de campañas, conversión de canales, análisis de tráfico y performance de ads.",
+        "description": "Campaign ROI, acquisition channels, conversion rates and traffic performance.",
         "page": "pages/06_🎯_Marketing_Performance.py",
         "badge": "Marketing"
     }
 ]
 
 # Section title
-st.markdown('<p class="section-title">Selecciona un Dashboard</p>', unsafe_allow_html=True)
+st.markdown('<p class="section-title">Select a Dashboard</p>', unsafe_allow_html=True)
 
 # Create grid layout for cards
 cols = st.columns(3)
@@ -205,14 +197,13 @@ for idx, dashboard in enumerate(dashboards):
         
         st.markdown(card_html, unsafe_allow_html=True)
         
-        # Navigation button (invisible but functional)
-        if st.button(f"Open {dashboard['title']}", key=f"btn_{idx}", help=f"Abrir {dashboard['title']}"):
+        if st.button(f"Open {dashboard['title']}", key=f"btn_{idx}", help=f"Open {dashboard['title']}"):
             st.switch_page(dashboard['page'])
 
-# Footer info
+# Footer
 st.markdown("---")
 st.markdown("""
 <div style='text-align: center; color: #64748B; font-size: 0.9rem; padding: 2rem 0;'>
-    <p>Desarrollado con Streamlit • Versión 1.0.0 • © 2025 BI Analytics Platform</p>
+    <p>Built with Streamlit • Version 1.0.0 • © 2025 BI Analytics Platform</p>
 </div>
 """, unsafe_allow_html=True)
