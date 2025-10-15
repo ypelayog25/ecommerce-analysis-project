@@ -1,1136 +1,457 @@
-import os
-import pandas as pd
-import numpy as np
 import streamlit as st
+import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 from datetime import datetime, timedelta
+import numpy as np
 
-# -----------------------------
-# Page Configuration (safe: wrapped to avoid "set_page_config can only be called once")
-# -----------------------------
-try:
-    st.set_page_config(
-        page_title="E-commerce Dashboard",
-        layout="wide",
-        initial_sidebar_state="expanded",
-        page_icon="📊"
-    )
-except Exception:
-    # Page config may have been set by the launcher (streamlit_app.py).
-    # We swallow the exception to avoid crashing when running as a multipage app.
-    pass
+# Page configuration
+st.set_page_config(
+    page_title="E-commerce Dashboard",
+    page_icon="🛒",
+    layout="wide"
+)
 
-# -----------------------------
-# Professional Dark Theme CSS
-# -----------------------------
+# Custom CSS for dark theme
 st.markdown("""
-    <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Roboto:wght@300;400;500;700&display=swap');
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
     
-    * { 
-        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
-        -webkit-font-smoothing: antialiased;
-        -moz-osx-font-smoothing: grayscale;
+    * {
+        font-family: 'Inter', sans-serif;
     }
     
-    .main { 
-        background: linear-gradient(135deg, rgb(17, 24, 39) 0%, rgb(31, 41, 55) 50%, rgb(17, 24, 39) 100%);
+    .stApp {
+        background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
     }
     
-    [data-testid="stSidebar"] { 
-        background: linear-gradient(180deg, rgb(31, 41, 55) 0%, rgb(17, 24, 39) 100%);
-    }
-    
-    [data-testid="stSidebar"] h2, [data-testid="stSidebar"] h3, [data-testid="stSidebar"] label,
-    [data-testid="stSidebar"] p, [data-testid="stSidebar"] span, [data-testid="stSidebar"] div {
-        color: rgb(229, 231, 235) !important;
-        font-weight: 500;
-    }
-    
-    [data-testid="stSidebar"] div[data-testid="stExpander"] {
-        background-color: rgb(55, 65, 81) !important;
-        border: 1px solid rgb(75, 85, 99);
-        border-radius: 8px;
-    }
-    
-    [data-testid="stSidebar"] div[data-testid="stExpander"] > div {
-        background-color: rgb(55, 65, 81) !important;
-    }
-    
-    [data-testid="stSidebar"] div[data-testid="stExpander"] > div > div {
-        background-color: rgb(55, 65, 81) !important;
-        padding: 15px;
-        border-radius: 8px;
-    }
-    
-    [data-testid="stSidebar"] details[data-testid="stExpander"] {
-        background-color: rgb(55, 65, 81) !important;
-    }
-    
-    [data-testid="stSidebar"] details[data-testid="stExpander"] summary {
-        background-color: rgb(55, 65, 81) !important;
-        padding: 12px 15px !important;
-        border-radius: 8px;
-    }
-    
-    [data-testid="stSidebar"] details[open] {
-        background-color: rgb(55, 65, 81) !important;
-    }
-    
-    [data-testid="stSidebar"] details[open] > summary {
-        background-color: rgb(55, 65, 81) !important;
-        border-bottom: 1px solid rgb(75, 85, 99);
-        margin-bottom: 10px;
-    }
-    
-    [data-testid="stSidebar"] .stExpander {
-        background-color: rgb(55, 65, 81) !important;
-    }
-    
-    [data-testid="stSidebar"] [data-testid="stExpanderDetails"] {
-        background-color: rgb(55, 65, 81) !important;
-    }
-    
-    [data-testid="stSidebar"] input[type="date"], [data-testid="stSidebar"] input[type="text"] {
-        background-color: rgb(55, 65, 81) !important;
-        color: rgb(243, 244, 246) !important;
-        border: 1px solid rgb(75, 85, 99) !important;
-        border-radius: 6px;
-        padding: 10px;
-        font-weight: 500;
-    }
-    
-    [data-testid="stSidebar"] [data-baseweb="select"] {
-        background-color: rgb(55, 65, 81) !important;
-        border-radius: 6px;
-    }
-    
-    [data-testid="stSidebar"] [data-baseweb="select"] > div {
-        background-color: rgb(55, 65, 81) !important;
-        color: rgb(243, 244, 246) !important;
-        border: 1px solid rgb(75, 85, 99) !important;
-    }
-    
-    [data-testid="stSidebar"] [data-baseweb="popover"] {
-        background-color: rgb(31, 41, 55) !important;
-    }
-    
-    [data-testid="stSidebar"] ul {
-        background-color: rgb(31, 41, 55) !important;
-    }
-    
-    [data-testid="stSidebar"] li {
-        background-color: rgb(31, 41, 55) !important;
-        color: rgb(229, 231, 235) !important;
-    }
-    
-    [data-testid="stSidebar"] .stCheckbox {
-        background-color: transparent !important;
-    }
-    
-    [data-testid="stSidebar"] .stSlider {
-        background-color: transparent !important;
-    }
-    
-    [data-testid="stSidebar"] .stMultiSelect {
-        background-color: rgb(55, 65, 81) !important;
-    }
-    
-    [data-testid="stSidebar"] .stMultiSelect > div {
-        background-color: rgb(55, 65, 81) !important;
-    }
-    
-    [data-testid="stSidebar"] .stDateInput > div {
-        background-color: rgb(55, 65, 81) !important;
-    }
-    
-    [data-testid="stSidebar"] input {
-        background-color: rgb(55, 65, 81) !important;
-        color: rgb(243, 244, 246) !important;
-    }
-    
-    [data-testid="stSidebar"] .row-widget {
-        background-color: transparent !important;
-    }
-    
-    [data-testid="stSidebar"] .stMarkdown {
-        background-color: transparent !important;
-    }
-    
-    h1 { 
-        color: rgb(243, 244, 246) !important;
-        font-weight: 700 !important;
-        letter-spacing: -0.5px;
-    }
-    
-    h2 { 
-        color: rgb(229, 231, 235) !important;
-        font-weight: 600 !important;
-        letter-spacing: -0.3px;
-    }
-    
-    h3 { 
-        color: rgb(209, 213, 219) !important;
-        font-weight: 600 !important;
-        letter-spacing: -0.2px;
-    }
-    
-    [data-testid="stMetricValue"] {
-        font-size: 32px !important;
-        font-weight: 700 !important;
-        color: rgb(96, 165, 250) !important;
-        letter-spacing: -0.5px;
-    }
-    
-    [data-testid="stMetricLabel"] {
-        font-size: 12px !important;
-        font-weight: 600 !important;
-        color: rgb(156, 163, 175) !important;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-    }
-    
-    [data-testid="stMetricDelta"] {
-        font-size: 13px !important;
-        font-weight: 600 !important;
-    }
-    
-    div[data-testid="metric-container"] {
-        background: linear-gradient(135deg, rgb(30, 58, 138) 0%, rgb(29, 78, 216) 100%);
-        padding: 22px;
+    /* Header */
+    .dashboard-header {
+        background: linear-gradient(135deg, #1E293B 0%, #334155 100%);
+        padding: 1.5rem 2rem;
         border-radius: 12px;
-        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
-        border: 1px solid rgba(59, 130, 246, 0.3);
-        transition: all 0.3s ease;
+        margin-bottom: 2rem;
+        border: 1px solid rgba(59, 130, 246, 0.1);
     }
     
-    div[data-testid="metric-container"]:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 8px 24px rgba(59, 130, 246, 0.4);
-        border-color: rgba(96, 165, 250, 0.5);
+    .breadcrumb {
+        color: #94A3B8;
+        font-size: 0.9rem;
+        margin-bottom: 0.5rem;
     }
     
-    .stTabs [data-baseweb="tab-list"] {
-        gap: 8px;
-        background-color: rgb(31, 41, 55);
-        padding: 6px;
-        border-radius: 10px;
-        border: 1px solid rgb(55, 65, 81);
+    .breadcrumb a {
+        color: #60A5FA;
+        text-decoration: none;
     }
     
-    .stTabs [data-baseweb="tab"] {
-        height: 44px;
-        background-color: rgba(55, 65, 81, 0.5);
-        border-radius: 8px;
-        color: rgb(156, 163, 175);
-        font-weight: 600;
-        font-size: 13px;
-        padding: 0 20px;
-        border: 1px solid transparent;
-        transition: all 0.2s ease;
-        letter-spacing: 0.3px;
-    }
-    
-    .stTabs [data-baseweb="tab"]:hover {
-        background-color: rgb(55, 65, 81);
-        color: rgb(209, 213, 219);
-    }
-    
-    .stTabs [aria-selected="true"] {
-        background: linear-gradient(135deg, rgb(30, 58, 138) 0%, rgb(29, 78, 216) 100%);
-        color: rgb(243, 244, 246) !important;
-        border-color: rgba(59, 130, 246, 0.5);
-        box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
-    }
-    
-    .stButton button {
-        background: linear-gradient(135deg, rgb(30, 58, 138) 0%, rgb(29, 78, 216) 100%);
-        color: rgb(243, 244, 246) !important;
-        border: 1px solid rgba(59, 130, 246, 0.5);
-        border-radius: 8px;
-        padding: 10px 20px;
-        font-weight: 600;
-        font-size: 13px;
-        transition: all 0.2s ease;
-        letter-spacing: 0.3px;
-    }
-    
-    .stButton button:hover {
-        background: linear-gradient(135deg, rgb(37, 99, 235) 0%, rgb(59, 130, 246) 100%);
-        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
-        transform: translateY(-1px);
-    }
-    
-    .stDownloadButton button {
-        background: linear-gradient(135deg, rgb(5, 150, 105) 0%, rgb(16, 185, 129) 100%);
-        color: rgb(243, 244, 246) !important;
-        border: 1px solid rgba(16, 185, 129, 0.5);
-        font-weight: 600;
-    }
-    
-    .stDownloadButton button:hover {
-        background: linear-gradient(135deg, rgb(16, 185, 129) 0%, rgb(52, 211, 153) 100%);
-        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
-    }
-    
-    p, span, label { 
-        color: rgb(209, 213, 219) !important;
-        font-size: 14px;
-        font-weight: 400;
-        line-height: 1.6;
-    }
-    
-    .stMarkdown h3 {
-        color: rgb(96, 165, 250) !important;
+    .dashboard-title {
+        color: #F8FAFC;
+        font-size: 2rem;
         font-weight: 700;
-        margin-top: 20px;
-        margin-bottom: 16px;
-        padding-left: 14px;
-        border-left: 4px solid rgb(59, 130, 246);
-        letter-spacing: -0.3px;
+        margin: 0;
+        letter-spacing: -0.02em;
     }
     
-    .stMarkdown h4 {
-        color: rgb(156, 163, 175) !important;
-        font-weight: 600;
-        font-size: 16px;
-        margin-bottom: 12px;
-        letter-spacing: -0.2px;
+    /* KPI Card */
+    .kpi-card {
+        background: linear-gradient(135deg, #1E293B 0%, #334155 100%);
+        border-radius: 12px;
+        padding: 1.5rem;
+        border: 1px solid rgba(59, 130, 246, 0.15);
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+        height: 100%;
     }
     
-    [data-testid="stDataFrame"] {
-        border: 1px solid rgb(55, 65, 81);
-        border-radius: 8px;
-    }
-    
-    /* Mejorar contraste en tablas */
-    [data-testid="stDataFrame"] table {
-        background-color: rgb(31, 41, 55) !important;
-    }
-    
-    [data-testid="stDataFrame"] th {
-        background-color: rgb(30, 58, 138) !important;
-        color: rgb(243, 244, 246) !important;
-        font-weight: 600 !important;
-    }
-    
-    [data-testid="stDataFrame"] td {
-        color: rgb(229, 231, 235) !important;
-        background-color: rgb(31, 41, 55) !important;
-    }
-    
-    [data-testid="stDataFrame"] tr:hover {
-        background-color: rgb(55, 65, 81) !important;
-    }
-    
-    .stAlert {
-        background-color: rgba(30, 58, 138, 0.2);
-        border-radius: 8px;
-        border-left: 4px solid rgb(59, 130, 246);
-        color: rgb(229, 231, 235) !important;
+    .kpi-label {
+        color: #94A3B8;
+        font-size: 0.85rem;
         font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 0.5rem;
     }
     
-    hr {
-        border-color: rgb(55, 65, 81);
-        margin: 30px 0;
+    .kpi-value {
+        color: #F8FAFC;
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        letter-spacing: -0.02em;
     }
     
-    /* Success, Warning, Error colors */
-    .stSuccess {
-        background-color: rgba(5, 150, 105, 0.15);
-        border-left-color: rgb(16, 185, 129);
-        color: rgb(209, 250, 229) !important;
+    .kpi-change {
+        font-size: 0.9rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
     }
     
-    .stWarning {
-        background-color: rgba(217, 119, 6, 0.15);
-        border-left-color: rgb(251, 146, 60);
-        color: rgb(254, 243, 199) !important;
+    .kpi-change.positive {
+        color: #10B981;
     }
     
-    .stError {
-        background-color: rgba(220, 38, 38, 0.15);
-        border-left-color: rgb(239, 68, 68);
-        color: rgb(254, 226, 226) !important;
+    .kpi-change.negative {
+        color: #EF4444;
     }
     
-    .stInfo {
-        background-color: rgba(30, 58, 138, 0.15);
-        border-left-color: rgb(59, 130, 246);
-        color: rgb(219, 234, 254) !important;
+    /* Chart container */
+    .chart-container {
+        background: linear-gradient(135deg, #1E293B 0%, #334155 100%);
+        border-radius: 12px;
+        padding: 1.5rem;
+        border: 1px solid rgba(59, 130, 246, 0.15);
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+        margin-bottom: 1.5rem;
     }
     
-    @media (max-width: 768px) {
-        h1 { font-size: 28px !important; }
-        h2 { font-size: 22px !important; }
-        h3 { font-size: 18px !important; }
-        [data-testid="stMetricValue"] { font-size: 24px !important; }
-        div[data-testid="metric-container"] { padding: 16px; margin-bottom: 12px; }
-        .stButton button { width: 100%; font-size: 13px !important; }
-        p, span, label { font-size: 13px; }
+    .chart-title {
+        color: #F8FAFC;
+        font-size: 1.2rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+        letter-spacing: -0.01em;
     }
-    </style>
+    
+    /* Hide Streamlit elements */
+    #MainMenu {visibility: hidden;}
+    footer {visibility: hidden;}
+    
+    /* Plotly chart styling */
+    .js-plotly-plot {
+        border-radius: 8px;
+    }
+</style>
 """, unsafe_allow_html=True)
 
-# -----------------------------
-# Data Loading
-# -----------------------------
-@st.cache_data(ttl=3600)
-def load_data():
-    dataset_parquet = "data/processed/ecommerce_dataset_10000_cleaned.parquet"
-    dataset_csv = "data/processed/ecommerce_dataset_10000_cleaned.csv"
-    
-    try:
-        if os.path.exists(dataset_parquet):
-            df = pd.read_parquet(dataset_parquet)
-        elif os.path.exists(dataset_csv):
-            df = pd.read_csv(dataset_csv)
-        else:
-            return None
-        
-        df['order_date'] = pd.to_datetime(df['order_date'])
-        df['year_month'] = df['order_date'].dt.to_period('M')
-        df['year'] = df['order_date'].dt.year
-        df['month'] = df['order_date'].dt.month
-        df['day_of_week'] = df['order_date'].dt.day_name()
-        
-        return df
-    except Exception as e:
-        st.error(f"⚠️ Error loading data: {e}")
-        return None
-
-df = load_data()
-
-if df is None or df.empty:
-    st.error("❌ No dataset found or dataset is empty.")
-    st.stop()
-
-# -----------------------------
-# Header
-# -----------------------------
-st.markdown("""
-    <div style='text-align:center; padding: 40px 0 30px 0; background: linear-gradient(135deg, rgba(31, 41, 55, 0.8) 0%, rgba(17, 24, 39, 0.9) 100%); border-radius: 16px; margin-bottom: 30px; border: 1px solid rgb(55, 65, 81);'>
-        <h1 style='font-size: 42px; margin-bottom: 12px; color: rgb(243, 244, 246); font-weight: 700; letter-spacing: -1px;'>
-            📊 Executive E-Commerce Dashboard
-        </h1>
-        <p style='font-size: 16px; color: rgb(156, 163, 175); font-weight: 500; letter-spacing: 1px;'>
-            Real-Time Business Intelligence & Advanced Analytics
-        </p>
-    </div>
-""", unsafe_allow_html=True)
-
-# -----------------------------
-# Sidebar
-# -----------------------------
-with st.sidebar:
-    st.markdown("""
-        <div style='text-align: center; padding: 20px 0 15px 0;'>
-            <div style='font-size: 44px; margin-bottom: 10px;'>⚡</div>
-            <h2 style='margin: 0; font-size: 20px; color: rgb(96, 165, 250); font-weight: 700; letter-spacing: 0.5px;'>
-                Control Center
-            </h2>
-        </div>
-    """, unsafe_allow_html=True)
-    
-    with st.expander("📅 DATE RANGE FILTER", expanded=True):
-        min_date = df['order_date'].min().date()
-        max_date = df['order_date'].max().date()
-        
-        col1, col2 = st.columns(2)
-        with col1:
-            start_date = st.date_input("From", min_date, min_value=min_date, max_value=max_date)
-        with col2:
-            end_date = st.date_input("To", max_date, min_value=min_date, max_value=max_date)
-        
-        st.markdown("**⚡ Quick Filters**")
-        qcol1, qcol2 = st.columns(2)
-        with qcol1:
-            if st.button("Last 30D", use_container_width=True):
-                start_date = max_date - timedelta(days=30)
-            if st.button("Quarter", use_container_width=True):
-                start_date = max_date - timedelta(days=90)
-        with qcol2:
-            if st.button("Last 7D", use_container_width=True):
-                start_date = max_date - timedelta(days=7)
-            if st.button("YTD", use_container_width=True):
-                start_date = datetime(max_date.year, 1, 1).date()
-    
-    with st.expander("🌍 GEOGRAPHIC FILTER", expanded=True):
-        countries = sorted(df['country'].dropna().unique())
-        select_all = st.checkbox("✅ Select All Countries", value=True)
-        
-        if select_all:
-            selected_countries = countries
-        else:
-            selected_countries = st.multiselect("Choose Countries", countries, default=countries[:3])
-    
-    with st.expander("⚙️ DISPLAY SETTINGS", expanded=False):
-        top_n = st.slider("Top N Items", 5, 50, 10, 5)
-        chart_theme = st.selectbox("Chart Theme", ["plotly_dark", "plotly_white", "seaborn", "ggplot2"])
-        
-        if 'selected_theme' not in st.session_state:
-            st.session_state.selected_theme = chart_theme
-        else:
-            st.session_state.selected_theme = chart_theme
-    
-    st.markdown("---")
-    st.markdown("**💾 PREFERENCES**")
-    
-    if st.button("💾 Save Filters", use_container_width=True):
-        st.session_state.saved_filters = {
-            'start_date': start_date,
-            'end_date': end_date,
-            'countries': selected_countries,
-            'top_n': top_n
-        }
-        st.success("✅ Filters saved!")
-    
-    if 'saved_filters' in st.session_state:
-        if st.button("🔄 Load Filters", use_container_width=True):
-            saved = st.session_state.saved_filters
-            st.info(f"📌 Saved: {saved['start_date']} to {saved['end_date']}")
-
-# -----------------------------
-# Filter data
-# -----------------------------
-start_date_dt = pd.to_datetime(start_date)
-end_date_dt = pd.to_datetime(end_date)
-df_filtered = df[
-    (df['country'].isin(selected_countries)) &
-    (df['order_date'] >= start_date_dt) &
-    (df['order_date'] <= end_date_dt)
-].copy()
-
-if df_filtered.empty:
-    st.warning("⚠️ No data available for selected filters.")
-    st.stop()
-
-# -----------------------------
-# Calculate Metrics
-# -----------------------------
+# Generate sample data
 @st.cache_data
-def calculate_metrics(df_current, df_all):
-    total_revenue = df_current['total_price'].sum()
-    total_orders = df_current['order_id'].nunique()
-    unique_customers = df_current['customer_id'].nunique()
-    total_quantity = df_current['quantity'].sum()
-    avg_order_value = total_revenue / total_orders if total_orders > 0 else 0
+def generate_sample_data():
+    np.random.seed(42)
     
-    date_diff = (df_current['order_date'].max() - df_current['order_date'].min()).days
-    prev_start = df_current['order_date'].min() - timedelta(days=date_diff)
-    prev_end = df_current['order_date'].min()
+    # Date range (last 30 days)
+    dates = pd.date_range(end=datetime.now(), periods=30, freq='D')
     
-    df_prev = df_all[
-        (df_all['order_date'] >= prev_start) &
-        (df_all['order_date'] < prev_end)
-    ]
+    # Daily sales data
+    daily_sales = pd.DataFrame({
+        'date': dates,
+        'revenue': np.random.randint(15000, 45000, 30),
+        'orders': np.random.randint(80, 250, 30),
+        'visitors': np.random.randint(1500, 4500, 30)
+    })
+    daily_sales['conversion_rate'] = (daily_sales['orders'] / daily_sales['visitors'] * 100).round(2)
     
-    prev_revenue = df_prev['total_price'].sum()
-    prev_orders = df_prev['order_id'].nunique()
-    prev_customers = df_prev['customer_id'].nunique()
+    # Product data
+    products = pd.DataFrame({
+        'product': ['Laptop Pro 15"', 'Wireless Mouse', 'USB-C Hub', 'Mechanical Keyboard', 
+                    'Monitor 27"', 'Webcam HD', 'Headphones', 'Desk Mat', 'Phone Stand', 'Cable Pack'],
+        'category': ['Electronics', 'Accessories', 'Accessories', 'Peripherals',
+                     'Electronics', 'Accessories', 'Audio', 'Accessories', 'Accessories', 'Accessories'],
+        'units_sold': [245, 890, 567, 423, 189, 334, 678, 445, 556, 789],
+        'revenue': [294000, 26700, 28350, 42300, 94500, 23370, 67800, 13350, 16680, 15780]
+    })
+    products['avg_price'] = (products['revenue'] / products['units_sold']).round(2)
     
-    revenue_delta = ((total_revenue - prev_revenue) / prev_revenue * 100) if prev_revenue > 0 else 0
-    orders_delta = ((total_orders - prev_orders) / prev_orders * 100) if prev_orders > 0 else 0
-    customers_delta = ((unique_customers - prev_customers) / prev_customers * 100) if prev_customers > 0 else 0
+    # Category summary
+    category_sales = products.groupby('category').agg({
+        'revenue': 'sum',
+        'units_sold': 'sum'
+    }).reset_index().sort_values('revenue', ascending=False)
     
-    return {
-        'total_revenue': total_revenue,
-        'total_orders': total_orders,
-        'unique_customers': unique_customers,
-        'total_quantity': total_quantity,
-        'avg_order_value': avg_order_value,
-        'revenue_delta': revenue_delta,
-        'orders_delta': orders_delta,
-        'customers_delta': customers_delta
-    }
+    return daily_sales, products, category_sales
 
-metrics = calculate_metrics(df_filtered, df)
+daily_sales, products, category_sales = generate_sample_data()
 
-# -----------------------------
+# Header
+st.markdown("""
+<div class="dashboard-header">
+    <div class="breadcrumb">
+        <a href="/">🏠 Home</a> / E-commerce Dashboard
+    </div>
+    <h1 class="dashboard-title">🛒 E-commerce Dashboard</h1>
+</div>
+""", unsafe_allow_html=True)
+
+# Filters row
+col_filter1, col_filter2, col_filter3, col_filter4 = st.columns([2, 2, 2, 1])
+
+with col_filter1:
+    date_range = st.selectbox(
+        "Período",
+        ["Últimos 7 días", "Últimos 30 días", "Últimos 90 días", "Este año"],
+        index=1
+    )
+
+with col_filter2:
+    category_filter = st.multiselect(
+        "Categorías",
+        options=products['category'].unique(),
+        default=products['category'].unique()
+    )
+
+with col_filter3:
+    comparison = st.selectbox(
+        "Comparar con",
+        ["Período anterior", "Mismo período año pasado", "Sin comparación"],
+        index=0
+    )
+
+with col_filter4:
+    st.markdown("<div style='height: 0.5rem;'></div>", unsafe_allow_html=True)
+    if st.button("🔄 Actualizar", use_container_width=True):
+        st.rerun()
+
+st.markdown("<div style='margin-bottom: 1.5rem;'></div>", unsafe_allow_html=True)
+
+# Calculate KPIs
+total_revenue = daily_sales['revenue'].sum()
+total_orders = daily_sales['orders'].sum()
+avg_order_value = total_revenue / total_orders
+avg_conversion = daily_sales['conversion_rate'].mean()
+
+# Previous period (for comparison)
+prev_revenue = total_revenue * np.random.uniform(0.85, 0.95)
+prev_orders = total_orders * np.random.uniform(0.88, 0.98)
+prev_aov = avg_order_value * np.random.uniform(0.92, 1.02)
+prev_conversion = avg_conversion * np.random.uniform(0.9, 1.0)
+
+revenue_change = ((total_revenue - prev_revenue) / prev_revenue * 100)
+orders_change = ((total_orders - prev_orders) / prev_orders * 100)
+aov_change = ((avg_order_value - prev_aov) / prev_aov * 100)
+conversion_change = ((avg_conversion - prev_conversion) / prev_conversion * 100)
+
 # KPI Cards
-# -----------------------------
-st.markdown("### 🎯 KEY PERFORMANCE INDICATORS")
-kpi1, kpi2, kpi3, kpi4, kpi5 = st.columns(5)
+kpi1, kpi2, kpi3, kpi4 = st.columns(4)
 
 with kpi1:
-    st.metric("💰 REVENUE", f"${metrics['total_revenue']:,.0f}", f"{metrics['revenue_delta']:.1f}%")
+    change_class = "positive" if revenue_change > 0 else "negative"
+    arrow = "▲" if revenue_change > 0 else "▼"
+    st.markdown(f"""
+    <div class="kpi-card">
+        <div class="kpi-label">💰 Ingresos Totales</div>
+        <div class="kpi-value">${total_revenue:,.0f}</div>
+        <div class="kpi-change {change_class}">{arrow} {abs(revenue_change):.1f}% vs período anterior</div>
+    </div>
+    """, unsafe_allow_html=True)
+
 with kpi2:
-    st.metric("🛒 ORDERS", f"{metrics['total_orders']:,}", f"{metrics['orders_delta']:.1f}%")
+    change_class = "positive" if orders_change > 0 else "negative"
+    arrow = "▲" if orders_change > 0 else "▼"
+    st.markdown(f"""
+    <div class="kpi-card">
+        <div class="kpi-label">📦 Total Pedidos</div>
+        <div class="kpi-value">{total_orders:,}</div>
+        <div class="kpi-change {change_class}">{arrow} {abs(orders_change):.1f}% vs período anterior</div>
+    </div>
+    """, unsafe_allow_html=True)
+
 with kpi3:
-    st.metric("👥 CUSTOMERS", f"{metrics['unique_customers']:,}", f"{metrics['customers_delta']:.1f}%")
+    change_class = "positive" if aov_change > 0 else "negative"
+    arrow = "▲" if aov_change > 0 else "▼"
+    st.markdown(f"""
+    <div class="kpi-card">
+        <div class="kpi-label">🛍️ Valor Promedio Pedido</div>
+        <div class="kpi-value">${avg_order_value:,.0f}</div>
+        <div class="kpi-change {change_class}">{arrow} {abs(aov_change):.1f}% vs período anterior</div>
+    </div>
+    """, unsafe_allow_html=True)
+
 with kpi4:
-    st.metric("📦 UNITS", f"{metrics['total_quantity']:,}")
-with kpi5:
-    st.metric("💵 AVG ORDER", f"${metrics['avg_order_value']:.2f}")
+    change_class = "positive" if conversion_change > 0 else "negative"
+    arrow = "▲" if conversion_change > 0 else "▼"
+    st.markdown(f"""
+    <div class="kpi-card">
+        <div class="kpi-label">📊 Tasa Conversión</div>
+        <div class="kpi-value">{avg_conversion:.2f}%</div>
+        <div class="kpi-change {change_class}">{arrow} {abs(conversion_change):.1f}% vs período anterior</div>
+    </div>
+    """, unsafe_allow_html=True)
 
-st.markdown("---")
+st.markdown("<div style='margin: 2rem 0;'></div>", unsafe_allow_html=True)
 
-# -----------------------------
-# Plotly Helper con mejor contraste
-# -----------------------------
-def style_fig(fig, title=""):
-    theme = st.session_state.get('selected_theme', 'plotly_dark')
+# Charts row 1: Revenue trend + Orders trend
+chart1, chart2 = st.columns(2)
+
+with chart1:
+    st.markdown('<div class="chart-container">', unsafe_allow_html=True)
+    st.markdown('<div class="chart-title">📈 Tendencia de Ingresos (30 días)</div>', unsafe_allow_html=True)
     
-    # Colores de texto según el tema
-    is_light_theme = theme in ['plotly_white', 'seaborn', 'ggplot2']
+    fig_revenue = go.Figure()
+    fig_revenue.add_trace(go.Scatter(
+        x=daily_sales['date'],
+        y=daily_sales['revenue'],
+        mode='lines+markers',
+        name='Ingresos',
+        line=dict(color='#3B82F6', width=3),
+        marker=dict(size=6, color='#60A5FA'),
+        fill='tozeroy',
+        fillcolor='rgba(59, 130, 246, 0.1)'
+    ))
     
-    title_color = "rgb(31, 41, 55)" if is_light_theme else "rgb(229, 231, 235)"
-    text_color = "rgb(55, 65, 81)" if is_light_theme else "rgb(209, 213, 219)"
-    grid_color = "rgba(0, 0, 0, 0.15)" if is_light_theme else "rgba(75, 85, 99, 0.3)"
-    paper_bg = "rgba(255, 255, 255, 0.95)" if is_light_theme else "rgba(0, 0, 0, 0)"
-    plot_bg = "rgba(249, 250, 251, 1)" if is_light_theme else "rgba(31, 41, 55, 0.3)"
-    
-    fig.update_layout(
-        title=dict(
-            text=title, 
-            font=dict(size=20, color=title_color, family="Inter"),
-            x=0.5, 
-            xanchor='center'
+    fig_revenue.update_layout(
+        plot_bgcolor='rgba(0,0,0,0)',
+        paper_bgcolor='rgba(0,0,0,0)',
+        font=dict(color='#F8FAFC', family='Inter'),
+        xaxis=dict(
+            showgrid=True,
+            gridcolor='rgba(148, 163, 184, 0.1)',
+            title=None
         ),
-        font=dict(size=13, color=text_color, family="Inter"),
-        margin=dict(l=50, r=50, t=70, b=50),
-        template=theme,
+        yaxis=dict(
+            showgrid=True,
+            gridcolor='rgba(148, 163, 184, 0.1)',
+            title='Ingresos ($)'
+        ),
         hovermode='x unified',
-        paper_bgcolor=paper_bg,
-        plot_bgcolor=plot_bg,
-        hoverlabel=dict(
-            bgcolor="rgb(31, 41, 55)" if not is_light_theme else "white",
-            font_size=12,
-            font_family="Inter",
-            font_color="white" if not is_light_theme else "rgb(31, 41, 55)"
-        )
+        margin=dict(l=20, r=20, t=20, b=20),
+        height=300
     )
     
-    # Ejes con mejor contraste
-    axis_config = dict(
-        showgrid=True, 
-        gridcolor=grid_color,
-        title_font=dict(color=text_color, size=13),
-        tickfont=dict(color=text_color, size=11),
-        linecolor=grid_color
+    st.plotly_chart(fig_revenue, use_container_width=True)
+    st.markdown('</div>', unsafe_allow_html=True)
+
+with chart2:
+    st.markdown('<div class="chart-container">', unsafe_allow_html=True)
+    st.markdown('<div class="chart-title">📦 Pedidos y Conversión</div>', unsafe_allow_html=True)
+    
+    fig_orders = go.Figure()
+    fig_orders.add_trace(go.Bar(
+        x=daily_sales['date'],
+        y=daily_sales['orders'],
+        name='Pedidos',
+        marker_color='#10B981',
+        yaxis='y'
+    ))
+    
+    fig_orders.add_trace(go.Scatter(
+        x=daily_sales['date'],
+        y=daily_sales['conversion_rate'],
+        name='Conversión %',
+        line=dict(color='#F59E0B', width=2),
+        marker=dict(size=5),
+        yaxis='y2'
+    ))
+    
+    fig_orders.update_layout(
+        plot_bgcolor='rgba(0,0,0,0)',
+        paper_bgcolor='rgba(0,0,0,0)',
+        font=dict(color='#F8FAFC', family='Inter'),
+        xaxis=dict(
+            showgrid=True,
+            gridcolor='rgba(148, 163, 184, 0.1)',
+            title=None
+        ),
+        yaxis=dict(
+            showgrid=True,
+            gridcolor='rgba(148, 163, 184, 0.1)',
+            title='Pedidos',
+            side='left'
+        ),
+        yaxis2=dict(
+            title='Conversión (%)',
+            overlaying='y',
+            side='right',
+            showgrid=False
+        ),
+        hovermode='x unified',
+        margin=dict(l=20, r=20, t=20, b=20),
+        height=300,
+        legend=dict(orientation='h', yanchor='bottom', y=1.02, xanchor='right', x=1)
     )
     
-    fig.update_xaxes(**axis_config)
-    fig.update_yaxes(**axis_config)
-    
-    # Actualizar colores de texto en trazas
-    for trace in fig.data:
-        if hasattr(trace, 'textfont'):
-            try:
-                trace.textfont.color = text_color
-            except Exception:
-                pass
-        if hasattr(trace, 'marker') and hasattr(trace.marker, 'line'):
-            try:
-                trace.marker.line.width = 0.5
-            except Exception:
-                pass
-    
-    return fig
+    st.plotly_chart(fig_orders, use_container_width=True)
+    st.markdown('</div>', unsafe_allow_html=True)
 
-colors = ['rgb(96, 165, 250)', 'rgb(129, 140, 248)', 'rgb(167, 139, 250)', 'rgb(236, 72, 153)', 'rgb(251, 146, 60)']
+st.markdown("<div style='margin: 1.5rem 0;'></div>", unsafe_allow_html=True)
 
-# -----------------------------
-# Función para obtener color de texto según tema
-# -----------------------------
-def get_text_color():
-    theme = st.session_state.get('selected_theme', 'plotly_dark')
-    return "rgb(31, 41, 55)" if theme in ['plotly_white', 'seaborn', 'ggplot2'] else "rgb(209, 213, 219)"
+# Charts row 2: Top products + Category distribution
+chart3, chart4 = st.columns([1.2, 1])
 
-# -----------------------------
-# Dashboard Tabs
-# -----------------------------
-tab1, tab2, tab3, tab4, tab5 = st.tabs(["📊 REVENUE", "👥 CUSTOMERS", "📦 PRODUCTS", "🌍 GEOGRAPHY", "🔬 ADVANCED"])
-
-# TAB 1: Revenue
-with tab1:
-    col1, col2 = st.columns([2, 1])
+with chart3:
+    st.markdown('<div class="chart-container">', unsafe_allow_html=True)
+    st.markdown('<div class="chart-title">🏆 Top 10 Productos por Ingresos</div>', unsafe_allow_html=True)
     
-    with col1:
-        st.markdown("### 📈 REVENUE TREND")
-        monthly_revenue = df_filtered.groupby(df_filtered['order_date'].dt.to_period('M'))['total_price'].sum().reset_index()
-        monthly_revenue['order_date'] = monthly_revenue['order_date'].dt.to_timestamp()
-        
-        fig_trend = go.Figure()
-        fig_trend.add_trace(go.Scatter(
-            x=monthly_revenue['order_date'], y=monthly_revenue['total_price'],
-            mode='lines+markers', name='Revenue',
-            line=dict(color='rgb(96, 165, 250)', width=3),
-            marker=dict(size=8, color='rgb(96, 165, 250)'),
-            fill='tozeroy', fillcolor='rgba(96, 165, 250, 0.1)',
-            textfont=dict(color=get_text_color())
-        ))
-        
-        z = np.polyfit(range(len(monthly_revenue)), monthly_revenue['total_price'], 1)
-        p = np.poly1d(z)
-        fig_trend.add_trace(go.Scatter(
-            x=monthly_revenue['order_date'], y=p(range(len(monthly_revenue))),
-            mode='lines', name='Trend',
-            line=dict(color='rgb(251, 146, 60)', width=2.5, dash='dash')
-        ))
-        
-        st.plotly_chart(style_fig(fig_trend, "Monthly Performance"), use_container_width=True)
+    top_products = products.nlargest(10, 'revenue')
     
-    with col2:
-        st.markdown("### 🏆 TOP COUNTRIES")
-        country_revenue = df_filtered.groupby('country')['total_price'].sum().nlargest(5).reset_index()
-        
-        fig_pie = px.pie(country_revenue, values='total_price', names='country', hole=0.45, color_discrete_sequence=colors)
-        fig_pie.update_traces(
-            textposition='inside', 
-            textinfo='percent+label',
-            textfont=dict(size=12, color='white')
-        )
-        fig_pie.update_layout(
-            paper_bgcolor='rgba(0, 0, 0, 0)', 
-            showlegend=True,
-            legend=dict(font=dict(color=get_text_color()))
-        )
-        st.plotly_chart(fig_pie, use_container_width=True)
+    fig_products = go.Figure()
+    fig_products.add_trace(go.Bar(
+        y=top_products['product'],
+        x=top_products['revenue'],
+        orientation='h',
+        marker=dict(
+            color=top_products['revenue'],
+            colorscale='Blues',
+            showscale=False
+        ),
+        text=top_products['revenue'].apply(lambda x: f'${x:,.0f}'),
+        textposition='outside'
+    ))
     
-    st.markdown("### 📅 WEEKLY PATTERN")
-    dow_order = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
-    dow_revenue = df_filtered.groupby('day_of_week')['total_price'].sum().reindex(dow_order).reset_index()
-    
-    fig_dow = go.Figure(data=[go.Bar(
-        x=dow_revenue['day_of_week'], y=dow_revenue['total_price'],
-        marker=dict(color=dow_revenue['total_price'], colorscale='Viridis'),
-        text=[f"${val:,.0f}" for val in dow_revenue['total_price']], 
-        textposition='outside',
-        textfont=dict(color=get_text_color(), size=12)
-    )])
-    st.plotly_chart(style_fig(fig_dow, "Revenue by Day"), use_container_width=True)
-
-# TAB 2: Customers
-with tab2:
-    col1, col2 = st.columns(2)
-    
-    with col1:
-        st.markdown(f"### 🌟 TOP {top_n} CUSTOMERS")
-        top_customers = df_filtered.groupby('customer_id').agg({
-            'total_price': 'sum', 'order_id': 'nunique'
-        }).nlargest(top_n, 'total_price').reset_index()
-        top_customers.columns = ['customer_id', 'total_revenue', 'order_count']
-        
-        fig_cust = go.Figure(data=[go.Bar(
-            x=top_customers['total_revenue'], y=top_customers['customer_id'], orientation='h',
-            marker=dict(color=top_customers['total_revenue'], colorscale='Plasma'),
-            text=[f"${val:,.0f}" for val in top_customers['total_revenue']], 
-            textposition='outside',
-            textfont=dict(color=get_text_color(), size=11)
-        )])
-        st.plotly_chart(style_fig(fig_cust, "Revenue Champions"), use_container_width=True)
-    
-    with col2:
-        st.markdown("### 🔄 RETENTION")
-        order_freq = df_filtered.groupby('customer_id')['order_id'].nunique().value_counts().sort_index().reset_index()
-        order_freq.columns = ['orders', 'customer_count']
-        
-        fig_freq = go.Figure(data=[go.Bar(
-            x=order_freq['orders'], y=order_freq['customer_count'],
-            marker=dict(color=order_freq['customer_count'], colorscale='Turbo'),
-            text=order_freq['customer_count'], 
-            textposition='outside',
-            textfont=dict(color=get_text_color(), size=12)
-        )])
-        st.plotly_chart(style_fig(fig_freq, "Order Frequency"), use_container_width=True)
-    
-    st.markdown("### 🎯 CUSTOMER SEGMENTATION")
-    snapshot_date = df_filtered['order_date'].max() + timedelta(days=1)
-    rfm = df_filtered.groupby('customer_id').agg({
-        'order_date': lambda x: (snapshot_date - x.max()).days,
-        'order_id': 'nunique',
-        'total_price': 'sum'
-    }).reset_index()
-    rfm.columns = ['customer_id', 'recency', 'frequency', 'monetary']
-    
-    rfm['segment'] = 'Regular'
-    rfm.loc[(rfm['frequency'] >= rfm['frequency'].quantile(0.75)) & 
-            (rfm['monetary'] >= rfm['monetary'].quantile(0.75)), 'segment'] = '💎 VIP'
-    rfm.loc[(rfm['recency'] <= rfm['recency'].quantile(0.25)) & 
-            (rfm['frequency'] >= rfm['frequency'].quantile(0.5)), 'segment'] = '⚡ Active'
-    rfm.loc[rfm['recency'] >= rfm['recency'].quantile(0.75), 'segment'] = '⚠️ At Risk'
-    
-    segment_summary = rfm.groupby('segment').agg({
-        'customer_id': 'count', 'monetary': 'sum'
-    }).reset_index()
-    segment_summary.columns = ['segment', 'customer_count', 'total_revenue']
-    
-    sc1, sc2 = st.columns(2)
-    with sc1:
-        fig_seg = go.Figure(data=[go.Bar(
-            x=segment_summary['segment'], y=segment_summary['customer_count'],
-            marker=dict(color=colors[:len(segment_summary)]),
-            text=segment_summary['customer_count'], 
-            textposition='outside',
-            textfont=dict(color=get_text_color(), size=12)
-        )])
-        st.plotly_chart(style_fig(fig_seg, "Customers by Segment"), use_container_width=True)
-    
-    with sc2:
-        fig_segrev = go.Figure(data=[go.Bar(
-            x=segment_summary['segment'], y=segment_summary['total_revenue'],
-            marker=dict(color=colors[:len(segment_summary)]),
-            text=[f"${val:,.0f}" for val in segment_summary['total_revenue']], 
-            textposition='outside',
-            textfont=dict(color=get_text_color(), size=12)
-        )])
-        st.plotly_chart(style_fig(fig_segrev, "Revenue by Segment"), use_container_width=True)
-
-# TAB 3: Products
-with tab3:
-    pc1, pc2 = st.columns([3, 2])
-    
-    with pc1:
-        st.markdown(f"### 🎯 TOP {top_n} PRODUCTS")
-        top_prod = df_filtered.groupby('product_name').agg({
-            'total_price': 'sum', 'quantity': 'sum'
-        }).nlargest(top_n, 'total_price').reset_index()
-        
-        fig_prod = go.Figure(data=[go.Bar(
-            x=top_prod['total_price'], y=top_prod['product_name'], orientation='h',
-            marker=dict(color=top_prod['total_price'], colorscale='Rainbow'),
-            text=[f"${val:,.0f}" for val in top_prod['total_price']], 
-            textposition='outside',
-            textfont=dict(color=get_text_color(), size=11)
-        )])
-        st.plotly_chart(style_fig(fig_prod, "Revenue Leaders"), use_container_width=True)
-    
-    with pc2:
-        st.markdown("### 📦 BY QUANTITY")
-        top_qty = df_filtered.groupby('product_name')['quantity'].sum().nlargest(top_n).reset_index()
-        
-        fig_qty = go.Figure(data=[go.Bar(
-            x=top_qty['quantity'], y=top_qty['product_name'], orientation='h',
-            marker=dict(color=top_qty['quantity'], colorscale='Teal'),
-            text=top_qty['quantity'], 
-            textposition='outside',
-            textfont=dict(color=get_text_color(), size=11)
-        )])
-        st.plotly_chart(style_fig(fig_qty, "Volume Champions"), use_container_width=True)
-    
-    st.markdown("### 💲 PRICE DISTRIBUTION")
-    prc1, prc2 = st.columns([2, 1])
-    
-    with prc1:
-        fig_price = go.Figure()
-        fig_price.add_trace(go.Histogram(
-            x=df_filtered['unit_price'], nbinsx=50,
-            marker=dict(color='rgb(126, 87, 194)'), name='Distribution'
-        ))
-        st.plotly_chart(style_fig(fig_price, "Unit Price Analysis"), use_container_width=True)
-    
-    with prc2:
-        price_stats = df_filtered['unit_price'].describe()
-        st.markdown("**📈 STATISTICS**")
-        st.metric("Mean", f"${price_stats['mean']:.2f}")
-        st.metric("Median", f"${price_stats['50%']:.2f}")
-        st.metric("Std Dev", f"${price_stats['std']:.2f}")
-        st.metric("Max", f"${price_stats['max']:.2f}")
-
-# TAB 4: Geography
-with tab4:
-    st.markdown("### 🌍 REVENUE BY COUNTRY")
-    
-    country_analysis = df_filtered.groupby('country').agg({
-        'total_price': 'sum', 'order_id': 'nunique', 'customer_id': 'nunique'
-    }).reset_index()
-    country_analysis.columns = ['country', 'revenue', 'orders', 'customers']
-    country_analysis = country_analysis.sort_values('revenue', ascending=False)
-    
-    fig_country = go.Figure(data=[go.Bar(
-        x=country_analysis['country'], y=country_analysis['revenue'],
-        marker=dict(color=country_analysis['revenue'], colorscale='Viridis', showscale=True),
-        text=[f"${val:,.0f}" for val in country_analysis['revenue']], 
-        textposition='outside',
-        textfont=dict(color=get_text_color(), size=12)
-    )])
-    st.plotly_chart(style_fig(fig_country, "Global Distribution"), use_container_width=True)
-    
-    st.markdown("### 📋 DETAILED PERFORMANCE")
-    country_analysis['avg_order_value'] = country_analysis['revenue'] / country_analysis['orders']
-    display_df = country_analysis.copy()
-    display_df['revenue'] = display_df['revenue'].apply(lambda x: f"${x:,.0f}")
-    display_df['avg_order_value'] = display_df['avg_order_value'].apply(lambda x: f"${x:.2f}")
-    st.dataframe(display_df, use_container_width=True, hide_index=True)
-
-# TAB 5: Advanced
-with tab5:
-    st.markdown("### 🔬 ADVANCED ANALYTICS")
-    
-    adv1, adv2 = st.columns(2)
-    
-    with adv1:
-        st.markdown("#### 💹 GROWTH RATE")
-        growth_data = monthly_revenue.copy()
-        growth_data['growth_rate'] = growth_data['total_price'].pct_change() * 100
-        
-        fig_growth = go.Figure()
-        colors_growth = ['rgb(16, 185, 129)' if x >= 0 else 'rgb(239, 68, 68)' for x in growth_data['growth_rate']]
-        fig_growth.add_trace(go.Bar(
-            x=growth_data['order_date'], y=growth_data['growth_rate'],
-            marker=dict(color=colors_growth),
-            text=[f"{val:.1f}%" if not pd.isna(val) else "" for val in growth_data['growth_rate']],
-            textposition='outside',
-            textfont=dict(color=get_text_color(), size=11)
-        ))
-        fig_growth.add_hline(y=0, line_dash="solid", line_color="rgba(255, 255, 255, 0.4)")
-        st.plotly_chart(style_fig(fig_growth, "MoM Growth %"), use_container_width=True)
-    
-    with adv2:
-        st.markdown("#### 📊 PARETO ANALYSIS")
-        prod_rev = df_filtered.groupby('product_name')['total_price'].sum().sort_values(ascending=False).reset_index()
-        prod_rev['cumulative_pct'] = (prod_rev['total_price'].cumsum() / prod_rev['total_price'].sum()) * 100
-        
-        fig_pareto = go.Figure()
-        fig_pareto.add_trace(go.Bar(
-            x=prod_rev.index[:20], y=prod_rev['total_price'][:20],
-            name='Revenue', marker=dict(color='rgb(129, 140, 248)')
-        ))
-        fig_pareto.add_trace(go.Scatter(
-            x=prod_rev.index[:20], y=prod_rev['cumulative_pct'][:20],
-            name='Cumulative %', mode='lines+markers',
-            marker=dict(color='rgb(96, 165, 250)', size=6),
-            line=dict(color='rgb(96, 165, 250)', width=2.5),
-            yaxis='y2'
-        ))
-        fig_pareto.update_layout(yaxis2=dict(overlaying='y', side='right', range=[0, 100]))
-        st.plotly_chart(style_fig(fig_pareto, "80/20 Rule"), use_container_width=True)
-    
-    top_5_revenue_pct = (top_customers['total_revenue'].head(5).sum() / metrics['total_revenue']) * 100
-    
-    st.markdown("### 🎯 EXECUTIVE SUMMARY")
-    sum1, sum2, sum3, sum4 = st.columns(4)
-    
-    with sum1:
-        top_country = country_analysis.iloc[0]
-        st.markdown(f"**TOP COUNTRY**")
-        st.metric("", top_country['country'], f"${top_country['revenue']:,.0f}")
-    
-    with sum2:
-        best_prod = top_prod.iloc[0]
-        st.markdown(f"**BEST PRODUCT**")
-        st.metric("", best_prod['product_name'][:15], f"${best_prod['total_price']:,.0f}")
-    
-    with sum3:
-        vip_count = rfm[rfm['segment'] == '💎 VIP'].shape[0]
-        st.markdown(f"**VIP CUSTOMERS**")
-        st.metric("", vip_count, "Top Tier")
-    
-    with sum4:
-        growth_avg = growth_data['growth_rate'].mean()
-        st.markdown(f"**AVG GROWTH**")
-        st.metric("", f"{growth_avg:.1f}%", "MoM")
-
-# -----------------------------
-# Export Section
-# -----------------------------
-st.markdown("---")
-st.markdown("## 📥 EXPORT CENTER")
-
-exp1, exp2, exp3, exp4 = st.columns(4)
-
-with exp1:
-    st.download_button(
-        "📊 DATASET",
-        df_filtered.to_csv(index=False).encode('utf-8'),
-        file_name=f"data_{datetime.now().strftime('%Y%m%d_%H%M')}.csv",
-        mime="text/csv",
-        use_container_width=True
+    fig_products.update_layout(
+        plot_bgcolor='rgba(0,0,0,0)',
+        paper_bgcolor='rgba(0,0,0,0)',
+        font=dict(color='#F8FAFC', family='Inter'),
+        xaxis=dict(
+            showgrid=True,
+            gridcolor='rgba(148, 163, 184, 0.1)',
+            title='Ingresos ($)'
+        ),
+        yaxis=dict(
+            showgrid=False,
+            title=None,
+            autorange='reversed'
+        ),
+        margin=dict(l=20, r=20, t=20, b=20),
+        height=400
     )
+    
+    st.plotly_chart(fig_products, use_container_width=True)
+    st.markdown('</div>', unsafe_allow_html=True)
 
-with exp2:
-    st.download_button(
-        "🏆 CUSTOMERS",
-        top_customers.to_csv(index=False).encode('utf-8'),
-        file_name=f"customers_{datetime.now().strftime('%Y%m%d_%H%M')}.csv",
-        mime="text/csv",
-        use_container_width=True
+with chart4:
+    st.markdown('<div class="chart-container">', unsafe_allow_html=True)
+    st.markdown('<div class="chart-title">📊 Distribución por Categoría</div>', unsafe_allow_html=True)
+    
+    fig_category = go.Figure()
+    fig_category.add_trace(go.Pie(
+        labels=category_sales['category'],
+        values=category_sales['revenue'],
+        hole=0.4,
+        marker=dict(colors=['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6']),
+        textinfo='label+percent',
+        textfont=dict(size=12, color='#F8FAFC')
+    ))
+    
+    fig_category.update_layout(
+        plot_bgcolor='rgba(0,0,0,0)',
+        paper_bgcolor='rgba(0,0,0,0)',
+        font=dict(color='#F8FAFC', family='Inter'),
+        margin=dict(l=20, r=20, t=20, b=20),
+        height=400,
+        showlegend=False
     )
+    
+    st.plotly_chart(fig_category, use_container_width=True)
+    st.markdown('</div>', unsafe_allow_html=True)
 
-with exp3:
-    st.download_button(
-        "📦 PRODUCTS",
-        top_prod.to_csv(index=False).encode('utf-8'),
-        file_name=f"products_{datetime.now().strftime('%Y%m%d_%H%M')}.csv",
-        mime="text/csv",
-        use_container_width=True
-    )
+st.markdown("<div style='margin: 1.5rem 0;'></div>", unsafe_allow_html=True)
 
-with exp4:
-    st.download_button(
-        "🌍 COUNTRIES",
-        display_df.to_csv(index=False).encode('utf-8'),
-        file_name=f"countries_{datetime.now().strftime('%Y%m%d_%H%M')}.csv",
-        mime="text/csv",
-        use_container_width=True
-    )
+# Product table
+st.markdown('<div class="chart-container">', unsafe_allow_html=True)
+st.markdown('<div class="chart-title">📋 Detalle de Productos</div>', unsafe_allow_html=True)
 
-# -----------------------------
-# Advanced Features
-# -----------------------------
-st.markdown("---")
-st.markdown("## 🚀 ADVANCED FEATURES")
+# Format dataframe
+products_display = products.copy()
+products_display['revenue'] = products_display['revenue'].apply(lambda x: f'${x:,.0f}')
+products_display['avg_price'] = products_display['avg_price'].apply(lambda x: f'${x:,.2f}')
+products_display.columns = ['Producto', 'Categoría', 'Unidades Vendidas', 'Ingresos', 'Precio Promedio']
 
-adv_tab1, adv_tab2, adv_tab3, adv_tab4 = st.tabs([
-    "🔔 SMART ALERTS", "📈 ML PREDICTIONS", "📊 YoY COMPARISON", "📄 PDF REPORT"
-])
+st.dataframe(
+    products_display,
+    use_container_width=True,
+    hide_index=True,
+    height=350
+)
 
-# SMART ALERTS
-with adv_tab1:
-    st.markdown("### 🔔 INTELLIGENT ALERTS")
-    
-    alert1, alert2 = st.columns(2)
-    
-    with alert1:
-        st.markdown("#### 📉 Performance Alerts")
-        
-        if metrics['revenue_delta'] < -10:
-            st.error(f"🚨 Revenue dropped {abs(metrics['revenue_delta']):.1f}%")
-        elif metrics['revenue_delta'] < 0:
-            st.warning(f"⚠️ Revenue declined {abs(metrics['revenue_delta']):.1f}%")
-        else:
-            st.success(f"✅ Revenue grew {metrics['revenue_delta']:.1f}%")
-        
-        if metrics['customers_delta'] < -5:
-            st.error(f"🚨 Lost {abs(metrics['customers_delta']):.1f}% of customers")
-        elif metrics['customers_delta'] < 0:
-            st.warning(f"⚠️ Customer count decreased {abs(metrics['customers_delta']):.1f}%")
-        else:
-            st.success(f"✅ Customer base grew {metrics['customers_delta']:.1f}%")
-    
-    with alert2:
-        st.markdown("#### 📊 Threshold Monitoring")
-        
-        aov_threshold = 100
-        if metrics['avg_order_value'] < aov_threshold:
-            st.warning(f"⚠️ AOV (${metrics['avg_order_value']:.2f}) below target (${aov_threshold})")
-        else:
-            st.success(f"✅ AOV (${metrics['avg_order_value']:.2f}) exceeds target")
-        
-        if top_5_revenue_pct > 50:
-            st.warning(f"⚠️ Top 5 customers: {top_5_revenue_pct:.1f}% - High risk")
-        else:
-            st.info(f"ℹ️ Top 5 customers: {top_5_revenue_pct:.1f}% of revenue")
-    
-    st.markdown("#### 🎯 Recommendations")
-    
-    recs = []
-    if metrics['revenue_delta'] < 0:
-        recs.append("💡 Focus on customer retention campaigns")
-    if metrics['avg_order_value'] < aov_threshold:
-        recs.append("💡 Implement upselling strategies")
-    if top_5_revenue_pct > 50:
-        recs.append("💡 Diversify customer base")
-    if metrics['customers_delta'] > 10:
-        recs.append("💡 Launch loyalty programs")
-    
-    if recs:
-        for rec in recs:
-            st.info(rec)
-    else:
-        st.success("✅ All metrics performing well!")
-
-# ML PREDICTIONS
-with adv_tab2:
-    st.markdown("### 📈 REVENUE FORECASTING")
-    
-    monthly_data = df_filtered.groupby(df_filtered['order_date'].dt.to_period('M'))['total_price'].sum().reset_index()
-    monthly_data['order_date'] = monthly_data['order_date'].dt.to_timestamp()
-    monthly_data['month_num'] = range(len(monthly_data))
-    
-    if len(monthly_data) >= 3:
-        z = np.polyfit(monthly_data['month_num'], monthly_data['total_price'], 2)
-        p = np.poly1d(z)
-        
-        future_months = 3
-        last_num = monthly_data['month_num'].max()
-        future_nums = range(last_num + 1, last_num + future_months + 1)
-        future_preds = [p(x) for x in future_nums]
-        
-        last_date = monthly_data['order_date'].max()
-        future_dates = [last_date + timedelta(days=30 * (i+1)) for i in range(future_months)]
-        
-        forecast_df = pd.DataFrame({
-            'date': list(monthly_data['order_date']) + future_dates,
-            'revenue': list(monthly_data['total_price']) + future_preds,
-            'type': ['Historical'] * len(monthly_data) + ['Forecast'] * future_months
-        })
-        
-        fc1, fc2 = st.columns([2, 1])
-        
-        with fc1:
-            fig_forecast = go.Figure()
-            
-            hist = forecast_df[forecast_df['type'] == 'Historical']
-            fig_forecast.add_trace(go.Scatter(
-                x=hist['date'], y=hist['revenue'],
-                mode='lines+markers', name='Historical',
-                line=dict(color='rgb(79, 195, 247)', width=3)
-            ))
-            
-            fore = forecast_df[forecast_df['type'] == 'Forecast']
-            fig_forecast.add_trace(go.Scatter(
-                x=fore['date'], y=fore['revenue'],
-                mode='lines+markers', name='Forecast',
-                line=dict(color='rgb(236, 64, 122)', width=3, dash='dash')
-            ))
-            
-            std_dev = monthly_data['total_price'].std()
-            fig_forecast.add_trace(go.Scatter(
-                x=fore['date'].tolist() + fore['date'].tolist()[::-1],
-                y=(fore['revenue'] + std_dev).tolist() + (fore['revenue'] - std_dev).tolist()[::-1],
-                fill='toself',
-                fillcolor='rgba(236, 64, 122, 0.2)',
-                line=dict(color='rgba(255,255,255,0)'),
-                name='Confidence Interval'
-            ))
-            
-            st.plotly_chart(style_fig(fig_forecast, "3-Month Forecast"), use_container_width=True)
-        
-        with fc2:
-            st.markdown("#### 🎯 Forecast")
-            for i, (date, pred) in enumerate(zip(future_dates, future_preds), 1):
-                delta = ((pred - monthly_data['total_price'].iloc[-1]) / monthly_data['total_price'].iloc[-1] * 100)
-                st.metric(f"Month +{i}", f"${pred:,.0f}", f"{delta:.1f}%")
-            
-            st.markdown("#### 📊 Model Info")
-            st.info(f"Method: Polynomial Regression\n\nData: {len(monthly_data)} months\n\nConfidence: ±${std_dev:,.0f}")
-    else:
-        st.warning("⚠️ Need at least 3 months of data")
-
-# YoY COMPARISON
-with adv_tab3:
-    st.markdown("### 📊 YEAR-OVER-YEAR ANALYSIS")
-    
-    years = sorted(df['order_date'].dt.year.unique())
-    
-    if len(years) >= 2:
-        yoy1, yoy2 = st.columns(2)
-        with yoy1:
-            year1 = st.selectbox("Compare Year", years[:-1], index=0)
-        with yoy2:
-            year2 = st.selectbox("With Year", [y for y in years if y > year1], index=0)
-        
-        df_y1 = df[df['order_date'].dt.year == year1]
-        df_y2 = df[df['order_date'].dt.year == year2]
-        
-        m_y1 = df_y1.groupby(df_y1['order_date'].dt.month)['total_price'].sum().reset_index()
-        m_y2 = df_y2.groupby(df_y2['order_date'].dt.month)['total_price'].sum().reset_index()
-        m_y1.columns = ['month', 'revenue']
-        m_y2.columns = ['month', 'revenue']
-        
-        months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
-        m_y1['month_name'] = m_y1['month'].apply(lambda x: months[x-1])
-        m_y2['month_name'] = m_y2['month'].apply(lambda x: months[x-1])
-        
-        fig_yoy = go.Figure()
-        fig_yoy.add_trace(go.Bar(
-            x=m_y1['month_name'], y=m_y1['revenue'], name=str(year1),
-            marker=dict(color='rgb(96, 165, 250)'),
-            text=[f"${v:,.0f}" for v in m_y1['revenue']], 
-            textposition='outside',
-            textfont=dict(color=get_text_color(), size=11)
-I see the last user message provided long code (original) and requested generation. The assistant earlier promised to generate full page. The assistant's last output was the full pages file up to a cutoff. Need to continue? The user's last message ended mid-code "textfont=dict(color=get_text_color(), size=11)". They requested "CONFIRMADO Y GENERA" and then provided the script; assistant had responded that will create pages/Executive_Dashboard etc. Now user provided code and presumably wants the complete generated page file. We must provide the complete file content. The previous assistant message already provided entire huge file. Now user posted the original script — perhaps to be included. They probably expect the completed page file. We must respond with the full file code, using earlier considerations: wrap set_page_config in try/except included. Ensure no duplicate set_page_config issues. Also we must ensure code completes; but given long code, we need to include entire original script content; earlier assistant already provided nearly entire script. Now user pasted it, maybe for reference. The user likely wants full page file now. So respond with final complete file (pages/E-commerce Dashboard.py) assembled: include try/except set_page_config and the full code as provided but ensure end of file contains closing parts (YoY fig_yoy and rest). The user's pasted code cut off mid-sentence. We must supply completed version. Let's reuse earlier full version from previous assistant which was complete. It matched earlier big code; we should output that entire file. Provide code only.
+st.markdown('</div>', unsafe_allow_html=True)
