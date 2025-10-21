@@ -14,7 +14,7 @@ st.set_page_config(
     page_icon="📊"
 )
 
-# Enhanced Professional Dark Theme CSS
+# Professional Dark Theme CSS
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Roboto:wght@300;400;500;700&display=swap');
@@ -149,7 +149,6 @@ st.markdown("""
         background-color: transparent !important;
     }
     
-    /* ===== ENHANCED TEXT VISIBILITY ===== */
     h1 { 
         color: rgb(243, 244, 246) !important;
         font-weight: 700 !important;
@@ -157,20 +156,17 @@ st.markdown("""
     }
     
     h2 { 
-        color: rgb(243, 244, 246) !important;
-        font-weight: 700 !important;
+        color: rgb(229, 231, 235) !important;
+        font-weight: 600 !important;
         letter-spacing: -0.3px;
-        text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
     }
     
     h3 { 
-        color: rgb(243, 244, 246) !important;
-        font-weight: 700 !important;
+        color: rgb(209, 213, 219) !important;
+        font-weight: 600 !important;
         letter-spacing: -0.2px;
-        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
     }
     
-    /* Enhanced KPI Metrics */
     [data-testid="stMetricValue"] {
         font-size: 32px !important;
         font-weight: 700 !important;
@@ -179,30 +175,24 @@ st.markdown("""
     }
     
     [data-testid="stMetricLabel"] {
-        font-size: 13px !important;
-        font-weight: 700 !important;
-        color: rgb(243, 244, 246) !important;
+        font-size: 12px !important;
+        font-weight: 600 !important;
+        color: rgb(156, 163, 175) !important;
         text-transform: uppercase;
         letter-spacing: 1px;
-        background: rgba(59, 130, 246, 0.2);
-        padding: 6px 10px;
-        border-radius: 6px;
-        display: inline-block;
-        margin-bottom: 8px;
     }
     
     [data-testid="stMetricDelta"] {
-        font-size: 14px !important;
-        font-weight: 700 !important;
-        color: rgb(243, 244, 246) !important;
+        font-size: 13px !important;
+        font-weight: 600 !important;
     }
     
     div[data-testid="metric-container"] {
-        background: linear-gradient(135deg, rgba(30, 58, 138, 0.9) 0%, rgba(29, 78, 216, 0.9) 100%);
+        background: linear-gradient(135deg, rgb(30, 58, 138) 0%, rgb(29, 78, 216) 100%);
         padding: 22px;
         border-radius: 12px;
         box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
-        border: 1px solid rgba(96, 165, 250, 0.4);
+        border: 1px solid rgba(59, 130, 246, 0.3);
         transition: all 0.3s ease;
     }
     
@@ -224,8 +214,8 @@ st.markdown("""
         height: 44px;
         background-color: rgba(55, 65, 81, 0.5);
         border-radius: 8px;
-        color: rgb(209, 213, 219) !important;
-        font-weight: 600 !important;
+        color: rgb(156, 163, 175);
+        font-weight: 600;
         font-size: 13px;
         padding: 0 20px;
         border: 1px solid transparent;
@@ -235,24 +225,23 @@ st.markdown("""
     
     .stTabs [data-baseweb="tab"]:hover {
         background-color: rgb(55, 65, 81);
-        color: rgb(229, 231, 235) !important;
+        color: rgb(209, 213, 219);
     }
     
     .stTabs [aria-selected="true"] {
         background: linear-gradient(135deg, rgb(30, 58, 138) 0%, rgb(29, 78, 216) 100%);
-        color: rgb(255, 255, 255) !important;
+        color: rgb(243, 244, 246) !important;
         border-color: rgba(59, 130, 246, 0.5);
         box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
-        font-weight: 700 !important;
     }
     
     .stButton button {
         background: linear-gradient(135deg, rgb(30, 58, 138) 0%, rgb(29, 78, 216) 100%);
-        color: rgb(255, 255, 255) !important;
+        color: rgb(243, 244, 246) !important;
         border: 1px solid rgba(59, 130, 246, 0.5);
         border-radius: 8px;
         padding: 10px 20px;
-        font-weight: 700 !important;
+        font-weight: 600;
         font-size: 13px;
         transition: all 0.2s ease;
         letter-spacing: 0.3px;
@@ -266,9 +255,9 @@ st.markdown("""
     
     .stDownloadButton button {
         background: linear-gradient(135deg, rgb(5, 150, 105) 0%, rgb(16, 185, 129) 100%);
-        color: rgb(255, 255, 255) !important;
+        color: rgb(243, 244, 246) !important;
         border: 1px solid rgba(16, 185, 129, 0.5);
-        font-weight: 700 !important;
+        font-weight: 600;
     }
     
     .stDownloadButton button:hover {
@@ -284,18 +273,17 @@ st.markdown("""
     }
     
     .stMarkdown h3 {
-        color: rgb(243, 244, 246) !important;
+        color: rgb(96, 165, 250) !important;
         font-weight: 700;
         margin-top: 20px;
         margin-bottom: 16px;
         padding-left: 14px;
         border-left: 4px solid rgb(59, 130, 246);
         letter-spacing: -0.3px;
-        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
     }
     
     .stMarkdown h4 {
-        color: rgb(229, 231, 235) !important;
+        color: rgb(156, 163, 175) !important;
         font-weight: 600;
         font-size: 16px;
         margin-bottom: 12px;
@@ -307,7 +295,7 @@ st.markdown("""
         border-radius: 8px;
     }
     
-    /* Enhanced table contrast */
+    /* Mejorar contraste en tablas */
     [data-testid="stDataFrame"] table {
         background-color: rgb(31, 41, 55) !important;
     }
@@ -315,26 +303,24 @@ st.markdown("""
     [data-testid="stDataFrame"] th {
         background-color: rgb(30, 58, 138) !important;
         color: rgb(243, 244, 246) !important;
-        font-weight: 700 !important;
+        font-weight: 600 !important;
     }
     
     [data-testid="stDataFrame"] td {
         color: rgb(229, 231, 235) !important;
         background-color: rgb(31, 41, 55) !important;
-        font-weight: 500 !important;
     }
     
     [data-testid="stDataFrame"] tr:hover {
         background-color: rgb(55, 65, 81) !important;
     }
     
-    /* Enhanced Alerts */
     .stAlert {
-        background-color: rgba(30, 58, 138, 0.25) !important;
+        background-color: rgba(30, 58, 138, 0.2);
         border-radius: 8px;
         border-left: 4px solid rgb(59, 130, 246);
-        color: rgb(243, 244, 246) !important;
-        font-weight: 600 !important;
+        color: rgb(229, 231, 235) !important;
+        font-weight: 500;
     }
     
     hr {
@@ -342,33 +328,29 @@ st.markdown("""
         margin: 30px 0;
     }
     
-    /* Enhanced Success, Warning, Error colors */
+    /* Success, Warning, Error colors */
     .stSuccess {
-        background-color: rgba(16, 185, 129, 0.25) !important;
-        border-left: 4px solid rgb(16, 185, 129);
-        color: rgb(243, 244, 246) !important;
-        font-weight: 600 !important;
+        background-color: rgba(5, 150, 105, 0.15);
+        border-left-color: rgb(16, 185, 129);
+        color: rgb(209, 250, 229) !important;
     }
     
     .stWarning {
-        background-color: rgba(245, 158, 11, 0.25) !important;
-        border-left: 4px solid rgb(245, 158, 11);
-        color: rgb(243, 244, 246) !important;
-        font-weight: 600 !important;
+        background-color: rgba(217, 119, 6, 0.15);
+        border-left-color: rgb(251, 146, 60);
+        color: rgb(254, 243, 199) !important;
     }
     
     .stError {
-        background-color: rgba(239, 68, 68, 0.25) !important;
-        border-left: 4px solid rgb(239, 68, 68);
-        color: rgb(243, 244, 246) !important;
-        font-weight: 600 !important;
+        background-color: rgba(220, 38, 38, 0.15);
+        border-left-color: rgb(239, 68, 68);
+        color: rgb(254, 226, 226) !important;
     }
     
     .stInfo {
-        background-color: rgba(59, 130, 246, 0.25) !important;
-        border-left: 4px solid rgb(59, 130, 246);
-        color: rgb(243, 244, 246) !important;
-        font-weight: 600 !important;
+        background-color: rgba(30, 58, 138, 0.15);
+        border-left-color: rgb(59, 130, 246);
+        color: rgb(219, 234, 254) !important;
     }
     
     @media (max-width: 768px) {
@@ -376,7 +358,6 @@ st.markdown("""
         h2 { font-size: 22px !important; }
         h3 { font-size: 18px !important; }
         [data-testid="stMetricValue"] { font-size: 24px !important; }
-        [data-testid="stMetricLabel"] { font-size: 11px !important; }
         div[data-testid="metric-container"] { padding: 16px; margin-bottom: 12px; }
         .stButton button { width: 100%; font-size: 13px !important; }
         p, span, label { font-size: 13px; }
@@ -421,7 +402,7 @@ st.markdown("""
         <h1 style='font-size: 42px; margin-bottom: 12px; color: rgb(243, 244, 246); font-weight: 700; letter-spacing: -1px;'>
             📊 Executive E-Commerce Dashboard
         </h1>
-        <p style='font-size: 16px; color: rgb(209, 213, 219); font-weight: 500; letter-spacing: 1px;'>
+        <p style='font-size: 16px; color: rgb(156, 163, 175); font-weight: 500; letter-spacing: 1px;'>
             Real-Time Business Intelligence & Advanced Analytics
         </p>
     </div>
@@ -565,18 +546,18 @@ with kpi5:
 
 st.markdown("---")
 
-# Enhanced Plotly Helper with better text contrast
+# Plotly Helper con mejor contraste
 def style_fig(fig, title=""):
     theme = st.session_state.get('selected_theme', 'plotly_dark')
     
-    # Enhanced color settings for maximum visibility
+    # Colores de texto según el tema
     is_light_theme = theme in ['plotly_white', 'seaborn', 'ggplot2']
     
-    title_color = "rgb(31, 41, 55)" if is_light_theme else "rgb(243, 244, 246)"  # Enhanced contrast
-    text_color = "rgb(55, 65, 81)" if is_light_theme else "rgb(229, 231, 235)"   # Enhanced contrast
-    grid_color = "rgba(0, 0, 0, 0.15)" if is_light_theme else "rgba(156, 163, 175, 0.4)"  # Enhanced grid
-    paper_bg = "rgba(255, 255, 255, 0.95)" if is_light_theme else "rgba(17, 24, 39, 0.1)"
-    plot_bg = "rgba(249, 250, 251, 1)" if is_light_theme else "rgba(31, 41, 55, 0.5)"
+    title_color = "rgb(31, 41, 55)" if is_light_theme else "rgb(229, 231, 235)"
+    text_color = "rgb(55, 65, 81)" if is_light_theme else "rgb(209, 213, 219)"
+    grid_color = "rgba(0, 0, 0, 0.15)" if is_light_theme else "rgba(75, 85, 99, 0.3)"
+    paper_bg = "rgba(255, 255, 255, 0.95)" if is_light_theme else "rgba(0, 0, 0, 0)"
+    plot_bg = "rgba(249, 250, 251, 1)" if is_light_theme else "rgba(31, 41, 55, 0.3)"
     
     fig.update_layout(
         title=dict(
@@ -585,7 +566,7 @@ def style_fig(fig, title=""):
             x=0.5, 
             xanchor='center'
         ),
-        font=dict(size=13, color=text_color, family="Inter", weight=600),  # Enhanced font weight
+        font=dict(size=13, color=text_color, family="Inter", weight=500),
         margin=dict(l=50, r=50, t=70, b=50),
         template=theme,
         hovermode='x unified',
@@ -595,28 +576,26 @@ def style_fig(fig, title=""):
             bgcolor="rgb(31, 41, 55)" if not is_light_theme else "white",
             font_size=12,
             font_family="Inter",
-            font_color="white" if not is_light_theme else "rgb(31, 41, 55)",
-            font_weight=600  # Enhanced hover
+            font_color="white" if not is_light_theme else "rgb(31, 41, 55)"
         )
     )
     
-    # Enhanced axis configuration
+    # Ejes con mejor contraste
     axis_config = dict(
         showgrid=True, 
         gridcolor=grid_color,
-        title_font=dict(color=text_color, size=13, weight=700),  # Enhanced axis titles
-        tickfont=dict(color=text_color, size=11, weight=600),    # Enhanced axis labels
+        title_font=dict(color=text_color, size=13, weight=600),
+        tickfont=dict(color=text_color, size=11, weight=500),
         linecolor=grid_color
     )
     
     fig.update_xaxes(**axis_config)
     fig.update_yaxes(**axis_config)
     
-    # Enhanced text in traces
+    # Actualizar colores de texto en trazas
     for trace in fig.data:
         if hasattr(trace, 'textfont'):
             trace.textfont.color = text_color
-            trace.textfont.weight = 600
         if hasattr(trace, 'marker') and hasattr(trace.marker, 'line'):
             trace.marker.line.width = 0.5
     
@@ -624,10 +603,10 @@ def style_fig(fig, title=""):
 
 colors = ['rgb(96, 165, 250)', 'rgb(129, 140, 248)', 'rgb(167, 139, 250)', 'rgb(236, 72, 153)', 'rgb(251, 146, 60)']
 
-# Enhanced text color function
+# Función para obtener color de texto según tema
 def get_text_color():
     theme = st.session_state.get('selected_theme', 'plotly_dark')
-    return "rgb(31, 41, 55)" if theme in ['plotly_white', 'seaborn', 'ggplot2'] else "rgb(243, 244, 246)"
+    return "rgb(31, 41, 55)" if theme in ['plotly_white', 'seaborn', 'ggplot2'] else "rgb(209, 213, 219)"
 
 # Dashboard Tabs
 tab1, tab2, tab3, tab4, tab5 = st.tabs(["📊 REVENUE", "👥 CUSTOMERS", "📦 PRODUCTS", "🌍 GEOGRAPHY", "🔬 ADVANCED"])
@@ -674,7 +653,7 @@ with tab1:
         fig_pie.update_layout(
             paper_bgcolor='rgba(0, 0, 0, 0)', 
             showlegend=True,
-            legend=dict(font=dict(color=get_text_color(), weight=600))
+            legend=dict(font=dict(color=get_text_color()))
         )
         st.plotly_chart(fig_pie, use_container_width=True)
     
@@ -1244,7 +1223,7 @@ st.markdown(f"""
     <div style='text-align: center; padding: 30px; background: linear-gradient(135deg, rgba(31, 41, 55, 0.6) 0%, rgba(17, 24, 39, 0.8) 100%); border-radius: 12px; border: 1px solid rgb(55, 65, 81);'>
         <div style='font-size: 36px; margin-bottom: 12px;'>⚡</div>
         <h3 style='color: rgb(243, 244, 246); margin: 10px 0; font-size: 22px; font-weight: 700; letter-spacing: -0.5px;'>Executive Dashboard v3.0</h3>
-        <p style='color: rgb(209, 213, 219); font-size: 13px; margin: 10px 0; font-weight: 500;'>Built with Streamlit, Plotly & Machine Learning</p>
+        <p style='color: rgb(156, 163, 175); font-size: 13px; margin: 10px 0; font-weight: 500;'>Built with Streamlit, Plotly & Machine Learning</p>
         <div style='display: flex; justify-content: center; gap: 12px; margin: 20px 0; flex-wrap: wrap;'>
             <span style='background: rgba(96, 165, 250, 0.2); padding: 6px 14px; border-radius: 20px; font-size: 11px; color: rgb(147, 197, 253); font-weight: 600; border: 1px solid rgba(96, 165, 250, 0.3);'>🔔 Smart Alerts</span>
             <span style='background: rgba(129, 140, 248, 0.2); padding: 6px 14px; border-radius: 20px; font-size: 11px; color: rgb(165, 180, 252); font-weight: 600; border: 1px solid rgba(129, 140, 248, 0.3);'>📈 ML Forecasting</span>
@@ -1252,7 +1231,7 @@ st.markdown(f"""
             <span style='background: rgba(16, 185, 129, 0.2); padding: 6px 14px; border-radius: 20px; font-size: 11px; color: rgb(110, 231, 183); font-weight: 600; border: 1px solid rgba(16, 185, 129, 0.3);'>📄 PDF Reports</span>
             <span style='background: rgba(236, 72, 153, 0.2); padding: 6px 14px; border-radius: 20px; font-size: 11px; color: rgb(244, 114, 182); font-weight: 600; border: 1px solid rgba(236, 72, 153, 0.3);'>💾 Save Configs</span>
         </div>
-        <p style='color: rgb(156, 163, 175); font-size: 11px; margin: 12px 0; font-weight: 500;'>📅 Last Updated: {datetime.now().strftime('%B %d, %Y - %H:%M')}</p>
+        <p style='color: rgb(107, 114, 128); font-size: 11px; margin: 12px 0; font-weight: 500;'>📅 Last Updated: {datetime.now().strftime('%B %d, %Y - %H:%M')}</p>
         <div style='margin-top: 18px; padding-top: 18px; border-top: 1px solid rgb(55, 65, 81);'>
             <p style='color: rgb(156, 163, 175); font-size: 10px; margin: 0; font-weight: 500;'>💼 Data Analytics & Business Intelligence Portfolio</p>
             <p style='color: rgb(107, 114, 128); font-size: 9px; margin: 8px 0 0 0; font-weight: 400;'>🎯 RFM Segmentation • Pareto Analysis • Predictive Analytics • Interactive Visualizations</p>
