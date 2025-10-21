@@ -11,7 +11,7 @@ st.set_page_config(
     page_title="Executive E-commerce Dashboard",
     layout="wide",
     initial_sidebar_state="expanded",
-    page_icon="📊"
+    page_icon="ðŸ“Š"
 )
 
 # Professional Dark Theme CSS
@@ -387,20 +387,20 @@ def load_data():
         
         return df
     except Exception as e:
-        st.error(f"⚠️ Error loading data: {e}")
+        st.error(f"âš ï¸ Error loading data: {e}")
         return None
 
 df = load_data()
 
 if df is None or df.empty:
-    st.error("❌ No dataset found or dataset is empty.")
+    st.error("âŒ No dataset found or dataset is empty.")
     st.stop()
 
 # Header
 st.markdown("""
     <div style='text-align:center; padding: 40px 0 30px 0; background: linear-gradient(135deg, rgba(31, 41, 55, 0.8) 0%, rgba(17, 24, 39, 0.9) 100%); border-radius: 16px; margin-bottom: 30px; border: 1px solid rgb(55, 65, 81);'>
         <h1 style='font-size: 42px; margin-bottom: 12px; color: rgb(243, 244, 246); font-weight: 700; letter-spacing: -1px;'>
-            📊 Executive E-Commerce Dashboard
+            ðŸ“Š Executive E-Commerce Dashboard
         </h1>
         <p style='font-size: 16px; color: rgb(156, 163, 175); font-weight: 500; letter-spacing: 1px;'>
             Real-Time Business Intelligence & Advanced Analytics
@@ -412,14 +412,14 @@ st.markdown("""
 with st.sidebar:
     st.markdown("""
         <div style='text-align: center; padding: 20px 0 15px 0;'>
-            <div style='font-size: 44px; margin-bottom: 10px;'>⚡</div>
+            <div style='font-size: 44px; margin-bottom: 10px;'>âš¡</div>
             <h2 style='margin: 0; font-size: 20px; color: rgb(96, 165, 250); font-weight: 700; letter-spacing: 0.5px;'>
                 Control Center
             </h2>
         </div>
     """, unsafe_allow_html=True)
     
-    with st.expander("📅 DATE RANGE FILTER", expanded=True):
+    with st.expander("ðŸ“… DATE RANGE FILTER", expanded=True):
         min_date = df['order_date'].min().date()
         max_date = df['order_date'].max().date()
         
@@ -429,7 +429,7 @@ with st.sidebar:
         with col2:
             end_date = st.date_input("To", max_date, min_value=min_date, max_value=max_date)
         
-        st.markdown("**⚡ Quick Filters**")
+        st.markdown("**âš¡ Quick Filters**")
         qcol1, qcol2 = st.columns(2)
         with qcol1:
             if st.button("Last 30D", use_container_width=True):
@@ -442,16 +442,16 @@ with st.sidebar:
             if st.button("YTD", use_container_width=True):
                 start_date = datetime(max_date.year, 1, 1).date()
     
-    with st.expander("🌍 GEOGRAPHIC FILTER", expanded=True):
+    with st.expander("ðŸŒ GEOGRAPHIC FILTER", expanded=True):
         countries = sorted(df['country'].dropna().unique())
-        select_all = st.checkbox("✅ Select All Countries", value=True)
+        select_all = st.checkbox("âœ… Select All Countries", value=True)
         
         if select_all:
             selected_countries = countries
         else:
             selected_countries = st.multiselect("Choose Countries", countries, default=countries[:3])
     
-    with st.expander("⚙️ DISPLAY SETTINGS", expanded=False):
+    with st.expander("âš™ï¸ DISPLAY SETTINGS", expanded=False):
         top_n = st.slider("Top N Items", 5, 50, 10, 5)
         chart_theme = st.selectbox("Chart Theme", ["plotly_dark", "plotly_white", "seaborn", "ggplot2"])
         
@@ -461,21 +461,21 @@ with st.sidebar:
             st.session_state.selected_theme = chart_theme
     
     st.markdown("---")
-    st.markdown("**💾 PREFERENCES**")
+    st.markdown("**ðŸ’¾ PREFERENCES**")
     
-    if st.button("💾 Save Filters", use_container_width=True):
+    if st.button("ðŸ’¾ Save Filters", use_container_width=True):
         st.session_state.saved_filters = {
             'start_date': start_date,
             'end_date': end_date,
             'countries': selected_countries,
             'top_n': top_n
         }
-        st.success("✅ Filters saved!")
+        st.success("âœ… Filters saved!")
     
     if 'saved_filters' in st.session_state:
-        if st.button("🔄 Load Filters", use_container_width=True):
+        if st.button("ðŸ”„ Load Filters", use_container_width=True):
             saved = st.session_state.saved_filters
-            st.info(f"📌 Saved: {saved['start_date']} to {saved['end_date']}")
+            st.info(f"ðŸ“Œ Saved: {saved['start_date']} to {saved['end_date']}")
 
 # Filter data
 start_date_dt = pd.to_datetime(start_date)
@@ -487,7 +487,7 @@ df_filtered = df[
 ].copy()
 
 if df_filtered.empty:
-    st.warning("⚠️ No data available for selected filters.")
+    st.warning("âš ï¸ No data available for selected filters.")
     st.stop()
 
 # Calculate Metrics
@@ -530,19 +530,19 @@ def calculate_metrics(df_current, df_all):
 metrics = calculate_metrics(df_filtered, df)
 
 # KPI Cards
-st.markdown("### 🎯 KEY PERFORMANCE INDICATORS")
+st.markdown("### ðŸŽ¯ KEY PERFORMANCE INDICATORS")
 kpi1, kpi2, kpi3, kpi4, kpi5 = st.columns(5)
 
 with kpi1:
-    st.metric("💰 REVENUE", f"${metrics['total_revenue']:,.0f}", f"{metrics['revenue_delta']:.1f}%")
+    st.metric("ðŸ’° REVENUE", f"${metrics['total_revenue']:,.0f}", f"{metrics['revenue_delta']:.1f}%")
 with kpi2:
-    st.metric("🛒 ORDERS", f"{metrics['total_orders']:,}", f"{metrics['orders_delta']:.1f}%")
+    st.metric("ðŸ›’ ORDERS", f"{metrics['total_orders']:,}", f"{metrics['orders_delta']:.1f}%")
 with kpi3:
-    st.metric("👥 CUSTOMERS", f"{metrics['unique_customers']:,}", f"{metrics['customers_delta']:.1f}%")
+    st.metric("ðŸ‘¥ CUSTOMERS", f"{metrics['unique_customers']:,}", f"{metrics['customers_delta']:.1f}%")
 with kpi4:
-    st.metric("📦 UNITS", f"{metrics['total_quantity']:,}")
+    st.metric("ðŸ“¦ UNITS", f"{metrics['total_quantity']:,}")
 with kpi5:
-    st.metric("💵 AVG ORDER", f"${metrics['avg_order_value']:.2f}")
+    st.metric("ðŸ’µ AVG ORDER", f"${metrics['avg_order_value']:.2f}")
 
 st.markdown("---")
 
@@ -550,7 +550,7 @@ st.markdown("---")
 def style_fig(fig, title=""):
     theme = st.session_state.get('selected_theme', 'plotly_dark')
     
-    # Colores de texto según el tema
+    # Colores de texto segÃºn el tema
     is_light_theme = theme in ['plotly_white', 'seaborn', 'ggplot2']
     
     title_color = "rgb(31, 41, 55)" if is_light_theme else "rgb(229, 231, 235)"
@@ -603,20 +603,20 @@ def style_fig(fig, title=""):
 
 colors = ['rgb(96, 165, 250)', 'rgb(129, 140, 248)', 'rgb(167, 139, 250)', 'rgb(236, 72, 153)', 'rgb(251, 146, 60)']
 
-# Función para obtener color de texto según tema
+# FunciÃ³n para obtener color de texto segÃºn tema
 def get_text_color():
     theme = st.session_state.get('selected_theme', 'plotly_dark')
     return "rgb(31, 41, 55)" if theme in ['plotly_white', 'seaborn', 'ggplot2'] else "rgb(209, 213, 219)"
 
 # Dashboard Tabs
-tab1, tab2, tab3, tab4, tab5 = st.tabs(["📊 REVENUE", "👥 CUSTOMERS", "📦 PRODUCTS", "🌍 GEOGRAPHY", "🔬 ADVANCED"])
+tab1, tab2, tab3, tab4, tab5 = st.tabs(["ðŸ“Š REVENUE", "ðŸ‘¥ CUSTOMERS", "ðŸ“¦ PRODUCTS", "ðŸŒ GEOGRAPHY", "ðŸ”¬ ADVANCED"])
 
 # TAB 1: Revenue
 with tab1:
     col1, col2 = st.columns([2, 1])
     
     with col1:
-        st.markdown("### 📈 REVENUE TREND")
+        st.markdown("### ðŸ“ˆ REVENUE TREND")
         monthly_revenue = df_filtered.groupby(df_filtered['order_date'].dt.to_period('M'))['total_price'].sum().reset_index()
         monthly_revenue['order_date'] = monthly_revenue['order_date'].dt.to_timestamp()
         
@@ -641,7 +641,7 @@ with tab1:
         st.plotly_chart(style_fig(fig_trend, "Monthly Performance"), use_container_width=True)
     
     with col2:
-        st.markdown("### 🏆 TOP COUNTRIES")
+        st.markdown("### ðŸ† TOP COUNTRIES")
         country_revenue = df_filtered.groupby('country')['total_price'].sum().nlargest(5).reset_index()
         
         fig_pie = px.pie(country_revenue, values='total_price', names='country', hole=0.45, color_discrete_sequence=colors)
@@ -657,7 +657,7 @@ with tab1:
         )
         st.plotly_chart(fig_pie, use_container_width=True)
     
-    st.markdown("### 📅 WEEKLY PATTERN")
+    st.markdown("### ðŸ“… WEEKLY PATTERN")
     dow_order = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
     dow_revenue = df_filtered.groupby('day_of_week')['total_price'].sum().reindex(dow_order).reset_index()
     
@@ -675,7 +675,7 @@ with tab2:
     col1, col2 = st.columns(2)
     
     with col1:
-        st.markdown(f"### 🌟 TOP {top_n} CUSTOMERS")
+        st.markdown(f"### ðŸŒŸ TOP {top_n} CUSTOMERS")
         top_customers = df_filtered.groupby('customer_id').agg({
             'total_price': 'sum', 'order_id': 'nunique'
         }).nlargest(top_n, 'total_price').reset_index()
@@ -691,7 +691,7 @@ with tab2:
         st.plotly_chart(style_fig(fig_cust, "Revenue Champions"), use_container_width=True)
     
     with col2:
-        st.markdown("### 🔄 RETENTION")
+        st.markdown("### ðŸ”„ RETENTION")
         order_freq = df_filtered.groupby('customer_id')['order_id'].nunique().value_counts().sort_index().reset_index()
         order_freq.columns = ['orders', 'customer_count']
         
@@ -704,7 +704,7 @@ with tab2:
         )])
         st.plotly_chart(style_fig(fig_freq, "Order Frequency"), use_container_width=True)
     
-    st.markdown("### 🎯 CUSTOMER SEGMENTATION")
+    st.markdown("### ðŸŽ¯ CUSTOMER SEGMENTATION")
     snapshot_date = df_filtered['order_date'].max() + timedelta(days=1)
     rfm = df_filtered.groupby('customer_id').agg({
         'order_date': lambda x: (snapshot_date - x.max()).days,
@@ -715,10 +715,10 @@ with tab2:
     
     rfm['segment'] = 'Regular'
     rfm.loc[(rfm['frequency'] >= rfm['frequency'].quantile(0.75)) & 
-            (rfm['monetary'] >= rfm['monetary'].quantile(0.75)), 'segment'] = '💎 VIP'
+            (rfm['monetary'] >= rfm['monetary'].quantile(0.75)), 'segment'] = 'ðŸ’Ž VIP'
     rfm.loc[(rfm['recency'] <= rfm['recency'].quantile(0.25)) & 
-            (rfm['frequency'] >= rfm['frequency'].quantile(0.5)), 'segment'] = '⚡ Active'
-    rfm.loc[rfm['recency'] >= rfm['recency'].quantile(0.75), 'segment'] = '⚠️ At Risk'
+            (rfm['frequency'] >= rfm['frequency'].quantile(0.5)), 'segment'] = 'âš¡ Active'
+    rfm.loc[rfm['recency'] >= rfm['recency'].quantile(0.75), 'segment'] = 'âš ï¸ At Risk'
     
     segment_summary = rfm.groupby('segment').agg({
         'customer_id': 'count', 'monetary': 'sum'
@@ -751,7 +751,7 @@ with tab3:
     pc1, pc2 = st.columns([3, 2])
     
     with pc1:
-        st.markdown(f"### 🎯 TOP {top_n} PRODUCTS")
+        st.markdown(f"### ðŸŽ¯ TOP {top_n} PRODUCTS")
         top_prod = df_filtered.groupby('product_name').agg({
             'total_price': 'sum', 'quantity': 'sum'
         }).nlargest(top_n, 'total_price').reset_index()
@@ -766,7 +766,7 @@ with tab3:
         st.plotly_chart(style_fig(fig_prod, "Revenue Leaders"), use_container_width=True)
     
     with pc2:
-        st.markdown("### 📦 BY QUANTITY")
+        st.markdown("### ðŸ“¦ BY QUANTITY")
         top_qty = df_filtered.groupby('product_name')['quantity'].sum().nlargest(top_n).reset_index()
         
         fig_qty = go.Figure(data=[go.Bar(
@@ -778,7 +778,7 @@ with tab3:
         )])
         st.plotly_chart(style_fig(fig_qty, "Volume Champions"), use_container_width=True)
     
-    st.markdown("### 💲 PRICE DISTRIBUTION")
+    st.markdown("### ðŸ’² PRICE DISTRIBUTION")
     prc1, prc2 = st.columns([2, 1])
     
     with prc1:
@@ -791,7 +791,7 @@ with tab3:
     
     with prc2:
         price_stats = df_filtered['unit_price'].describe()
-        st.markdown("**📈 STATISTICS**")
+        st.markdown("**ðŸ“ˆ STATISTICS**")
         st.metric("Mean", f"${price_stats['mean']:.2f}")
         st.metric("Median", f"${price_stats['50%']:.2f}")
         st.metric("Std Dev", f"${price_stats['std']:.2f}")
@@ -799,7 +799,7 @@ with tab3:
 
 # TAB 4: Geography
 with tab4:
-    st.markdown("### 🌍 REVENUE BY COUNTRY")
+    st.markdown("### ðŸŒ REVENUE BY COUNTRY")
     
     country_analysis = df_filtered.groupby('country').agg({
         'total_price': 'sum', 'order_id': 'nunique', 'customer_id': 'nunique'
@@ -816,7 +816,7 @@ with tab4:
     )])
     st.plotly_chart(style_fig(fig_country, "Global Distribution"), use_container_width=True)
     
-    st.markdown("### 📋 DETAILED PERFORMANCE")
+    st.markdown("### ðŸ“‹ DETAILED PERFORMANCE")
     country_analysis['avg_order_value'] = country_analysis['revenue'] / country_analysis['orders']
     display_df = country_analysis.copy()
     display_df['revenue'] = display_df['revenue'].apply(lambda x: f"${x:,.0f}")
@@ -825,12 +825,12 @@ with tab4:
 
 # TAB 5: Advanced
 with tab5:
-    st.markdown("### 🔬 ADVANCED ANALYTICS")
+    st.markdown("### ðŸ”¬ ADVANCED ANALYTICS")
     
     adv1, adv2 = st.columns(2)
     
     with adv1:
-        st.markdown("#### 💹 GROWTH RATE")
+        st.markdown("#### ðŸ’¹ GROWTH RATE")
         growth_data = monthly_revenue.copy()
         growth_data['growth_rate'] = growth_data['total_price'].pct_change() * 100
         
@@ -847,7 +847,7 @@ with tab5:
         st.plotly_chart(style_fig(fig_growth, "MoM Growth %"), use_container_width=True)
     
     with adv2:
-        st.markdown("#### 📊 PARETO ANALYSIS")
+        st.markdown("#### ðŸ“Š PARETO ANALYSIS")
         prod_rev = df_filtered.groupby('product_name')['total_price'].sum().sort_values(ascending=False).reset_index()
         prod_rev['cumulative_pct'] = (prod_rev['total_price'].cumsum() / prod_rev['total_price'].sum()) * 100
         
@@ -868,7 +868,7 @@ with tab5:
     
     top_5_revenue_pct = (top_customers['total_revenue'].head(5).sum() / metrics['total_revenue']) * 100
     
-    st.markdown("### 🎯 EXECUTIVE SUMMARY")
+    st.markdown("### ðŸŽ¯ EXECUTIVE SUMMARY")
     sum1, sum2, sum3, sum4 = st.columns(4)
     
     with sum1:
@@ -882,7 +882,7 @@ with tab5:
         st.metric("", best_prod['product_name'][:15], f"${best_prod['total_price']:,.0f}")
     
     with sum3:
-        vip_count = rfm[rfm['segment'] == '💎 VIP'].shape[0]
+        vip_count = rfm[rfm['segment'] == 'ðŸ’Ž VIP'].shape[0]
         st.markdown(f"**VIP CUSTOMERS**")
         st.metric("", vip_count, "Top Tier")
     
@@ -893,13 +893,13 @@ with tab5:
 
 # Export Section
 st.markdown("---")
-st.markdown("## 📥 EXPORT CENTER")
+st.markdown("## ðŸ“¥ EXPORT CENTER")
 
 exp1, exp2, exp3, exp4 = st.columns(4)
 
 with exp1:
     st.download_button(
-        "📊 DATASET",
+        "ðŸ“Š DATASET",
         df_filtered.to_csv(index=False).encode('utf-8'),
         file_name=f"data_{datetime.now().strftime('%Y%m%d_%H%M')}.csv",
         mime="text/csv",
@@ -908,7 +908,7 @@ with exp1:
 
 with exp2:
     st.download_button(
-        "🏆 CUSTOMERS",
+        "ðŸ† CUSTOMERS",
         top_customers.to_csv(index=False).encode('utf-8'),
         file_name=f"customers_{datetime.now().strftime('%Y%m%d_%H%M')}.csv",
         mime="text/csv",
@@ -917,7 +917,7 @@ with exp2:
 
 with exp3:
     st.download_button(
-        "📦 PRODUCTS",
+        "ðŸ“¦ PRODUCTS",
         top_prod.to_csv(index=False).encode('utf-8'),
         file_name=f"products_{datetime.now().strftime('%Y%m%d_%H%M')}.csv",
         mime="text/csv",
@@ -926,7 +926,7 @@ with exp3:
 
 with exp4:
     st.download_button(
-        "🌍 COUNTRIES",
+        "ðŸŒ COUNTRIES",
         display_df.to_csv(index=False).encode('utf-8'),
         file_name=f"countries_{datetime.now().strftime('%Y%m%d_%H%M')}.csv",
         mime="text/csv",
@@ -935,70 +935,70 @@ with exp4:
 
 # Advanced Features
 st.markdown("---")
-st.markdown("## 🚀 ADVANCED FEATURES")
+st.markdown("## ðŸš€ ADVANCED FEATURES")
 
 adv_tab1, adv_tab2, adv_tab3, adv_tab4 = st.tabs([
-    "🔔 SMART ALERTS", "📈 ML PREDICTIONS", "📊 YoY COMPARISON", "📄 PDF REPORT"
+    "ðŸ”” SMART ALERTS", "ðŸ“ˆ ML PREDICTIONS", "ðŸ“Š YoY COMPARISON", "ðŸ“„ PDF REPORT"
 ])
 
 # SMART ALERTS
 with adv_tab1:
-    st.markdown("### 🔔 INTELLIGENT ALERTS")
+    st.markdown("### ðŸ”” INTELLIGENT ALERTS")
     
     alert1, alert2 = st.columns(2)
     
     with alert1:
-        st.markdown("#### 📉 Performance Alerts")
+        st.markdown("#### ðŸ“‰ Performance Alerts")
         
         if metrics['revenue_delta'] < -10:
-            st.error(f"🚨 Revenue dropped {abs(metrics['revenue_delta']):.1f}%")
+            st.error(f"ðŸš¨ Revenue dropped {abs(metrics['revenue_delta']):.1f}%")
         elif metrics['revenue_delta'] < 0:
-            st.warning(f"⚠️ Revenue declined {abs(metrics['revenue_delta']):.1f}%")
+            st.warning(f"âš ï¸ Revenue declined {abs(metrics['revenue_delta']):.1f}%")
         else:
-            st.success(f"✅ Revenue grew {metrics['revenue_delta']:.1f}%")
+            st.success(f"âœ… Revenue grew {metrics['revenue_delta']:.1f}%")
         
         if metrics['customers_delta'] < -5:
-            st.error(f"🚨 Lost {abs(metrics['customers_delta']):.1f}% of customers")
+            st.error(f"ðŸš¨ Lost {abs(metrics['customers_delta']):.1f}% of customers")
         elif metrics['customers_delta'] < 0:
-            st.warning(f"⚠️ Customer count decreased {abs(metrics['customers_delta']):.1f}%")
+            st.warning(f"âš ï¸ Customer count decreased {abs(metrics['customers_delta']):.1f}%")
         else:
-            st.success(f"✅ Customer base grew {metrics['customers_delta']:.1f}%")
+            st.success(f"âœ… Customer base grew {metrics['customers_delta']:.1f}%")
     
     with alert2:
-        st.markdown("#### 📊 Threshold Monitoring")
+        st.markdown("#### ðŸ“Š Threshold Monitoring")
         
         aov_threshold = 100
         if metrics['avg_order_value'] < aov_threshold:
-            st.warning(f"⚠️ AOV (${metrics['avg_order_value']:.2f}) below target (${aov_threshold})")
+            st.warning(f"âš ï¸ AOV (${metrics['avg_order_value']:.2f}) below target (${aov_threshold})")
         else:
-            st.success(f"✅ AOV (${metrics['avg_order_value']:.2f}) exceeds target")
+            st.success(f"âœ… AOV (${metrics['avg_order_value']:.2f}) exceeds target")
         
         if top_5_revenue_pct > 50:
-            st.warning(f"⚠️ Top 5 customers: {top_5_revenue_pct:.1f}% - High risk")
+            st.warning(f"âš ï¸ Top 5 customers: {top_5_revenue_pct:.1f}% - High risk")
         else:
-            st.info(f"ℹ️ Top 5 customers: {top_5_revenue_pct:.1f}% of revenue")
+            st.info(f"â„¹ï¸ Top 5 customers: {top_5_revenue_pct:.1f}% of revenue")
     
-    st.markdown("#### 🎯 Recommendations")
+    st.markdown("#### ðŸŽ¯ Recommendations")
     
     recs = []
     if metrics['revenue_delta'] < 0:
-        recs.append("💡 Focus on customer retention campaigns")
+        recs.append("ðŸ’¡ Focus on customer retention campaigns")
     if metrics['avg_order_value'] < aov_threshold:
-        recs.append("💡 Implement upselling strategies")
+        recs.append("ðŸ’¡ Implement upselling strategies")
     if top_5_revenue_pct > 50:
-        recs.append("💡 Diversify customer base")
+        recs.append("ðŸ’¡ Diversify customer base")
     if metrics['customers_delta'] > 10:
-        recs.append("💡 Launch loyalty programs")
+        recs.append("ðŸ’¡ Launch loyalty programs")
     
     if recs:
         for rec in recs:
             st.info(rec)
     else:
-        st.success("✅ All metrics performing well!")
+        st.success("âœ… All metrics performing well!")
 
 # ML PREDICTIONS
 with adv_tab2:
-    st.markdown("### 📈 REVENUE FORECASTING")
+    st.markdown("### ðŸ“ˆ REVENUE FORECASTING")
     
     monthly_data = df_filtered.groupby(df_filtered['order_date'].dt.to_period('M'))['total_price'].sum().reset_index()
     monthly_data['order_date'] = monthly_data['order_date'].dt.to_timestamp()
@@ -1054,19 +1054,19 @@ with adv_tab2:
             st.plotly_chart(style_fig(fig_forecast, "3-Month Forecast"), use_container_width=True)
         
         with fc2:
-            st.markdown("#### 🎯 Forecast")
+            st.markdown("#### ðŸŽ¯ Forecast")
             for i, (date, pred) in enumerate(zip(future_dates, future_preds), 1):
                 delta = ((pred - monthly_data['total_price'].iloc[-1]) / monthly_data['total_price'].iloc[-1] * 100)
                 st.metric(f"Month +{i}", f"${pred:,.0f}", f"{delta:.1f}%")
             
-            st.markdown("#### 📊 Model Info")
-            st.info(f"Method: Polynomial Regression\n\nData: {len(monthly_data)} months\n\nConfidence: ±${std_dev:,.0f}")
+            st.markdown("#### ðŸ“Š Model Info")
+            st.info(f"Method: Polynomial Regression\n\nData: {len(monthly_data)} months\n\nConfidence: Â±${std_dev:,.0f}")
     else:
-        st.warning("⚠️ Need at least 3 months of data")
+        st.warning("âš ï¸ Need at least 3 months of data")
 
 # YoY COMPARISON
 with adv_tab3:
-    st.markdown("### 📊 YEAR-OVER-YEAR ANALYSIS")
+    st.markdown("### ðŸ“Š YEAR-OVER-YEAR ANALYSIS")
     
     years = sorted(df['order_date'].dt.year.unique())
     
@@ -1107,7 +1107,7 @@ with adv_tab3:
         
         st.plotly_chart(style_fig(fig_yoy, f"{year1} vs {year2}"), use_container_width=True)
         
-        st.markdown("#### 📈 YoY Metrics")
+        st.markdown("#### ðŸ“ˆ YoY Metrics")
         ym1, ym2, ym3, ym4 = st.columns(4)
         
         y1_rev = df_y1['total_price'].sum()
@@ -1135,14 +1135,14 @@ with adv_tab3:
         with ym4:
             st.metric(f"AOV {year2}", f"${y2_aov:.2f}", f"{yoy_aov:+.1f}%")
     else:
-        st.info("ℹ️ Need data from at least 2 years")
+        st.info("â„¹ï¸ Need data from at least 2 years")
 
 # PDF REPORT
 with adv_tab4:
-    st.markdown("### 📄 EXECUTIVE PDF REPORT")
+    st.markdown("### ðŸ“„ EXECUTIVE PDF REPORT")
     
     st.info("""
-    **📋 Report Contents:**
+    **ðŸ“‹ Report Contents:**
     - Executive Summary with Key Metrics
     - Performance Trends & Growth Analysis
     - Top Customers & Products Tables
@@ -1151,7 +1151,7 @@ with adv_tab4:
     - Smart Alerts & Recommendations
     """)
     
-    if st.button("📄 GENERATE REPORT", use_container_width=True, type="primary"):
+    if st.button("ðŸ“„ GENERATE REPORT", use_container_width=True, type="primary"):
         with st.spinner("Generating report..."):
             html = f"""
             <html>
@@ -1168,31 +1168,31 @@ with adv_tab4:
             </head>
             <body>
                 <div class="header">
-                    <h1>📊 EXECUTIVE E-COMMERCE DASHBOARD</h1>
+                    <h1>ðŸ“Š EXECUTIVE E-COMMERCE DASHBOARD</h1>
                     <p>Period: {start_date.strftime('%B %d, %Y')} - {end_date.strftime('%B %d, %Y')}</p>
                     <p>Generated: {datetime.now().strftime('%B %d, %Y at %H:%M')}</p>
                 </div>
                 
-                <h2>📈 Executive Summary</h2>
+                <h2>ðŸ“ˆ Executive Summary</h2>
                 <div class="metric-card">
                     <p><strong>Total Revenue:</strong> ${metrics['total_revenue']:,.0f} ({metrics['revenue_delta']:+.1f}%)</p>
                     <p><strong>Total Orders:</strong> {metrics['total_orders']:,} ({metrics['orders_delta']:+.1f}%)</p>
                     <p><strong>Unique Customers:</strong> {metrics['unique_customers']:,} ({metrics['customers_delta']:+.1f}%)</p>
                 </div>
                 
-                <h2>🏆 Top 10 Customers</h2>
+                <h2>ðŸ† Top 10 Customers</h2>
                 <table>
                     <tr><th>Customer ID</th><th>Revenue</th><th>Orders</th></tr>
                     {''.join([f"<tr><td>{r['customer_id']}</td><td>${r['total_revenue']:,.0f}</td><td>{r['order_count']}</td></tr>" for _, r in top_customers.head(10).iterrows()])}
                 </table>
                 
-                <h2>📦 Top 10 Products</h2>
+                <h2>ðŸ“¦ Top 10 Products</h2>
                 <table>
                     <tr><th>Product</th><th>Revenue</th><th>Quantity</th></tr>
                     {''.join([f"<tr><td>{r['product_name']}</td><td>${r['total_price']:,.0f}</td><td>{r['quantity']}</td></tr>" for _, r in top_prod.head(10).iterrows()])}
                 </table>
                 
-                <h2>🌍 Geographic Distribution</h2>
+                <h2>ðŸŒ Geographic Distribution</h2>
                 <table>
                     <tr><th>Country</th><th>Revenue</th><th>Orders</th><th>Customers</th></tr>
                     {''.join([f"<tr><td>{r['country']}</td><td>${r['revenue']:,.0f}</td><td>{r['orders']}</td><td>{r['customers']}</td></tr>" for _, r in country_analysis.head(10).iterrows()])}
@@ -1200,41 +1200,41 @@ with adv_tab4:
                 
                 <div style="margin-top: 40px; text-align: center; color: rgb(102, 102, 102); border-top: 1px solid rgb(221, 221, 221); padding-top: 20px;">
                     <p>Automated report - Executive E-commerce Dashboard</p>
-                    <p>© 2025 - Confidential Business Intelligence Report</p>
+                    <p>Â© 2025 - Confidential Business Intelligence Report</p>
                 </div>
             </body>
             </html>
             """
             
             st.download_button(
-                "📥 DOWNLOAD REPORT",
+                "ðŸ“¥ DOWNLOAD REPORT",
                 html,
                 file_name=f"report_{datetime.now().strftime('%Y%m%d_%H%M')}.html",
                 mime="text/html",
                 use_container_width=True
             )
             
-            st.success("✅ Report generated! Download above.")
-            st.info("💡 Open HTML in browser, then Print → Save as PDF")
+            st.success("âœ… Report generated! Download above.")
+            st.info("ðŸ’¡ Open HTML in browser, then Print â†’ Save as PDF")
 
 # Footer
 st.markdown("---")
 st.markdown(f"""
     <div style='text-align: center; padding: 30px; background: linear-gradient(135deg, rgba(31, 41, 55, 0.6) 0%, rgba(17, 24, 39, 0.8) 100%); border-radius: 12px; border: 1px solid rgb(55, 65, 81);'>
-        <div style='font-size: 36px; margin-bottom: 12px;'>⚡</div>
+        <div style='font-size: 36px; margin-bottom: 12px;'>âš¡</div>
         <h3 style='color: rgb(243, 244, 246); margin: 10px 0; font-size: 22px; font-weight: 700; letter-spacing: -0.5px;'>Executive Dashboard v3.0</h3>
         <p style='color: rgb(156, 163, 175); font-size: 13px; margin: 10px 0; font-weight: 500;'>Built with Streamlit, Plotly & Machine Learning</p>
         <div style='display: flex; justify-content: center; gap: 12px; margin: 20px 0; flex-wrap: wrap;'>
-            <span style='background: rgba(96, 165, 250, 0.2); padding: 6px 14px; border-radius: 20px; font-size: 11px; color: rgb(147, 197, 253); font-weight: 600; border: 1px solid rgba(96, 165, 250, 0.3);'>🔔 Smart Alerts</span>
-            <span style='background: rgba(129, 140, 248, 0.2); padding: 6px 14px; border-radius: 20px; font-size: 11px; color: rgb(165, 180, 252); font-weight: 600; border: 1px solid rgba(129, 140, 248, 0.3);'>📈 ML Forecasting</span>
-            <span style='background: rgba(251, 146, 60, 0.2); padding: 6px 14px; border-radius: 20px; font-size: 11px; color: rgb(253, 186, 116); font-weight: 600; border: 1px solid rgba(251, 146, 60, 0.3);'>📊 YoY Analysis</span>
-            <span style='background: rgba(16, 185, 129, 0.2); padding: 6px 14px; border-radius: 20px; font-size: 11px; color: rgb(110, 231, 183); font-weight: 600; border: 1px solid rgba(16, 185, 129, 0.3);'>📄 PDF Reports</span>
-            <span style='background: rgba(236, 72, 153, 0.2); padding: 6px 14px; border-radius: 20px; font-size: 11px; color: rgb(244, 114, 182); font-weight: 600; border: 1px solid rgba(236, 72, 153, 0.3);'>💾 Save Configs</span>
+            <span style='background: rgba(96, 165, 250, 0.2); padding: 6px 14px; border-radius: 20px; font-size: 11px; color: rgb(147, 197, 253); font-weight: 600; border: 1px solid rgba(96, 165, 250, 0.3);'>ðŸ”” Smart Alerts</span>
+            <span style='background: rgba(129, 140, 248, 0.2); padding: 6px 14px; border-radius: 20px; font-size: 11px; color: rgb(165, 180, 252); font-weight: 600; border: 1px solid rgba(129, 140, 248, 0.3);'>ðŸ“ˆ ML Forecasting</span>
+            <span style='background: rgba(251, 146, 60, 0.2); padding: 6px 14px; border-radius: 20px; font-size: 11px; color: rgb(253, 186, 116); font-weight: 600; border: 1px solid rgba(251, 146, 60, 0.3);'>ðŸ“Š YoY Analysis</span>
+            <span style='background: rgba(16, 185, 129, 0.2); padding: 6px 14px; border-radius: 20px; font-size: 11px; color: rgb(110, 231, 183); font-weight: 600; border: 1px solid rgba(16, 185, 129, 0.3);'>ðŸ“„ PDF Reports</span>
+            <span style='background: rgba(236, 72, 153, 0.2); padding: 6px 14px; border-radius: 20px; font-size: 11px; color: rgb(244, 114, 182); font-weight: 600; border: 1px solid rgba(236, 72, 153, 0.3);'>ðŸ’¾ Save Configs</span>
         </div>
-        <p style='color: rgb(107, 114, 128); font-size: 11px; margin: 12px 0; font-weight: 500;'>📅 Last Updated: {datetime.now().strftime('%B %d, %Y - %H:%M')}</p>
+        <p style='color: rgb(107, 114, 128); font-size: 11px; margin: 12px 0; font-weight: 500;'>ðŸ“… Last Updated: {datetime.now().strftime('%B %d, %Y - %H:%M')}</p>
         <div style='margin-top: 18px; padding-top: 18px; border-top: 1px solid rgb(55, 65, 81);'>
-            <p style='color: rgb(156, 163, 175); font-size: 10px; margin: 0; font-weight: 500;'>💼 Data Analytics & Business Intelligence Portfolio</p>
-            <p style='color: rgb(107, 114, 128); font-size: 9px; margin: 8px 0 0 0; font-weight: 400;'>🎯 RFM Segmentation • Pareto Analysis • Predictive Analytics • Interactive Visualizations</p>
+            <p style='color: rgb(156, 163, 175); font-size: 10px; margin: 0; font-weight: 500;'>ðŸ’¼ Data Analytics & Business Intelligence Portfolio</p>
+            <p style='color: rgb(107, 114, 128); font-size: 9px; margin: 8px 0 0 0; font-weight: 400;'>ðŸŽ¯ RFM Segmentation â€¢ Pareto Analysis â€¢ Predictive Analytics â€¢ Interactive Visualizations</p>
         </div>
     </div>
 """, unsafe_allow_html=True)
