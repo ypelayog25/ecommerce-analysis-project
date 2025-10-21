@@ -1,53 +1,145 @@
 import streamlit as st
 import pandas as pd
+import numpy as np
 import plotly.express as px
 import plotly.graph_objects as go
-import sys, os
+from datetime import datetime
 
-# Ensure Python can find the "components" folder
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-
-from components import style  # Import the global dark theme
-
-# =========================
-# Apply the custom theme
-# =========================
-style.apply_theme()
-plotly_template = style.get_plotly_template()
-
-# =========================
-# Page Configuration
-# =========================
+# ==============================
+# 🔧 PAGE CONFIGURATION
+# ==============================
 st.set_page_config(
     page_title="E-commerce Dashboard",
-    page_icon="🛒",
+    page_icon="📊",
     layout="wide"
 )
 
-# =========================
-# Load Data
-# =========================
+# ==============================
+# 🎨 GLOBAL STYLE (CSS)
+# ==============================
+st.markdown("""
+<style>
+/* ----------- GENERAL ----------- */
+* {
+    font-family: 'Inter', sans-serif;
+    box-sizing: border-box;
+}
+
+.stApp {
+    background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
+    color: #E5E7EB;
+}
+
+h1, h2, h3 {
+    font-weight: 800;
+}
+
+/* ----------- HEADERS ----------- */
+h1 {
+    color: #FFFFFF !important;
+}
+
+h2, h3 {
+    color: rgb(240, 245, 255) !important; /* brighter blue-white for contrast */
+    font-weight: 700 !important;
+    letter-spacing: -0.3px;
+}
+
+/* Subsection headers (Performance Alerts, etc.) */
+h4 {
+    color: rgb(212, 225, 255) !important;
+    font-weight: 600 !important;
+}
+
+/* ----------- KPI METRICS ----------- */
+[data-testid="stMetricLabel"] {
+    color: #E0E7FF !important;
+    font-weight: 600 !important;
+}
+[data-testid="stMetricValue"] {
+    color: #FFFFFF !important;
+    font-weight: 800 !important;
+}
+[data-testid="stMetricDelta"] {
+    color: #F9FAFB !important;
+    font-weight: 700 !important;
+}
+
+/* ----------- ALERTS / BLUE CARDS ----------- */
+.stAlert, .stSuccess, .stWarning, .stInfo, .stError {
+    color: rgb(255, 255, 255) !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.2px;
+}
+
+/* Ensure all text in metrics or cards is visible */
+div[data-testid="metric-container"] * {
+    color: rgb(255, 255, 255) !important;
+}
+
+/* ----------- PLOTLY TEXT / AXES ----------- */
+.plotly .xtick text,
+.plotly .ytick text,
+.plotly .legend text,
+.plotly .axis-title {
+    fill: #F8FAFC !important;
+    font-weight: 600 !important;
+}
+
+/* ----------- BUTTONS ----------- */
+.stButton>button {
+    background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);
+    color: #FFFFFF !important;
+    font-weight: 600;
+    border: none;
+    border-radius: 8px;
+    padding: 0.6rem 1.2rem;
+    transition: all 0.3s ease;
+}
+.stButton>button:hover {
+    background: linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%);
+    box-shadow: 0 0 10px rgba(59,130,246,0.5);
+}
+
+/* ----------- TABLES ----------- */
+.dataframe thead tr th {
+    background: #1E293B !important;
+    color: #FFFFFF !important;
+}
+.dataframe tbody tr {
+    background: #334155 !important;
+    color: #FFFFFF !important;
+}
+.dataframe tbody tr:hover {
+    background: #475569 !important;
+}
+</style>
+""", unsafe_allow_html=True)
+
+# ==============================
+# 📦 LOAD DATA
+# ==============================
 @st.cache_data
 def load_data():
     url = "https://raw.githubusercontent.com/ypelayog25/ecommerce-analysis-project/main/data/processed/ecommerce_dataset_10000_cleaned.csv"
     df = pd.read_csv(url)
+    # Create TotalPrice if missing
+    if "TotalPrice" not in df.columns:
+        df["TotalPrice"] = df["Quantity"] * df["UnitPrice"]
     return df
 
 df = load_data()
 
-# =========================
-# Header
-# =========================
-style.create_header(
-    title="E-COMMERCE DASHBOARD",
-    subtitle="Comprehensive analytics on revenue, orders, and customer insights.",
-    breadcrumb="Home / Analytics / Dashboard"
-)
+# ==============================
+# 🧭 DASHBOARD HEADER
+# ==============================
+st.markdown("### 🛒 E-COMMERCE DASHBOARD")
+st.markdown("#### Comprehensive analytics on revenue, orders, and customer insights.")
 
-# =========================
-# KPI Section
-# =========================
-style.create_section_header("KEY PERFORMANCE INDICATORS")
+# ==============================
+# 📈 KPI SECTION
+# ==============================
+st.markdown("## KEY PERFORMANCE INDICATORS")
 
 col1, col2, col3, col4 = st.columns(4)
 with col1:
@@ -66,43 +158,42 @@ with col4:
     avg_quantity = df["Quantity"].mean()
     st.metric(label="Avg. Quantity per Order", value=f"{avg_quantity:.2f}")
 
-# =========================
-# Revenue Trend
-# =========================
-style.create_section_header("REVENUE TREND")
+# ==============================
+# 💰 REVENUE TREND
+# ==============================
+st.markdown("## REVENUE TREND")
 
 df["InvoiceDate"] = pd.to_datetime(df["InvoiceDate"])
-df["Month"] = df["InvoiceDate"].dt.to_period("M")
+df["Month"] = df["InvoiceDate"].dt.to_period("M").astype(str)
 monthly_revenue = df.groupby("Month")["TotalPrice"].sum().reset_index()
-monthly_revenue["Month"] = monthly_revenue["Month"].astype(str)
 
 fig_revenue = px.line(
     monthly_revenue,
     x="Month",
     y="TotalPrice",
     title="Monthly Revenue Trend",
-    template=plotly_template,
-    markers=True
+    template="plotly_dark",
+    markers=True,
 )
-fig_revenue.update_traces(line_color=style.COLORS["primary"], line_width=3)
+fig_revenue.update_traces(line_color="#60A5FA", line_width=3)
 fig_revenue.update_layout(
     xaxis_title="Month",
     yaxis_title="Revenue (USD)",
-    title_font=dict(size=18, color="#FFFFFF", family="Inter"),
-    font=dict(color="#F8FAFC", size=12)
+    font=dict(color="#F8FAFC", size=12),
+    title_font=dict(size=18, color="#FFFFFF", family="Inter")
 )
 st.plotly_chart(fig_revenue, use_container_width=True)
 
-# =========================
-# Top 5 Countries by Revenue
-# =========================
-style.create_section_header("TOP COUNTRIES BY REVENUE")
+# ==============================
+# 🌍 TOP COUNTRIES
+# ==============================
+st.markdown("## TOP COUNTRIES BY REVENUE")
 
 country_revenue = (
     df.groupby("Country")["TotalPrice"]
     .sum()
     .reset_index()
-    .sort_values(by="TotalPrice", ascending=False)
+    .sort_values("TotalPrice", ascending=False)
     .head(5)
 )
 
@@ -110,30 +201,30 @@ fig_country = px.bar(
     country_revenue,
     x="Country",
     y="TotalPrice",
-    title="Top 5 Countries by Revenue",
-    template=plotly_template,
     color="TotalPrice",
-    color_continuous_scale=["#3B82F6", "#60A5FA"]
+    color_continuous_scale=["#3B82F6", "#60A5FA"],
+    title="Top 5 Countries by Revenue",
+    template="plotly_dark",
 )
 fig_country.update_layout(
     xaxis_title="Country",
     yaxis_title="Revenue (USD)",
-    title_font=dict(size=18, color="#FFFFFF", family="Inter"),
     font=dict(color="#F8FAFC", size=12),
-    coloraxis_showscale=False
+    title_font=dict(size=18, color="#FFFFFF", family="Inter"),
+    coloraxis_showscale=False,
 )
 st.plotly_chart(fig_country, use_container_width=True)
 
-# =========================
-# Product Performance
-# =========================
-style.create_section_header("TOP PRODUCTS")
+# ==============================
+# 🛍️ TOP PRODUCTS
+# ==============================
+st.markdown("## TOP PRODUCTS")
 
 top_products = (
     df.groupby("Description")["TotalPrice"]
     .sum()
     .reset_index()
-    .sort_values(by="TotalPrice", ascending=False)
+    .sort_values("TotalPrice", ascending=False)
     .head(10)
 )
 
@@ -142,30 +233,30 @@ fig_products = px.bar(
     x="TotalPrice",
     y="Description",
     orientation="h",
-    title="Top 10 Products by Revenue",
-    template=plotly_template,
     color="TotalPrice",
-    color_continuous_scale=["#1E3A8A", "#3B82F6"]
+    color_continuous_scale=["#1E3A8A", "#3B82F6"],
+    title="Top 10 Products by Revenue",
+    template="plotly_dark",
 )
 fig_products.update_layout(
     xaxis_title="Revenue (USD)",
     yaxis_title="Product Description",
-    title_font=dict(size=18, color="#FFFFFF", family="Inter"),
     font=dict(color="#F8FAFC", size=12),
-    coloraxis_showscale=False
+    title_font=dict(size=18, color="#FFFFFF", family="Inter"),
+    coloraxis_showscale=False,
 )
 st.plotly_chart(fig_products, use_container_width=True)
 
-# =========================
-# Customer Insights
-# =========================
-style.create_section_header("CUSTOMER INSIGHTS")
+# ==============================
+# 👥 CUSTOMER INSIGHTS
+# ==============================
+st.markdown("## CUSTOMER INSIGHTS")
 
 customer_spending = (
     df.groupby("CustomerID")["TotalPrice"]
     .sum()
     .reset_index()
-    .sort_values(by="TotalPrice", ascending=False)
+    .sort_values("TotalPrice", ascending=False)
     .head(10)
 )
 
@@ -173,29 +264,26 @@ fig_customers = px.bar(
     customer_spending,
     x="CustomerID",
     y="TotalPrice",
-    title="Top 10 Customers by Spending",
-    template=plotly_template,
     color="TotalPrice",
-    color_continuous_scale=["#0EA5E9", "#60A5FA"]
+    color_continuous_scale=["#0EA5E9", "#60A5FA"],
+    title="Top 10 Customers by Spending",
+    template="plotly_dark",
 )
 fig_customers.update_layout(
     xaxis_title="Customer ID",
     yaxis_title="Total Spending (USD)",
-    title_font=dict(size=18, color="#FFFFFF", family="Inter"),
     font=dict(color="#F8FAFC", size=12),
-    coloraxis_showscale=False
+    title_font=dict(size=18, color="#FFFFFF", family="Inter"),
+    coloraxis_showscale=False,
 )
 st.plotly_chart(fig_customers, use_container_width=True)
 
-# =========================
-# Footer
-# =========================
-st.markdown(
-    """
-    <hr style="border: 1px solid rgba(59,130,246,0.2); margin-top: 2rem; margin-bottom: 1rem;">
-    <div style="text-align: center; color: #94A3B8; font-size: 0.9rem;">
-        © 2025 Yenismara Pelayo — E-commerce Analytics Dashboard
-    </div>
-    """,
-    unsafe_allow_html=True
-)
+# ==============================
+# 🔚 FOOTER
+# ==============================
+st.markdown("""
+<hr style="border: 1px solid rgba(59,130,246,0.2); margin-top: 2rem; margin-bottom: 1rem;">
+<div style="text-align: center; color: #94A3B8; font-size: 0.9rem;">
+© 2025 Yenismara Pelayo — E-commerce Analytics Dashboard
+</div>
+""", unsafe_allow_html=True)
