@@ -2,6 +2,11 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
+import sys, os
+
+# Ensure Python can find the "components" folder
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
 from components import style  # Import the global dark theme
 
 # =========================
@@ -93,7 +98,14 @@ st.plotly_chart(fig_revenue, use_container_width=True)
 # =========================
 style.create_section_header("TOP COUNTRIES BY REVENUE")
 
-country_revenue = df.groupby("Country")["TotalPrice"].sum().reset_index().sort_values(by="TotalPrice", ascending=False).head(5)
+country_revenue = (
+    df.groupby("Country")["TotalPrice"]
+    .sum()
+    .reset_index()
+    .sort_values(by="TotalPrice", ascending=False)
+    .head(5)
+)
+
 fig_country = px.bar(
     country_revenue,
     x="Country",
