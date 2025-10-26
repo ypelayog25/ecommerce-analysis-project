@@ -402,6 +402,67 @@ div[data-testid="stAlertContainer"] span {
     font-weight: 600 !important;
 }
 
+
+/* === Final Professional Visual Adjustments === */
+
+/* Secciones claras: Export Center, Advanced Features */
+section[data-testid="stVerticalBlock"] h2,
+section[data-testid="stVerticalBlock"] h3,
+section[data-testid="stVerticalBlock"] p {
+    color: #1E293B !important;
+}
+
+/* Fondo suave para secciones claras */
+[data-testid="stVerticalBlock"]:has(h2:contains('EXPORT CENTER')),
+[data-testid="stVerticalBlock"]:has(h2:contains('ADVANCED FEATURES')) {
+    background: #F9FAFB !important;
+    border-radius: 10px;
+    padding: 25px;
+}
+
+/* Sección Intelligent Alerts - estilo profesional */
+.stAlert, .stSuccess, .stWarning, .stError, .stInfo {
+    border-radius: 10px !important;
+    padding: 16px 20px !important;
+    font-size: 15px !important;
+    font-weight: 600 !important;
+    color: #E0F2FE !important;
+    background: linear-gradient(135deg, #1E293B 0%, #334155 100%) !important;
+    border-left: 4px solid #60A5FA !important;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+}
+
+/* Diferenciar tipos de alertas con colores sobrios */
+.stSuccess { border-left-color: #34D399 !important; }
+.stInfo { border-left-color: #60A5FA !important; }
+.stWarning { border-left-color: #FBBF24 !important; }
+.stError { border-left-color: #F87171 !important; }
+
+/* Mejorar legibilidad del texto en alertas */
+.stAlert p, .stAlert span, .stAlert div {
+    color: #F3F4F6 !important;
+    font-weight: 600 !important;
+    font-size: 15px !important;
+}
+
+/* Pequeño sombreado en títulos sobre fondos claros */
+h2, h3 {
+    text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+
+/* Ajustar contraste general en tarjetas de métricas */
+[data-testid="stMetricValue"], [data-testid="stMetricLabel"] {
+    color: #E0F2FE !important;
+    text-shadow: 0 0 4px rgba(0, 0, 0, 0.4);
+}
+
+/* Asegurar buena visualización en pantallas laptop y móviles */
+@media (max-width: 1024px) {
+    .stAlert, .stSuccess, .stWarning, .stError, .stInfo {
+        font-size: 14px !important;
+    }
+}
+
 </style>
 """, unsafe_allow_html=True)
 
@@ -1242,6 +1303,67 @@ div[data-testid="stAlertContainer"] p,
 div[data-testid="stAlertContainer"] span {
     color: #E5E7EB !important;
     font-weight: 600 !important;
+}
+
+
+/* === Final Professional Visual Adjustments === */
+
+/* Secciones claras: Export Center, Advanced Features */
+section[data-testid="stVerticalBlock"] h2,
+section[data-testid="stVerticalBlock"] h3,
+section[data-testid="stVerticalBlock"] p {
+    color: #1E293B !important;
+}
+
+/* Fondo suave para secciones claras */
+[data-testid="stVerticalBlock"]:has(h2:contains('EXPORT CENTER')),
+[data-testid="stVerticalBlock"]:has(h2:contains('ADVANCED FEATURES')) {
+    background: #F9FAFB !important;
+    border-radius: 10px;
+    padding: 25px;
+}
+
+/* Sección Intelligent Alerts - estilo profesional */
+.stAlert, .stSuccess, .stWarning, .stError, .stInfo {
+    border-radius: 10px !important;
+    padding: 16px 20px !important;
+    font-size: 15px !important;
+    font-weight: 600 !important;
+    color: #E0F2FE !important;
+    background: linear-gradient(135deg, #1E293B 0%, #334155 100%) !important;
+    border-left: 4px solid #60A5FA !important;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+}
+
+/* Diferenciar tipos de alertas con colores sobrios */
+.stSuccess { border-left-color: #34D399 !important; }
+.stInfo { border-left-color: #60A5FA !important; }
+.stWarning { border-left-color: #FBBF24 !important; }
+.stError { border-left-color: #F87171 !important; }
+
+/* Mejorar legibilidad del texto en alertas */
+.stAlert p, .stAlert span, .stAlert div {
+    color: #F3F4F6 !important;
+    font-weight: 600 !important;
+    font-size: 15px !important;
+}
+
+/* Pequeño sombreado en títulos sobre fondos claros */
+h2, h3 {
+    text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+
+/* Ajustar contraste general en tarjetas de métricas */
+[data-testid="stMetricValue"], [data-testid="stMetricLabel"] {
+    color: #E0F2FE !important;
+    text-shadow: 0 0 4px rgba(0, 0, 0, 0.4);
+}
+
+/* Asegurar buena visualización en pantallas laptop y móviles */
+@media (max-width: 1024px) {
+    .stAlert, .stSuccess, .stWarning, .stError, .stInfo {
+        font-size: 14px !important;
+    }
 }
 
 </style>
