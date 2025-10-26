@@ -14,7 +14,7 @@ st.set_page_config(
     page_icon="📊"
 )
 
-# Professional Dark Theme CSS with Enhanced Contrast
+# Professional Dark Theme CSS
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Roboto:wght@300;400;500;700&display=swap');
@@ -162,28 +162,28 @@ st.markdown("""
     }
     
     h3 { 
-        color: rgb(229, 231, 235) !important;
+        color: rgb(209, 213, 219) !important;
         font-weight: 600 !important;
         letter-spacing: -0.2px;
     }
     
     [data-testid="stMetricValue"] {
-        font-size: 34px !important;
+        font-size: 32px !important;
         font-weight: 700 !important;
-        color: rgb(147, 197, 253) !important;
+        color: rgb(96, 165, 250) !important;
         letter-spacing: -0.5px;
     }
     
     [data-testid="stMetricLabel"] {
-        font-size: 13px !important;
-        font-weight: 700 !important;
-        color: rgb(209, 213, 219) !important;
+        font-size: 12px !important;
+        font-weight: 600 !important;
+        color: rgb(156, 163, 175) !important;
         text-transform: uppercase;
         letter-spacing: 1px;
     }
     
     [data-testid="stMetricDelta"] {
-        font-size: 14px !important;
+        font-size: 13px !important;
         font-weight: 600 !important;
     }
     
@@ -266,24 +266,24 @@ st.markdown("""
     }
     
     p, span, label { 
-        color: rgb(229, 231, 235) !important;
+        color: rgb(209, 213, 219) !important;
         font-size: 14px;
         font-weight: 400;
         line-height: 1.6;
     }
     
     .stMarkdown h3 {
-        color: rgb(147, 197, 253) !important;
+        color: rgb(96, 165, 250) !important;
         font-weight: 700;
         margin-top: 20px;
         margin-bottom: 16px;
         padding-left: 14px;
-        border-left: 4px solid rgb(96, 165, 250);
+        border-left: 4px solid rgb(59, 130, 246);
         letter-spacing: -0.3px;
     }
     
     .stMarkdown h4 {
-        color: rgb(209, 213, 219) !important;
+        color: rgb(156, 163, 175) !important;
         font-weight: 600;
         font-size: 16px;
         margin-bottom: 12px;
@@ -295,6 +295,7 @@ st.markdown("""
         border-radius: 8px;
     }
     
+    /* Mejorar contraste en tablas */
     [data-testid="stDataFrame"] table {
         background-color: rgb(31, 41, 55) !important;
     }
@@ -327,6 +328,7 @@ st.markdown("""
         margin: 30px 0;
     }
     
+    /* Success, Warning, Error colors */
     .stSuccess {
         background-color: rgba(5, 150, 105, 0.15);
         border-left-color: rgb(16, 185, 129);
@@ -355,12 +357,52 @@ st.markdown("""
         h1 { font-size: 28px !important; }
         h2 { font-size: 22px !important; }
         h3 { font-size: 18px !important; }
-        [data-testid="stMetricValue"] { font-size: 26px !important; }
+        [data-testid="stMetricValue"] { font-size: 24px !important; }
         div[data-testid="metric-container"] { padding: 16px; margin-bottom: 12px; }
         .stButton button { width: 100%; font-size: 13px !important; }
         p, span, label { font-size: 13px; }
     }
-    </style>
+    
+/* === Enhanced Contrast & Readability Adjustments === */
+.stAlert, .stSuccess, .stWarning, .stError, .stInfo {
+    font-size: 15px !important;
+    font-weight: 600 !important;
+    color: #F3F4F6 !important;
+    text-shadow: 0 0 4px rgba(0, 0, 0, 0.4);
+}
+
+.stSuccess {
+    background-color: rgba(30, 64, 175, 0.5) !important;
+    border-left: 4px solid rgb(96, 165, 250) !important;
+}
+
+.stInfo {
+    background-color: rgba(37, 99, 235, 0.3) !important;
+    border-left: 4px solid rgb(147, 197, 253) !important;
+}
+
+.stWarning {
+    background-color: rgba(217, 119, 6, 0.3) !important;
+    border-left: 4px solid rgb(251, 191, 36) !important;
+}
+
+.stError {
+    background-color: rgba(239, 68, 68, 0.3) !important;
+    border-left: 4px solid rgb(252, 165, 165) !important;
+}
+
+[data-testid="stMetricValue"], [data-testid="stMetricLabel"] {
+    text-shadow: 0 0 6px rgba(0, 0, 0, 0.3);
+}
+
+/* Ensure all alert texts are readable on bright blue backgrounds */
+div[data-testid="stAlertContainer"] p,
+div[data-testid="stAlertContainer"] span {
+    color: #E5E7EB !important;
+    font-weight: 600 !important;
+}
+
+</style>
 """, unsafe_allow_html=True)
 
 # Data Loading
@@ -400,7 +442,7 @@ st.markdown("""
         <h1 style='font-size: 42px; margin-bottom: 12px; color: rgb(243, 244, 246); font-weight: 700; letter-spacing: -1px;'>
             📊 Executive E-Commerce Dashboard
         </h1>
-        <p style='font-size: 16px; color: rgb(209, 213, 219); font-weight: 500; letter-spacing: 1px;'>
+        <p style='font-size: 16px; color: rgb(156, 163, 175); font-weight: 500; letter-spacing: 1px;'>
             Real-Time Business Intelligence & Advanced Analytics
         </p>
     </div>
@@ -411,7 +453,7 @@ with st.sidebar:
     st.markdown("""
         <div style='text-align: center; padding: 20px 0 15px 0;'>
             <div style='font-size: 44px; margin-bottom: 10px;'>⚡</div>
-            <h2 style='margin: 0; font-size: 20px; color: rgb(147, 197, 253); font-weight: 700; letter-spacing: 0.5px;'>
+            <h2 style='margin: 0; font-size: 20px; color: rgb(96, 165, 250); font-weight: 700; letter-spacing: 0.5px;'>
                 Control Center
             </h2>
         </div>
@@ -544,71 +586,56 @@ with kpi5:
 
 st.markdown("---")
 
-# Enhanced Plotly Helper with Better Contrast
+# Plotly Helper con mejor contraste
 def style_fig(fig, title=""):
     theme = st.session_state.get('selected_theme', 'plotly_dark')
+    
+    # Colores de texto según el tema
     is_light_theme = theme in ['plotly_white', 'seaborn', 'ggplot2']
     
-    # Enhanced color scheme for better contrast
-    if is_light_theme:
-        title_color = "rgb(17, 24, 39)"
-        text_color = "rgb(31, 41, 55)"
-        grid_color = "rgba(107, 114, 128, 0.25)"
-        paper_bg = "rgba(255, 255, 255, 0.95)"
-        plot_bg = "rgba(249, 250, 251, 1)"
-        hover_bg = "white"
-        hover_text = "rgb(31, 41, 55)"
-    else:
-        title_color = "rgb(243, 244, 246)"
-        text_color = "rgb(229, 231, 235)"
-        grid_color = "rgba(156, 163, 175, 0.2)"
-        paper_bg = "rgba(0, 0, 0, 0)"
-        plot_bg = "rgba(31, 41, 55, 0.4)"
-        hover_bg = "rgb(31, 41, 55)"
-        hover_text = "rgb(243, 244, 246)"
+    title_color = "rgb(31, 41, 55)" if is_light_theme else "rgb(229, 231, 235)"
+    text_color = "rgb(55, 65, 81)" if is_light_theme else "rgb(209, 213, 219)"
+    grid_color = "rgba(0, 0, 0, 0.15)" if is_light_theme else "rgba(75, 85, 99, 0.3)"
+    paper_bg = "rgba(255, 255, 255, 0.95)" if is_light_theme else "rgba(0, 0, 0, 0)"
+    plot_bg = "rgba(249, 250, 251, 1)" if is_light_theme else "rgba(31, 41, 55, 0.3)"
     
     fig.update_layout(
         title=dict(
             text=title, 
-            font=dict(size=22, color=title_color, family="Inter", weight=700),
+            font=dict(size=20, color=title_color, family="Inter", weight=700),
             x=0.5, 
             xanchor='center'
         ),
-        font=dict(size=14, color=text_color, family="Inter", weight=500),
-        margin=dict(l=60, r=60, t=80, b=60),
+        font=dict(size=13, color=text_color, family="Inter", weight=500),
+        margin=dict(l=50, r=50, t=70, b=50),
         template=theme,
         hovermode='x unified',
         paper_bgcolor=paper_bg,
         plot_bgcolor=plot_bg,
         hoverlabel=dict(
-            bgcolor=hover_bg,
-            font_size=13,
+            bgcolor="rgb(31, 41, 55)" if not is_light_theme else "white",
+            font_size=12,
             font_family="Inter",
-            font_color=hover_text,
-            bordercolor=grid_color
+            font_color="white" if not is_light_theme else "rgb(31, 41, 55)"
         )
     )
     
-    # Enhanced axis styling with better contrast
+    # Ejes con mejor contraste
     axis_config = dict(
         showgrid=True, 
         gridcolor=grid_color,
-        gridwidth=1,
-        title_font=dict(color=text_color, size=15, weight=700),
-        tickfont=dict(color=text_color, size=13, weight=500),
-        linecolor=grid_color,
-        linewidth=1.5
+        title_font=dict(color=text_color, size=13, weight=600),
+        tickfont=dict(color=text_color, size=11, weight=500),
+        linecolor=grid_color
     )
     
     fig.update_xaxes(**axis_config)
     fig.update_yaxes(**axis_config)
     
-    # Enhanced text in traces
+    # Actualizar colores de texto en trazas
     for trace in fig.data:
         if hasattr(trace, 'textfont'):
             trace.textfont.color = text_color
-            trace.textfont.size = 13
-            trace.textfont.family = "Inter"
         if hasattr(trace, 'marker') and hasattr(trace.marker, 'line'):
             trace.marker.line.width = 0.5
     
@@ -616,9 +643,10 @@ def style_fig(fig, title=""):
 
 colors = ['rgb(96, 165, 250)', 'rgb(129, 140, 248)', 'rgb(167, 139, 250)', 'rgb(236, 72, 153)', 'rgb(251, 146, 60)']
 
+# Función para obtener color de texto según tema
 def get_text_color():
     theme = st.session_state.get('selected_theme', 'plotly_dark')
-    return "rgb(31, 41, 55)" if theme in ['plotly_white', 'seaborn', 'ggplot2'] else "rgb(229, 231, 235)"
+    return "rgb(31, 41, 55)" if theme in ['plotly_white', 'seaborn', 'ggplot2'] else "rgb(209, 213, 219)"
 
 # Dashboard Tabs
 tab1, tab2, tab3, tab4, tab5 = st.tabs(["📊 REVENUE", "👥 CUSTOMERS", "📦 PRODUCTS", "🌍 GEOGRAPHY", "🔬 ADVANCED"])
@@ -637,9 +665,9 @@ with tab1:
             x=monthly_revenue['order_date'], y=monthly_revenue['total_price'],
             mode='lines+markers', name='Revenue',
             line=dict(color='rgb(96, 165, 250)', width=3),
-            marker=dict(size=9, color='rgb(96, 165, 250)', line=dict(width=2, color='white')),
+            marker=dict(size=8, color='rgb(96, 165, 250)'),
             fill='tozeroy', fillcolor='rgba(96, 165, 250, 0.1)',
-            textfont=dict(color=get_text_color(), size=13)
+            textfont=dict(color=get_text_color())
         ))
         
         z = np.polyfit(range(len(monthly_revenue)), monthly_revenue['total_price'], 1)
@@ -647,7 +675,7 @@ with tab1:
         fig_trend.add_trace(go.Scatter(
             x=monthly_revenue['order_date'], y=p(range(len(monthly_revenue))),
             mode='lines', name='Trend',
-            line=dict(color='rgb(251, 146, 60)', width=3, dash='dash')
+            line=dict(color='rgb(251, 146, 60)', width=2.5, dash='dash')
         ))
         
         st.plotly_chart(style_fig(fig_trend, "Monthly Performance"), use_container_width=True)
@@ -660,12 +688,12 @@ with tab1:
         fig_pie.update_traces(
             textposition='inside', 
             textinfo='percent+label',
-            textfont=dict(size=13, color='white', weight=700, family='Inter')
+            textfont=dict(size=12, color='white', weight=600)
         )
         fig_pie.update_layout(
             paper_bgcolor='rgba(0, 0, 0, 0)', 
             showlegend=True,
-            legend=dict(font=dict(color=get_text_color(), size=13, family='Inter'))
+            legend=dict(font=dict(color=get_text_color()))
         )
         st.plotly_chart(fig_pie, use_container_width=True)
     
@@ -678,7 +706,7 @@ with tab1:
         marker=dict(color=dow_revenue['total_price'], colorscale='Viridis'),
         text=[f"${val:,.0f}" for val in dow_revenue['total_price']], 
         textposition='outside',
-        textfont=dict(color=get_text_color(), size=13, weight=700, family='Inter')
+        textfont=dict(color=get_text_color(), size=12, weight=600)
     )])
     st.plotly_chart(style_fig(fig_dow, "Revenue by Day"), use_container_width=True)
 
@@ -698,7 +726,7 @@ with tab2:
             marker=dict(color=top_customers['total_revenue'], colorscale='Plasma'),
             text=[f"${val:,.0f}" for val in top_customers['total_revenue']], 
             textposition='outside',
-            textfont=dict(color=get_text_color(), size=12, weight=700, family='Inter')
+            textfont=dict(color=get_text_color(), size=11, weight=600)
         )])
         st.plotly_chart(style_fig(fig_cust, "Revenue Champions"), use_container_width=True)
     
@@ -712,7 +740,7 @@ with tab2:
             marker=dict(color=order_freq['customer_count'], colorscale='Turbo'),
             text=order_freq['customer_count'], 
             textposition='outside',
-            textfont=dict(color=get_text_color(), size=13, weight=700, family='Inter')
+            textfont=dict(color=get_text_color(), size=12, weight=600)
         )])
         st.plotly_chart(style_fig(fig_freq, "Order Frequency"), use_container_width=True)
     
@@ -744,7 +772,7 @@ with tab2:
             marker=dict(color=colors[:len(segment_summary)]),
             text=segment_summary['customer_count'], 
             textposition='outside',
-            textfont=dict(color=get_text_color(), size=13, weight=700, family='Inter')
+            textfont=dict(color=get_text_color(), size=12, weight=600)
         )])
         st.plotly_chart(style_fig(fig_seg, "Customers by Segment"), use_container_width=True)
     
@@ -754,7 +782,7 @@ with tab2:
             marker=dict(color=colors[:len(segment_summary)]),
             text=[f"${val:,.0f}" for val in segment_summary['total_revenue']], 
             textposition='outside',
-            textfont=dict(color=get_text_color(), size=13, weight=700, family='Inter')
+            textfont=dict(color=get_text_color(), size=12, weight=600)
         )])
         st.plotly_chart(style_fig(fig_segrev, "Revenue by Segment"), use_container_width=True)
 
@@ -773,7 +801,7 @@ with tab3:
             marker=dict(color=top_prod['total_price'], colorscale='Rainbow'),
             text=[f"${val:,.0f}" for val in top_prod['total_price']], 
             textposition='outside',
-            textfont=dict(color=get_text_color(), size=12, weight=700, family='Inter')
+            textfont=dict(color=get_text_color(), size=11, weight=600)
         )])
         st.plotly_chart(style_fig(fig_prod, "Revenue Leaders"), use_container_width=True)
     
@@ -786,7 +814,7 @@ with tab3:
             marker=dict(color=top_qty['quantity'], colorscale='Teal'),
             text=top_qty['quantity'], 
             textposition='outside',
-            textfont=dict(color=get_text_color(), size=12, weight=700, family='Inter')
+            textfont=dict(color=get_text_color(), size=11, weight=600)
         )])
         st.plotly_chart(style_fig(fig_qty, "Volume Champions"), use_container_width=True)
     
@@ -824,7 +852,7 @@ with tab4:
         marker=dict(color=country_analysis['revenue'], colorscale='Viridis', showscale=True),
         text=[f"${val:,.0f}" for val in country_analysis['revenue']], 
         textposition='outside',
-        textfont=dict(color=get_text_color(), size=13, weight=700, family='Inter')
+        textfont=dict(color=get_text_color(), size=12, weight=600)
     )])
     st.plotly_chart(style_fig(fig_country, "Global Distribution"), use_container_width=True)
     
@@ -853,9 +881,9 @@ with tab5:
             marker=dict(color=colors_growth),
             text=[f"{val:.1f}%" if not pd.isna(val) else "" for val in growth_data['growth_rate']],
             textposition='outside',
-            textfont=dict(color=get_text_color(), size=12, weight=700, family='Inter')
+            textfont=dict(color=get_text_color(), size=11, weight=600)
         ))
-        fig_growth.add_hline(y=0, line_dash="solid", line_color="rgba(156, 163, 175, 0.5)", line_width=2)
+        fig_growth.add_hline(y=0, line_dash="solid", line_color="rgba(255, 255, 255, 0.4)")
         st.plotly_chart(style_fig(fig_growth, "MoM Growth %"), use_container_width=True)
     
     with adv2:
@@ -871,8 +899,8 @@ with tab5:
         fig_pareto.add_trace(go.Scatter(
             x=prod_rev.index[:20], y=prod_rev['cumulative_pct'][:20],
             name='Cumulative %', mode='lines+markers',
-            marker=dict(color='rgb(96, 165, 250)', size=7, line=dict(width=2, color='white')),
-            line=dict(color='rgb(96, 165, 250)', width=3),
+            marker=dict(color='rgb(96, 165, 250)', size=6),
+            line=dict(color='rgb(96, 165, 250)', width=2.5),
             yaxis='y2'
         ))
         fig_pareto.update_layout(yaxis2=dict(overlaying='y', side='right', range=[0, 100]))
@@ -1043,16 +1071,14 @@ with adv_tab2:
             fig_forecast.add_trace(go.Scatter(
                 x=hist['date'], y=hist['revenue'],
                 mode='lines+markers', name='Historical',
-                line=dict(color='rgb(79, 195, 247)', width=3),
-                marker=dict(size=8, line=dict(width=2, color='white'))
+                line=dict(color='rgb(79, 195, 247)', width=3)
             ))
             
             fore = forecast_df[forecast_df['type'] == 'Forecast']
             fig_forecast.add_trace(go.Scatter(
                 x=fore['date'], y=fore['revenue'],
                 mode='lines+markers', name='Forecast',
-                line=dict(color='rgb(236, 64, 122)', width=3, dash='dash'),
-                marker=dict(size=8, line=dict(width=2, color='white'))
+                line=dict(color='rgb(236, 64, 122)', width=3, dash='dash')
             ))
             
             std_dev = monthly_data['total_price'].std()
@@ -1109,14 +1135,14 @@ with adv_tab3:
             marker=dict(color='rgb(96, 165, 250)'),
             text=[f"${v:,.0f}" for v in m_y1['revenue']], 
             textposition='outside',
-            textfont=dict(color=get_text_color(), size=12, weight=700, family='Inter')
+            textfont=dict(color=get_text_color(), size=11, weight=600)
         ))
         fig_yoy.add_trace(go.Bar(
             x=m_y2['month_name'], y=m_y2['revenue'], name=str(year2),
             marker=dict(color='rgb(129, 140, 248)'),
             text=[f"${v:,.0f}" for v in m_y2['revenue']], 
             textposition='outside',
-            textfont=dict(color=get_text_color(), size=12, weight=700, family='Inter')
+            textfont=dict(color=get_text_color(), size=11, weight=600)
         ))
         
         st.plotly_chart(style_fig(fig_yoy, f"{year1} vs {year2}"), use_container_width=True)
@@ -1178,3 +1204,117 @@ with adv_tab4:
                     th {{ background: rgb(94, 53, 177); color: white; padding: 12px; }}
                     td {{ padding: 10px; border-bottom: 1px solid rgb(221, 221, 221); }}
                     h2 {{ color: rgb(94, 53, 177); border-bottom: 2px solid rgb(79, 195, 247); padding-bottom: 10px; }}
+                
+/* === Enhanced Contrast & Readability Adjustments === */
+.stAlert, .stSuccess, .stWarning, .stError, .stInfo {
+    font-size: 15px !important;
+    font-weight: 600 !important;
+    color: #F3F4F6 !important;
+    text-shadow: 0 0 4px rgba(0, 0, 0, 0.4);
+}
+
+.stSuccess {
+    background-color: rgba(30, 64, 175, 0.5) !important;
+    border-left: 4px solid rgb(96, 165, 250) !important;
+}
+
+.stInfo {
+    background-color: rgba(37, 99, 235, 0.3) !important;
+    border-left: 4px solid rgb(147, 197, 253) !important;
+}
+
+.stWarning {
+    background-color: rgba(217, 119, 6, 0.3) !important;
+    border-left: 4px solid rgb(251, 191, 36) !important;
+}
+
+.stError {
+    background-color: rgba(239, 68, 68, 0.3) !important;
+    border-left: 4px solid rgb(252, 165, 165) !important;
+}
+
+[data-testid="stMetricValue"], [data-testid="stMetricLabel"] {
+    text-shadow: 0 0 6px rgba(0, 0, 0, 0.3);
+}
+
+/* Ensure all alert texts are readable on bright blue backgrounds */
+div[data-testid="stAlertContainer"] p,
+div[data-testid="stAlertContainer"] span {
+    color: #E5E7EB !important;
+    font-weight: 600 !important;
+}
+
+</style>
+            </head>
+            <body>
+                <div class="header">
+                    <h1>📊 EXECUTIVE E-COMMERCE DASHBOARD</h1>
+                    <p>Period: {start_date.strftime('%B %d, %Y')} - {end_date.strftime('%B %d, %Y')}</p>
+                    <p>Generated: {datetime.now().strftime('%B %d, %Y at %H:%M')}</p>
+                </div>
+                
+                <h2>📈 Executive Summary</h2>
+                <div class="metric-card">
+                    <p><strong>Total Revenue:</strong> ${metrics['total_revenue']:,.0f} ({metrics['revenue_delta']:+.1f}%)</p>
+                    <p><strong>Total Orders:</strong> {metrics['total_orders']:,} ({metrics['orders_delta']:+.1f}%)</p>
+                    <p><strong>Unique Customers:</strong> {metrics['unique_customers']:,} ({metrics['customers_delta']:+.1f}%)</p>
+                </div>
+                
+                <h2>🏆 Top 10 Customers</h2>
+                <table>
+                    <tr><th>Customer ID</th><th>Revenue</th><th>Orders</th></tr>
+                    {''.join([f"<tr><td>{r['customer_id']}</td><td>${r['total_revenue']:,.0f}</td><td>{r['order_count']}</td></tr>" for _, r in top_customers.head(10).iterrows()])}
+                </table>
+                
+                <h2>📦 Top 10 Products</h2>
+                <table>
+                    <tr><th>Product</th><th>Revenue</th><th>Quantity</th></tr>
+                    {''.join([f"<tr><td>{r['product_name']}</td><td>${r['total_price']:,.0f}</td><td>{r['quantity']}</td></tr>" for _, r in top_prod.head(10).iterrows()])}
+                </table>
+                
+                <h2>🌍 Geographic Distribution</h2>
+                <table>
+                    <tr><th>Country</th><th>Revenue</th><th>Orders</th><th>Customers</th></tr>
+                    {''.join([f"<tr><td>{r['country']}</td><td>${r['revenue']:,.0f}</td><td>{r['orders']}</td><td>{r['customers']}</td></tr>" for _, r in country_analysis.head(10).iterrows()])}
+                </table>
+                
+                <div style="margin-top: 40px; text-align: center; color: rgb(102, 102, 102); border-top: 1px solid rgb(221, 221, 221); padding-top: 20px;">
+                    <p>Automated report - Executive E-commerce Dashboard</p>
+                    <p>© 2025 - Confidential Business Intelligence Report</p>
+                </div>
+            </body>
+            </html>
+            """
+            
+            st.download_button(
+                "📥 DOWNLOAD REPORT",
+                html,
+                file_name=f"report_{datetime.now().strftime('%Y%m%d_%H%M')}.html",
+                mime="text/html",
+                use_container_width=True
+            )
+            
+            st.success("✅ Report generated! Download above.")
+            st.info("💡 Open HTML in browser, then Print → Save as PDF")
+
+# Footer
+st.markdown("---")
+st.markdown(f"""
+    <div style='text-align: center; padding: 30px; background: linear-gradient(135deg, rgba(31, 41, 55, 0.6) 0%, rgba(17, 24, 39, 0.8) 100%); border-radius: 12px; border: 1px solid rgb(55, 65, 81);'>
+        <div style='font-size: 36px; margin-bottom: 12px;'>⚡</div>
+        <h3 style='color: rgb(243, 244, 246); margin: 10px 0; font-size: 22px; font-weight: 700; letter-spacing: -0.5px;'>Executive Dashboard v3.0</h3>
+        <p style='color: rgb(156, 163, 175); font-size: 13px; margin: 10px 0; font-weight: 500;'>Built with Streamlit, Plotly & Machine Learning</p>
+        <div style='display: flex; justify-content: center; gap: 12px; margin: 20px 0; flex-wrap: wrap;'>
+            <span style='background: rgba(96, 165, 250, 0.2); padding: 6px 14px; border-radius: 20px; font-size: 11px; color: rgb(147, 197, 253); font-weight: 600; border: 1px solid rgba(96, 165, 250, 0.3);'>🔔 Smart Alerts</span>
+            <span style='background: rgba(129, 140, 248, 0.2); padding: 6px 14px; border-radius: 20px; font-size: 11px; color: rgb(165, 180, 252); font-weight: 600; border: 1px solid rgba(129, 140, 248, 0.3);'>📈 ML Forecasting</span>
+            <span style='background: rgba(251, 146, 60, 0.2); padding: 6px 14px; border-radius: 20px; font-size: 11px; color: rgb(253, 186, 116); font-weight: 600; border: 1px solid rgba(251, 146, 60, 0.3);'>📊 YoY Analysis</span>
+            <span style='background: rgba(16, 185, 129, 0.2); padding: 6px 14px; border-radius: 20px; font-size: 11px; color: rgb(110, 231, 183); font-weight: 600; border: 1px solid rgba(16, 185, 129, 0.3);'>📄 PDF Reports</span>
+            <span style='background: rgba(236, 72, 153, 0.2); padding: 6px 14px; border-radius: 20px; font-size: 11px; color: rgb(244, 114, 182); font-weight: 600; border: 1px solid rgba(236, 72, 153, 0.3);'>💾 Save Configs</span>
+        </div>
+        <p style='color: rgb(107, 114, 128); font-size: 11px; margin: 12px 0; font-weight: 500;'>📅 Last Updated: {datetime.now().strftime('%B %d, %Y - %H:%M')}</p>
+        <div style='margin-top: 18px; padding-top: 18px; border-top: 1px solid rgb(55, 65, 81);'>
+            <p style='color: rgb(156, 163, 175); font-size: 10px; margin: 0; font-weight: 500;'>💼 Data Analytics & Business Intelligence Portfolio</p>
+            <p style='color: rgb(107, 114, 128); font-size: 9px; margin: 8px 0 0 0; font-weight: 400;'>🎯 RFM Segmentation • Pareto Analysis • Predictive Analytics • Interactive Visualizations</p>
+        </div>
+    </div>
+""", unsafe_allow_html=True)
