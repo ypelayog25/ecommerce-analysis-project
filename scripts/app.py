@@ -893,7 +893,7 @@ with tab5:
 
 # Export Section
 st.markdown("---")
-st.markdown("## 📥 EXPORT CENTER")
+st.markdown("## <span style='color:rgb(96,165,250);'>📥 EXPORT CENTER</span>", unsafe_allow_html=True)
 
 exp1, exp2, exp3, exp4 = st.columns(4)
 
@@ -935,7 +935,7 @@ with exp4:
 
 # Advanced Features
 st.markdown("---")
-st.markdown("## 🚀 ADVANCED FEATURES")
+st.markdown("## <span style='color:rgb(167,139,250);'>🚀 ADVANCED FEATURES</span>", unsafe_allow_html=True)
 
 adv_tab1, adv_tab2, adv_tab3, adv_tab4 = st.tabs([
     "🔔 SMART ALERTS", "📈 ML PREDICTIONS", "📊 YoY COMPARISON", "📄 PDF REPORT"
@@ -948,7 +948,7 @@ with adv_tab1:
     alert1, alert2 = st.columns(2)
     
     with alert1:
-        st.markdown("#### 📉 Performance Alerts")
+        st.markdown("### <span style='color:rgb(236,72,153);'>📉 Performance Alerts</span>", unsafe_allow_html=True)
         
         if metrics['revenue_delta'] < -10:
             st.error(f"🚨 Revenue dropped {abs(metrics['revenue_delta']):.1f}%")
@@ -965,7 +965,7 @@ with adv_tab1:
             st.success(f"✅ Customer base grew {metrics['customers_delta']:.1f}%")
     
     with alert2:
-        st.markdown("#### 📊 Threshold Monitoring")
+        st.markdown("### <span style='color:rgb(251,146,60);'>📊 Threshold Monitoring</span>", unsafe_allow_html=True)
         
         aov_threshold = 100
         if metrics['avg_order_value'] < aov_threshold:
@@ -978,7 +978,7 @@ with adv_tab1:
         else:
             st.info(f"ℹ️ Top 5 customers: {top_5_revenue_pct:.1f}% of revenue")
     
-    st.markdown("#### 🎯 Recommendations")
+    st.markdown("### <span style='color:rgb(16,185,129);'>🎯 Recommendations</span>", unsafe_allow_html=True)
     
     recs = []
     if metrics['revenue_delta'] < 0:
