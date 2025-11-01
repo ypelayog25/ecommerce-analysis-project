@@ -893,7 +893,7 @@ with tab5:
 
 # Export Section
 st.markdown("---")
-st.markdown("## 📥 EXPORT CENTER")
+st.markdown("<h2 style='color: rgb(96, 165, 250);'>📥 EXPORT CENTER</h2>", unsafe_allow_html=True)
 
 exp1, exp2, exp3, exp4 = st.columns(4)
 
@@ -935,7 +935,7 @@ with exp4:
 
 # Advanced Features
 st.markdown("---")
-st.markdown("## 🚀 ADVANCED FEATURES")
+st.markdown("<h2 style='color: rgb(96, 165, 250);'>🚀 ADVANCED FEATURES</h2>", unsafe_allow_html=True)
 
 adv_tab1, adv_tab2, adv_tab3, adv_tab4 = st.tabs([
     "🔔 SMART ALERTS", "📈 ML PREDICTIONS", "📊 YoY COMPARISON", "📄 PDF REPORT"
@@ -955,28 +955,28 @@ with adv_tab1:
         elif metrics['revenue_delta'] < 0:
             st.warning(f"⚠️ Revenue declined {abs(metrics['revenue_delta']):.1f}%")
         else:
-            st.success(f"✅ Revenue grew {metrics['revenue_delta']:.1f}%")
+            st.markdown(f"<div class='stSuccess'>✅ <span style='color: rgb(255, 255, 255); font-weight:700'>Revenue grew {metrics['revenue_delta']:.1f}%</span></div>", unsafe_allow_html=True)
         
         if metrics['customers_delta'] < -5:
             st.error(f"🚨 Lost {abs(metrics['customers_delta']):.1f}% of customers")
         elif metrics['customers_delta'] < 0:
             st.warning(f"⚠️ Customer count decreased {abs(metrics['customers_delta']):.1f}%")
         else:
-            st.success(f"✅ Customer base grew {metrics['customers_delta']:.1f}%")
+            st.markdown(f"<div class='stSuccess'>✅ <span style='color: rgb(255, 255, 255); font-weight:700'>Customer base grew {metrics['customers_delta']:.1f}%</span></div>", unsafe_allow_html=True)
     
     with alert2:
-        st.markdown("#### 📊 Threshold Monitoring")
+        st.markdown("<h4 style='color: rgb(255, 255, 255);'>📊 Threshold Monitoring</h4>", unsafe_allow_html=True)
         
         aov_threshold = 100
         if metrics['avg_order_value'] < aov_threshold:
-            st.warning(f"⚠️ AOV (${metrics['avg_order_value']:.2f}) below target (${aov_threshold})")
+            st.markdown(f"<div class='stWarning'>⚠️ <span style='color: rgb(255, 255, 255); font-weight:700'>AOV (${metrics['avg_order_value']:.2f}) below target (${aov_threshold})</span></div>", unsafe_allow_html=True)
         else:
-            st.success(f"✅ AOV (${metrics['avg_order_value']:.2f}) exceeds target")
+            st.markdown(f"<div class='stSuccess'>✅ <span style='color: rgb(255, 255, 255); font-weight:700'>AOV (${metrics['avg_order_value']:.2f}) exceeds target</span></div>", unsafe_allow_html=True)
         
         if top_5_revenue_pct > 50:
-            st.warning(f"⚠️ Top 5 customers: {top_5_revenue_pct:.1f}% - High risk")
+            st.markdown(f"<div class='stWarning'>⚠️ <span style='color: rgb(255, 255, 255); font-weight:700'>Top 5 customers: {top_5_revenue_pct:.1f}% - High risk</span></div>", unsafe_allow_html=True)
         else:
-            st.info(f"ℹ️ Top 5 customers: {top_5_revenue_pct:.1f}% of revenue")
+            st.markdown(f"<div class='stInfo'>ℹ️ <span style='color: rgb(255, 255, 255); font-weight:700'>Top 5 customers: {top_5_revenue_pct:.1f}% of revenue</span></div>", unsafe_allow_html=True)
     
     st.markdown("#### 🎯 Recommendations")
     
@@ -994,7 +994,7 @@ with adv_tab1:
         for rec in recs:
             st.info(rec)
     else:
-        st.success("✅ All metrics performing well!")
+        st.markdown("<div class='stSuccess'>✅ <span style='color: rgb(255, 255, 255); font-weight:700'>All metrics performing well!</span></div>", unsafe_allow_html=True)
 
 # ML PREDICTIONS
 with adv_tab2:
