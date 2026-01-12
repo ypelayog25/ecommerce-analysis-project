@@ -49,7 +49,7 @@ st.markdown("""
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
         margin-bottom: 1.5rem;
     }
-    .chart-title { color: #F8FAFC; font-size: 1.2rem; font-weight: 600; margin-bottom: 1rem; letter-spacing: -0.01em; }
+    .chart-title { color: #2986cc; font-size: 1.2rem; font-weight: 600; margin-bottom: 1rem; letter-spacing: -0.01em; }
     
     .insight-box {
         background: linear-gradient(135deg, #1E3A8A 0%, #1E40AF 100%);
