@@ -59,7 +59,7 @@ st.markdown("""
         border-left: 4px solid #3B82F6;
     }
     .stApp .insight-title { color: #93C5FD; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.5rem; text-transform: uppercase; }
-    .stApp .insight-text { color: #F8FAFC; font-size: 0.95rem; line-height: 1.5; }
+    .stApp .insight-text { color: #F8FAFC !important; font-size: 0.95rem !important; font-weight: 800 !important; }
     .stApp .insight-text strong { color: #E5F0FF; font-weight: 600; }
     
     .filter-chip {
