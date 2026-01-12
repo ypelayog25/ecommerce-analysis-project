@@ -51,16 +51,16 @@ st.markdown("""
     }
     .chart-title { color: #60A5FA; font-size: 1.2rem; font-weight: 600; margin-bottom: 1rem; letter-spacing: -0.01em; }
     
-    .stMarkdown .insight-box {
+    .stApp .insight-box {
         background: linear-gradient(135deg, #0F1E4A 0%, #162C7A 100%);
         border-radius: 8px;
         padding: 1.2rem;
         margin-bottom: 1rem;
         border-left: 4px solid #3B82F6;
     }
-    .stMarkdown .insight-title { color: #93C5FD; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.5rem; text-transform: uppercase; }
-    .stMarkdown .insight-text { color: #F8FAFC; font-size: 0.95rem; line-height: 1.5; }
-    .stMarkdown .insight-text strong { color: #E5F0FF; font-weight: 600; }
+    .stApp .insight-title { color: #93C5FD; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.5rem; text-transform: uppercase; }
+    .stApp .insight-text { color: #F8FAFC; font-size: 0.95rem; line-height: 1.5; }
+    .stApp .insight-text strong { color: #E5F0FF; font-weight: 600; }
     
     .filter-chip {
         display: inline-block;
