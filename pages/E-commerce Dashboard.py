@@ -24,7 +24,7 @@ st.markdown("""
     }
     .breadcrumb { color: #94A3B8; font-size: 0.9rem; margin-bottom: 0.5rem; }
     .breadcrumb a { color: #60A5FA; text-decoration: none; }
-    .dashboard-title { color: #4c1130; font-size: 2rem; font-weight: 700; margin: 0; letter-spacing: -0.02em; }
+    .dashboard-title { color: #F8FAFC; font-size: 2rem; font-weight: 700; margin: 0; letter-spacing: -0.02em; }
     
     .kpi-card {
         background: linear-gradient(135deg, #1E293B 0%, #334155 100%);
