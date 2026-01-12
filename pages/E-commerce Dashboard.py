@@ -35,7 +35,7 @@ st.markdown("""
         height: 100%;
     }
     .kpi-label { color: #94A3B8; font-size: 0.85rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem; }
-    .kpi-value { color: #64748b; font-size: 2rem; font-weight: 700; margin-bottom: 0.5rem; letter-spacing: -0.02em; }
+    .kpi-value { color: #F8FAFC; font-size: 2rem; font-weight: 700; margin-bottom: 0.5rem; letter-spacing: -0.02em; }
     .kpi-change { font-size: 0.9rem; font-weight: 600; display: flex; align-items: center; gap: 0.25rem; }
     .kpi-change.positive { color: #10B981; }
     .kpi-change.negative { color: #EF4444; }
