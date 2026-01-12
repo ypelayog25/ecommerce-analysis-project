@@ -52,14 +52,14 @@ st.markdown("""
     .chart-title { color: #2986cc; font-size: 1.2rem; font-weight: 600; margin-bottom: 1rem; letter-spacing: -0.01em; }
     
     .insight-box {
-        background: linear-gradient(135deg, #1E3A8A 0%, #1E40AF 100%);
+        background: linear-gradient(135deg, #0F1E4A 0%, #162C7A 100%);
         border-radius: 8px;
-        padding: 1rem;
+        padding: 1.2rem;
         margin-bottom: 1rem;
         border-left: 4px solid #3B82F6;
     }
     .insight-title { color: #93C5FD; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.5rem; text-transform: uppercase; }
-    .insight-text { color: #E0E7FF; font-size: 0.95rem; line-height: 1.5; }
+    .insight-text { color: #F8FAFC; font-size: 0.95rem; line-height: 1.5; }
     
     .filter-chip {
         display: inline-block;
