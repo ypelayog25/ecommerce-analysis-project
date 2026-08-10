@@ -365,6 +365,167 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
+# Executive overview visual system.  This intentionally overrides the older
+# decorative theme above while leaving the dashboard calculations unchanged.
+st.markdown("""
+<style>
+    .stApp, .main {
+        background: #f6f8fb !important;
+    }
+    .block-container {
+        max-width: 1440px;
+        padding-top: 2rem;
+        padding-bottom: 2.5rem;
+    }
+    h1, h2, h3, h4, p, span, label {
+        font-family: 'Inter', sans-serif !important;
+    }
+    h1 { color: #172033 !important; }
+    h2, h3, h4 { color: #22314a !important; }
+    p, span, label { color: #5f6b7a !important; }
+    .overview-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 1.5rem;
+        padding: 0 0 1.35rem;
+        margin-bottom: 1.25rem;
+        border-bottom: 1px solid #dfe5ec;
+    }
+    .overview-eyebrow {
+        color: #2563eb !important;
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        margin-bottom: 0.45rem;
+    }
+    .overview-title {
+        color: #172033 !important;
+        font-size: 2rem;
+        font-weight: 700;
+        letter-spacing: -0.035em;
+        line-height: 1.15;
+        margin: 0;
+    }
+    .overview-subtitle {
+        color: #667085 !important;
+        font-size: 0.98rem;
+        margin: 0.45rem 0 0;
+    }
+    .overview-meta {
+        color: #667085 !important;
+        font-size: 0.78rem;
+        line-height: 1.55;
+        text-align: right;
+        padding-top: 0.3rem;
+    }
+    .filter-panel {
+        background: #ffffff;
+        border: 1px solid #dfe5ec;
+        border-radius: 10px;
+        padding: 1rem 1.15rem 0.25rem;
+        margin: 0 0 1.25rem;
+        box-shadow: 0 1px 2px rgba(16, 24, 40, 0.03);
+    }
+    .filter-panel [data-baseweb="select"] > div,
+    .filter-panel input {
+        background: #ffffff !important;
+        color: #172033 !important;
+        border-color: #cfd8e3 !important;
+    }
+    .filter-panel label { color: #475467 !important; font-size: 0.78rem !important; font-weight: 600 !important; }
+    .kpi-card {
+        min-height: 126px;
+        background: #ffffff;
+        border: 1px solid #dfe5ec;
+        border-radius: 10px;
+        padding: 1.05rem 1.15rem;
+        box-shadow: 0 1px 2px rgba(16, 24, 40, 0.03);
+    }
+    .kpi-card--primary {
+        border-left: 4px solid #2563eb;
+        background: #fbfdff;
+    }
+    .kpi-label {
+        color: #667085 !important;
+        font-size: 0.76rem;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        margin-bottom: 0.55rem;
+    }
+    .kpi-value {
+        color: #172033 !important;
+        font-size: 1.7rem;
+        font-weight: 700;
+        letter-spacing: -0.035em;
+        line-height: 1.1;
+    }
+    .kpi-card--primary .kpi-value { color: #1d4ed8 !important; font-size: 2rem; }
+    .kpi-delta { font-size: 0.82rem; font-weight: 600; margin-top: 0.6rem; }
+    .kpi-delta--positive { color: #15803d !important; }
+    .kpi-delta--negative { color: #b42318 !important; }
+    .kpi-delta--neutral { color: #667085 !important; }
+    .comparison-line {
+        color: #667085 !important;
+        font-size: 0.84rem;
+        margin: 0.9rem 0 1.65rem;
+    }
+    .overview-section-title {
+        color: #22314a !important;
+        font-size: 1.12rem;
+        font-weight: 700;
+        letter-spacing: -0.01em;
+        margin: 0 0 0.85rem;
+    }
+    .stTabs [data-baseweb="tab-list"] {
+        background: transparent !important;
+        border: 0 !important;
+        border-bottom: 1px solid #dfe5ec !important;
+        border-radius: 0 !important;
+        padding: 0 !important;
+        gap: 1.25rem;
+    }
+    .stTabs [data-baseweb="tab"] {
+        background: transparent !important;
+        color: #667085 !important;
+        border: 0 !important;
+        border-radius: 0 !important;
+        height: 42px;
+        padding: 0 0 0.65rem !important;
+        font-size: 0.9rem;
+        font-weight: 600;
+    }
+    .stTabs [aria-selected="true"] {
+        background: transparent !important;
+        color: #1d4ed8 !important;
+        box-shadow: none !important;
+        border-bottom: 2px solid #2563eb !important;
+    }
+    .stButton > button, .stDownloadButton > button {
+        background: #ffffff !important;
+        color: #344054 !important;
+        border: 1px solid #cfd8e3 !important;
+        border-radius: 7px !important;
+        box-shadow: none !important;
+        font-weight: 600 !important;
+    }
+    .stButton > button:hover, .stDownloadButton > button:hover {
+        background: #f8fafc !important;
+        border-color: #98a2b3 !important;
+        transform: none !important;
+        box-shadow: none !important;
+    }
+    [data-testid="stDataFrame"] { border-color: #dfe5ec !important; }
+    @media (max-width: 768px) {
+        .overview-header { display: block; }
+        .overview-meta { text-align: left; margin-top: 0.75rem; }
+        .overview-title { font-size: 1.65rem; }
+    }
+</style>
+""", unsafe_allow_html=True)
+
 # Data Loading
 @st.cache_data(ttl=3600)
 def load_data():
@@ -396,92 +557,180 @@ if df is None or df.empty:
     st.error("❌ No dataset found or dataset is empty.")
     st.stop()
 
-# Header
-st.markdown("""
-    <div style='text-align:center; padding: 40px 0 30px 0; background: linear-gradient(135deg, rgba(31, 41, 55, 0.8) 0%, rgba(17, 24, 39, 0.9) 100%); border-radius: 16px; margin-bottom: 30px; border: 1px solid rgb(55, 65, 81);'>
-        <h1 style='font-size: 42px; margin-bottom: 12px; color: rgb(243, 244, 246); font-weight: 700; letter-spacing: -1px;'>
-            📊 Executive E-Commerce Dashboard
-        </h1>
-        <p style='font-size: 16px; color: rgb(156, 163, 175); font-weight: 500; letter-spacing: 1px;'>
-            Real-Time Business Intelligence & Advanced Analytics
-        </p>
+# Compact header and global filters
+min_date = df['order_date'].min().date()
+max_date = df['order_date'].max().date()
+countries = sorted(df['country'].dropna().unique())
+categories = sorted(df['category'].dropna().unique())
+
+def reset_filters():
+    st.session_state['filter_date_range'] = (min_date, max_date)
+    st.session_state['filter_countries'] = countries
+    st.session_state['filter_categories'] = categories
+
+def set_date_preset(days=None, ytd=False):
+    preset_start = datetime(max_date.year, 1, 1).date() if ytd else max_date - timedelta(days=days)
+    st.session_state['filter_date_range'] = (max(min_date, preset_start), max_date)
+
+st.markdown(f"""
+    <div class='overview-header'>
+        <div>
+            <div class='overview-eyebrow'>Business intelligence</div>
+            <h1 class='overview-title'>E-commerce Performance Analytics</h1>
+            <p class='overview-subtitle'>Sales, customer and product performance overview</p>
+        </div>
+        <div class='overview-meta'>
+            Source: processed e-commerce dataset<br>
+            Available data: {min_date.strftime('%b %d, %Y')} – {max_date.strftime('%b %d, %Y')}
+        </div>
     </div>
 """, unsafe_allow_html=True)
 
-# Sidebar
-with st.sidebar:
+with st.container(key="bi_filter_bar"):
     st.markdown("""
-        <div style='text-align: center; padding: 20px 0 15px 0;'>
-            <div style='font-size: 44px; margin-bottom: 10px;'>⚡</div>
-            <h2 style='margin: 0; font-size: 20px; color: rgb(96, 165, 250); font-weight: 700; letter-spacing: 0.5px;'>
-                Control Center
-            </h2>
-        </div>
+    <style>
+    .st-key-bi_filter_bar {
+        background: #ffffff;
+        border: 1px solid #dfe5ec;
+        border-radius: 10px;
+        padding: 0.55rem 0.9rem;
+        margin: 0 0 1.25rem;
+        box-shadow: 0 1px 2px rgba(16, 24, 40, 0.03);
+    }
+    .st-key-bi_filter_bar [data-testid="stVerticalBlockBorderWrapper"] { border: none; }
+    .st-key-bi_filter_bar [data-testid="stWidgetLabel"] p {
+        color: #8a94a6 !important;
+        font-size: 0.68rem !important;
+        font-weight: 600 !important;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        margin-bottom: 0.15rem !important;
+    }
+    .st-key-bi_filter_bar [data-baseweb="select"] > div,
+    .st-key-bi_filter_bar [data-testid="stDateInput"] input,
+    .st-key-bi_filter_bar [data-testid="stDateInputField"] {
+        background: #ffffff !important;
+        color: #172033 !important;
+        border-color: #dfe5ec !important;
+        border-radius: 7px !important;
+        min-height: 2.15rem !important;
+    }
+    .st-key-bi_filter_bar [data-baseweb="select"] {
+        min-height: 2.15rem !important;
+    }
+    .st-key-bi_filter_bar div[data-testid="stPopover"] > button,
+    .st-key-bi_filter_bar button[kind="secondary"] {
+        background: #f8fafc !important;
+        color: #22314a !important;
+        border: 1px solid #dfe5ec !important;
+        border-radius: 7px !important;
+        font-size: 0.82rem !important;
+        font-weight: 500 !important;
+        padding: 0.3rem 0.7rem !important;
+        min-height: 2.15rem !important;
+        box-shadow: none !important;
+    }
+    .st-key-bi_filter_bar div[data-testid="stPopover"] > button:hover,
+    .st-key-bi_filter_bar button[kind="secondary"]:hover {
+        border-color: #2563eb !important;
+        color: #2563eb !important;
+    }
+    .st-key-bi_filter_bar [data-testid="column"]:nth-of-type(4) div[data-testid="stPopover"] > button {
+        border-left: 2px solid #0d9488 !important;
+    }
+    .st-key-bi_filter_bar [data-testid="stElementContainer"] { margin-bottom: 0 !important; }
+    .st-key-bi_filter_bar [data-testid="stHorizontalBlock"] { align-items: flex-end !important; }
+    .st-key-bi_filter_bar [data-testid="stIconMaterial"] {
+        font-family: 'Material Symbols Rounded' !important;
+        font-weight: normal !important;
+        font-style: normal !important;
+        font-size: 1.15rem !important;
+        line-height: 1 !important;
+        letter-spacing: normal !important;
+        text-transform: none !important;
+        white-space: nowrap !important;
+        word-wrap: normal !important;
+        direction: ltr !important;
+        -webkit-font-smoothing: antialiased;
+    }
+    </style>
     """, unsafe_allow_html=True)
-    
-    with st.expander("📅 DATE RANGE FILTER", expanded=True):
-        min_date = df['order_date'].min().date()
-        max_date = df['order_date'].max().date()
-        
-        col1, col2 = st.columns(2)
-        with col1:
-            start_date = st.date_input("From", min_date, min_value=min_date, max_value=max_date)
-        with col2:
-            end_date = st.date_input("To", max_date, min_value=min_date, max_value=max_date)
-        
-        st.markdown("**⚡ Quick Filters**")
-        qcol1, qcol2 = st.columns(2)
-        with qcol1:
-            if st.button("Last 30D", use_container_width=True):
-                start_date = max_date - timedelta(days=30)
-            if st.button("Quarter", use_container_width=True):
-                start_date = max_date - timedelta(days=90)
-        with qcol2:
-            if st.button("Last 7D", use_container_width=True):
-                start_date = max_date - timedelta(days=7)
-            if st.button("YTD", use_container_width=True):
-                start_date = datetime(max_date.year, 1, 1).date()
-    
-    with st.expander("🌍 GEOGRAPHIC FILTER", expanded=True):
-        countries = sorted(df['country'].dropna().unique())
-        select_all = st.checkbox("✅ Select All Countries", value=True)
-        
-        if select_all:
-            selected_countries = countries
+
+    bar_col1, bar_col2, bar_col3, bar_col4, bar_col5 = st.columns([2.0, 1.3, 1.3, 0.85, 0.75])
+
+    with bar_col1:
+        selected_date_range = st.date_input(
+            "Date range", value=(min_date, max_date), min_value=min_date, max_value=max_date,
+            key='filter_date_range'
+        )
+
+    with bar_col2:
+        current_countries = st.session_state.get('filter_countries', countries)
+        if len(current_countries) == 0:
+            country_summary = "No countries"
+        elif set(current_countries) == set(countries):
+            country_summary = "All countries"
         else:
-            selected_countries = st.multiselect("Choose Countries", countries, default=countries[:3])
-    
-    with st.expander("⚙️ DISPLAY SETTINGS", expanded=False):
-        top_n = st.slider("Top N Items", 5, 50, 10, 5)
-        chart_theme = st.selectbox("Chart Theme", ["plotly_dark", "plotly_white", "seaborn", "ggplot2"])
-        
-        if 'selected_theme' not in st.session_state:
-            st.session_state.selected_theme = chart_theme
+            country_summary = f"{len(current_countries)} countries selected"
+        with st.popover(country_summary, width='stretch'):
+            selected_countries = st.multiselect("Country", countries, default=countries, key='filter_countries')
+
+    with bar_col3:
+        current_categories = st.session_state.get('filter_categories', categories)
+        if len(current_categories) == 0:
+            category_summary = "No categories"
+        elif set(current_categories) == set(categories):
+            category_summary = "All categories"
         else:
+            category_summary = f"{len(current_categories)} categories selected"
+        with st.popover(category_summary, width='stretch'):
+            selected_categories = st.multiselect("Category", categories, default=categories, key='filter_categories')
+
+    with bar_col4:
+        with st.popover("⚙ Options", width='stretch'):
+            st.caption("Quick date ranges")
+            qp1, qp2 = st.columns(2)
+            with qp1:
+                st.button("Last 7 days", key='preset_7_days', on_click=set_date_preset, args=(7,), width='stretch')
+                st.button("Quarter", key='preset_quarter', on_click=set_date_preset, args=(90,), width='stretch')
+            with qp2:
+                st.button("Last 30 days", key='preset_30_days', on_click=set_date_preset, args=(30,), width='stretch')
+                st.button("Year to date", key='preset_ytd', on_click=set_date_preset, kwargs={'ytd': True}, width='stretch')
+
+            st.divider()
+            st.caption("Display")
+            top_n = st.slider("Top N items", 5, 50, 10, 5)
+            chart_theme = st.selectbox("Chart theme", ["plotly_white", "plotly_dark", "seaborn", "ggplot2"])
             st.session_state.selected_theme = chart_theme
-    
-    st.markdown("---")
-    st.markdown("**💾 PREFERENCES**")
-    
-    if st.button("💾 Save Filters", use_container_width=True):
-        st.session_state.saved_filters = {
-            'start_date': start_date,
-            'end_date': end_date,
-            'countries': selected_countries,
-            'top_n': top_n
-        }
-        st.success("✅ Filters saved!")
-    
-    if 'saved_filters' in st.session_state:
-        if st.button("🔄 Load Filters", use_container_width=True):
-            saved = st.session_state.saved_filters
-            st.info(f"📌 Saved: {saved['start_date']} to {saved['end_date']}")
+
+            st.divider()
+            st.caption("Saved filters")
+            if st.button("Save current filters", key='save_filters', width='stretch'):
+                st.session_state.saved_filters = {
+                    'start_date': selected_date_range[0],
+                    'end_date': selected_date_range[-1],
+                    'countries': selected_countries,
+                    'categories': selected_categories,
+                    'top_n': top_n
+                }
+                st.success("Filters saved for this session.")
+            if 'saved_filters' in st.session_state and st.button("View saved filters", key='view_saved_filters', width='stretch'):
+                saved = st.session_state.saved_filters
+                st.info(f"Saved: {saved['start_date']} to {saved['end_date']}")
+
+    with bar_col5:
+        st.button("Reset", key='reset_filters_btn', on_click=reset_filters, width='stretch')
+
+
+start_date = selected_date_range[0]
+end_date = selected_date_range[-1]
 
 # Filter data
 start_date_dt = pd.to_datetime(start_date)
 end_date_dt = pd.to_datetime(end_date)
 df_filtered = df[
     (df['country'].isin(selected_countries)) &
+    (df['category'].isin(selected_categories)) &
     (df['order_date'] >= start_date_dt) &
     (df['order_date'] <= end_date_dt)
 ].copy()
@@ -529,22 +778,38 @@ def calculate_metrics(df_current, df_all):
 
 metrics = calculate_metrics(df_filtered, df)
 
-# KPI Cards
-st.markdown("### 🎯 KEY PERFORMANCE INDICATORS")
-kpi1, kpi2, kpi3, kpi4, kpi5 = st.columns(5)
+# KPI cards
+def render_kpi(label, value, delta=None, primary=False):
+    if delta is None:
+        delta_html = "<div class='kpi-delta kpi-delta--neutral'>No prior-period comparison</div>"
+    else:
+        delta_class = 'positive' if delta > 0 else 'negative' if delta < 0 else 'neutral'
+        delta_prefix = '+' if delta > 0 else ''
+        delta_html = f"<div class='kpi-delta kpi-delta--{delta_class}'>{delta_prefix}{delta:.1f}% vs previous period</div>"
+    primary_class = ' kpi-card--primary' if primary else ''
+    st.markdown(
+        f"<div class='kpi-card{primary_class}'><div class='kpi-label'>{label}</div>"
+        f"<div class='kpi-value'>{value}</div>{delta_html}</div>",
+        unsafe_allow_html=True
+    )
 
+st.markdown("<div class='overview-section-title'>Performance summary</div>", unsafe_allow_html=True)
+kpi1, kpi2, kpi3, kpi4 = st.columns([1.25, 1, 1, 1])
 with kpi1:
-    st.metric("💰 REVENUE", f"${metrics['total_revenue']:,.0f}", f"{metrics['revenue_delta']:.1f}%")
+    render_kpi("Revenue", f"${metrics['total_revenue']:,.0f}", metrics['revenue_delta'], primary=True)
 with kpi2:
-    st.metric("🛒 ORDERS", f"{metrics['total_orders']:,}", f"{metrics['orders_delta']:.1f}%")
+    render_kpi("Orders", f"{metrics['total_orders']:,}", metrics['orders_delta'])
 with kpi3:
-    st.metric("👥 CUSTOMERS", f"{metrics['unique_customers']:,}", f"{metrics['customers_delta']:.1f}%")
+    render_kpi("Average order value", f"${metrics['avg_order_value']:.2f}")
 with kpi4:
-    st.metric("📦 UNITS", f"{metrics['total_quantity']:,}")
-with kpi5:
-    st.metric("💵 AVG ORDER", f"${metrics['avg_order_value']:.2f}")
+    render_kpi("Customers", f"{metrics['unique_customers']:,}", metrics['customers_delta'])
 
-st.markdown("---")
+selected_period = f"{start_date.strftime('%b %d, %Y')} – {end_date.strftime('%b %d, %Y')}"
+st.markdown(
+    f"<div class='comparison-line'>Selected period: {selected_period} · Compared with previous period · "
+    f"Units sold: {metrics['total_quantity']:,}</div>",
+    unsafe_allow_html=True
+)
 
 # Plotly Helper con mejor contraste
 def style_fig(fig, title=""):
@@ -608,15 +873,15 @@ def get_text_color():
     theme = st.session_state.get('selected_theme', 'plotly_dark')
     return "rgb(31, 41, 55)" if theme in ['plotly_white', 'seaborn', 'ggplot2'] else "rgb(209, 213, 219)"
 
-# Dashboard Tabs
-tab1, tab2, tab3, tab4, tab5 = st.tabs(["📊 REVENUE", "👥 CUSTOMERS", "📦 PRODUCTS", "🌍 GEOGRAPHY", "🔬 ADVANCED"])
+# Dashboard tabs
+tab1, tab2, tab3, tab4, tab5 = st.tabs(["Overview", "Customers", "Products", "Geography", "Insights"])
 
-# TAB 1: Revenue
+# TAB 1: Executive overview
 with tab1:
-    col1, col2 = st.columns([2, 1])
+    st.markdown("<div class='overview-section-title'>Revenue performance</div>", unsafe_allow_html=True)
+    col1, col2 = st.columns([2.05, 1])
     
     with col1:
-        st.markdown("### 📈 REVENUE TREND")
         monthly_revenue = df_filtered.groupby(df_filtered['order_date'].dt.to_period('M'))['total_price'].sum().reset_index()
         monthly_revenue['order_date'] = monthly_revenue['order_date'].dt.to_timestamp()
         
@@ -624,9 +889,9 @@ with tab1:
         fig_trend.add_trace(go.Scatter(
             x=monthly_revenue['order_date'], y=monthly_revenue['total_price'],
             mode='lines+markers', name='Revenue',
-            line=dict(color='rgb(96, 165, 250)', width=3),
-            marker=dict(size=8, color='rgb(96, 165, 250)'),
-            fill='tozeroy', fillcolor='rgba(96, 165, 250, 0.1)',
+            line=dict(color='rgb(37, 99, 235)', width=3),
+            marker=dict(size=6, color='rgb(37, 99, 235)'),
+            fill='tozeroy', fillcolor='rgba(37, 99, 235, 0.10)',
             textfont=dict(color=get_text_color())
         ))
         
@@ -635,40 +900,44 @@ with tab1:
         fig_trend.add_trace(go.Scatter(
             x=monthly_revenue['order_date'], y=p(range(len(monthly_revenue))),
             mode='lines', name='Trend',
-            line=dict(color='rgb(251, 146, 60)', width=2.5, dash='dash')
+            line=dict(color='rgb(100, 116, 139)', width=2, dash='dash')
         ))
-        
-        st.plotly_chart(style_fig(fig_trend, "Monthly Performance"), use_container_width=True)
+        st.plotly_chart(style_fig(fig_trend, "Monthly revenue"), width='stretch')
     
     with col2:
-        st.markdown("### 🏆 TOP COUNTRIES")
-        country_revenue = df_filtered.groupby('country')['total_price'].sum().nlargest(5).reset_index()
-        
-        fig_pie = px.pie(country_revenue, values='total_price', names='country', hole=0.45, color_discrete_sequence=colors)
-        fig_pie.update_traces(
-            textposition='inside', 
-            textinfo='percent+label',
-            textfont=dict(size=12, color='white', weight=600)
-        )
-        fig_pie.update_layout(
-            paper_bgcolor='rgba(0, 0, 0, 0)', 
-            showlegend=True,
-            legend=dict(font=dict(color=get_text_color()))
-        )
-        st.plotly_chart(fig_pie, use_container_width=True)
+        country_revenue = df_filtered.groupby('country')['total_price'].sum().nlargest(5).sort_values().reset_index()
+        fig_country_overview = go.Figure(data=[go.Bar(
+            x=country_revenue['total_price'], y=country_revenue['country'], orientation='h',
+            marker=dict(color='rgb(96, 165, 250)'),
+            text=[f"${value:,.0f}" for value in country_revenue['total_price']],
+            textposition='outside',
+            textfont=dict(color=get_text_color(), size=10)
+        )])
+        st.plotly_chart(style_fig(fig_country_overview, "Top countries by revenue"), width='stretch')
+
+    product_col, weekly_col = st.columns([1.45, 1])
+    with product_col:
+        top_products_overview = df_filtered.groupby('product_name')['total_price'].sum().nlargest(top_n).sort_values().reset_index()
+        fig_products_overview = go.Figure(data=[go.Bar(
+            x=top_products_overview['total_price'], y=top_products_overview['product_name'], orientation='h',
+            marker=dict(color='rgb(79, 70, 229)'),
+            text=[f"${value:,.0f}" for value in top_products_overview['total_price']],
+            textposition='outside',
+            textfont=dict(color=get_text_color(), size=10)
+        )])
+        st.plotly_chart(style_fig(fig_products_overview, "Top products by revenue"), width='stretch')
     
-    st.markdown("### 📅 WEEKLY PATTERN")
-    dow_order = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
-    dow_revenue = df_filtered.groupby('day_of_week')['total_price'].sum().reindex(dow_order).reset_index()
-    
-    fig_dow = go.Figure(data=[go.Bar(
-        x=dow_revenue['day_of_week'], y=dow_revenue['total_price'],
-        marker=dict(color=dow_revenue['total_price'], colorscale='Viridis'),
-        text=[f"${val:,.0f}" for val in dow_revenue['total_price']], 
-        textposition='outside',
-        textfont=dict(color=get_text_color(), size=12, weight=600)
-    )])
-    st.plotly_chart(style_fig(fig_dow, "Revenue by Day"), use_container_width=True)
+    with weekly_col:
+        dow_order = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+        dow_revenue = df_filtered.groupby('day_of_week')['total_price'].sum().reindex(dow_order).reset_index()
+        fig_dow = go.Figure(data=[go.Bar(
+            x=dow_revenue['day_of_week'], y=dow_revenue['total_price'],
+            marker=dict(color='rgb(148, 163, 184)'),
+            text=[f"${val:,.0f}" for val in dow_revenue['total_price']],
+            textposition='outside',
+            textfont=dict(color=get_text_color(), size=10)
+        )])
+        st.plotly_chart(style_fig(fig_dow, "Revenue by day of week"), width='stretch')
 
 # TAB 2: Customers
 with tab2:
@@ -688,7 +957,7 @@ with tab2:
             textposition='outside',
             textfont=dict(color=get_text_color(), size=11, weight=600)
         )])
-        st.plotly_chart(style_fig(fig_cust, "Revenue Champions"), use_container_width=True)
+        st.plotly_chart(style_fig(fig_cust, "Revenue Champions"), width='stretch')
     
     with col2:
         st.markdown("### 🔄 RETENTION")
@@ -702,7 +971,7 @@ with tab2:
             textposition='outside',
             textfont=dict(color=get_text_color(), size=12, weight=600)
         )])
-        st.plotly_chart(style_fig(fig_freq, "Order Frequency"), use_container_width=True)
+        st.plotly_chart(style_fig(fig_freq, "Order Frequency"), width='stretch')
     
     st.markdown("### 🎯 CUSTOMER SEGMENTATION")
     snapshot_date = df_filtered['order_date'].max() + timedelta(days=1)
@@ -734,7 +1003,7 @@ with tab2:
             textposition='outside',
             textfont=dict(color=get_text_color(), size=12, weight=600)
         )])
-        st.plotly_chart(style_fig(fig_seg, "Customers by Segment"), use_container_width=True)
+        st.plotly_chart(style_fig(fig_seg, "Customers by Segment"), width='stretch')
     
     with sc2:
         fig_segrev = go.Figure(data=[go.Bar(
@@ -744,7 +1013,7 @@ with tab2:
             textposition='outside',
             textfont=dict(color=get_text_color(), size=12, weight=600)
         )])
-        st.plotly_chart(style_fig(fig_segrev, "Revenue by Segment"), use_container_width=True)
+        st.plotly_chart(style_fig(fig_segrev, "Revenue by Segment"), width='stretch')
 
 # TAB 3: Products
 with tab3:
@@ -763,7 +1032,7 @@ with tab3:
             textposition='outside',
             textfont=dict(color=get_text_color(), size=11, weight=600)
         )])
-        st.plotly_chart(style_fig(fig_prod, "Revenue Leaders"), use_container_width=True)
+        st.plotly_chart(style_fig(fig_prod, "Revenue Leaders"), width='stretch')
     
     with pc2:
         st.markdown("### 📦 BY QUANTITY")
@@ -776,7 +1045,7 @@ with tab3:
             textposition='outside',
             textfont=dict(color=get_text_color(), size=11, weight=600)
         )])
-        st.plotly_chart(style_fig(fig_qty, "Volume Champions"), use_container_width=True)
+        st.plotly_chart(style_fig(fig_qty, "Volume Champions"), width='stretch')
     
     st.markdown("### 💲 PRICE DISTRIBUTION")
     prc1, prc2 = st.columns([2, 1])
@@ -787,7 +1056,7 @@ with tab3:
             x=df_filtered['unit_price'], nbinsx=50,
             marker=dict(color='rgb(126, 87, 194)'), name='Distribution'
         ))
-        st.plotly_chart(style_fig(fig_price, "Unit Price Analysis"), use_container_width=True)
+        st.plotly_chart(style_fig(fig_price, "Unit Price Analysis"), width='stretch')
     
     with prc2:
         price_stats = df_filtered['unit_price'].describe()
@@ -814,18 +1083,18 @@ with tab4:
         textposition='outside',
         textfont=dict(color=get_text_color(), size=12, weight=600)
     )])
-    st.plotly_chart(style_fig(fig_country, "Global Distribution"), use_container_width=True)
+    st.plotly_chart(style_fig(fig_country, "Global Distribution"), width='stretch')
     
     st.markdown("### 📋 DETAILED PERFORMANCE")
     country_analysis['avg_order_value'] = country_analysis['revenue'] / country_analysis['orders']
     display_df = country_analysis.copy()
     display_df['revenue'] = display_df['revenue'].apply(lambda x: f"${x:,.0f}")
     display_df['avg_order_value'] = display_df['avg_order_value'].apply(lambda x: f"${x:.2f}")
-    st.dataframe(display_df, use_container_width=True, hide_index=True)
+    st.dataframe(display_df, width='stretch', hide_index=True)
 
 # TAB 5: Advanced
 with tab5:
-    st.markdown("### 🔬 ADVANCED ANALYTICS")
+    st.markdown("### Supporting analysis")
     
     adv1, adv2 = st.columns(2)
     
@@ -844,7 +1113,7 @@ with tab5:
             textfont=dict(color=get_text_color(), size=11, weight=600)
         ))
         fig_growth.add_hline(y=0, line_dash="solid", line_color="rgba(255, 255, 255, 0.4)")
-        st.plotly_chart(style_fig(fig_growth, "MoM Growth %"), use_container_width=True)
+        st.plotly_chart(style_fig(fig_growth, "MoM Growth %"), width='stretch')
     
     with adv2:
         st.markdown("#### 📊 PARETO ANALYSIS")
@@ -864,36 +1133,36 @@ with tab5:
             yaxis='y2'
         ))
         fig_pareto.update_layout(yaxis2=dict(overlaying='y', side='right', range=[0, 100]))
-        st.plotly_chart(style_fig(fig_pareto, "80/20 Rule"), use_container_width=True)
+        st.plotly_chart(style_fig(fig_pareto, "80/20 Rule"), width='stretch')
     
     top_5_revenue_pct = (top_customers['total_revenue'].head(5).sum() / metrics['total_revenue']) * 100
     
-    st.markdown("### 🎯 EXECUTIVE SUMMARY")
+    st.markdown("### Key takeaways")
     sum1, sum2, sum3, sum4 = st.columns(4)
     
     with sum1:
         top_country = country_analysis.iloc[0]
         st.markdown(f"**TOP COUNTRY**")
-        st.metric("", top_country['country'], f"${top_country['revenue']:,.0f}")
+        st.metric("Top country", top_country['country'], f"${top_country['revenue']:,.0f}", label_visibility="collapsed")
     
     with sum2:
         best_prod = top_prod.iloc[0]
         st.markdown(f"**BEST PRODUCT**")
-        st.metric("", best_prod['product_name'][:15], f"${best_prod['total_price']:,.0f}")
+        st.metric("Best product", best_prod['product_name'][:15], f"${best_prod['total_price']:,.0f}", label_visibility="collapsed")
     
     with sum3:
         vip_count = rfm[rfm['segment'] == '💎 VIP'].shape[0]
         st.markdown(f"**VIP CUSTOMERS**")
-        st.metric("", vip_count, "Top Tier")
+        st.metric("VIP customers", vip_count, "Top Tier", label_visibility="collapsed")
     
     with sum4:
         growth_avg = growth_data['growth_rate'].mean()
         st.markdown(f"**AVG GROWTH**")
-        st.metric("", f"{growth_avg:.1f}%", "MoM")
+        st.metric("Average growth", f"{growth_avg:.1f}%", "MoM", label_visibility="collapsed")
 
 # Export Section
 st.markdown("---")
-st.markdown("## 📥 EXPORT CENTER")
+st.markdown("## Export data")
 
 exp1, exp2, exp3, exp4 = st.columns(4)
 
@@ -903,7 +1172,7 @@ with exp1:
         df_filtered.to_csv(index=False).encode('utf-8'),
         file_name=f"data_{datetime.now().strftime('%Y%m%d_%H%M')}.csv",
         mime="text/csv",
-        use_container_width=True
+        width='stretch'
     )
 
 with exp2:
@@ -912,7 +1181,7 @@ with exp2:
         top_customers.to_csv(index=False).encode('utf-8'),
         file_name=f"customers_{datetime.now().strftime('%Y%m%d_%H%M')}.csv",
         mime="text/csv",
-        use_container_width=True
+        width='stretch'
     )
 
 with exp3:
@@ -921,7 +1190,7 @@ with exp3:
         top_prod.to_csv(index=False).encode('utf-8'),
         file_name=f"products_{datetime.now().strftime('%Y%m%d_%H%M')}.csv",
         mime="text/csv",
-        use_container_width=True
+        width='stretch'
     )
 
 with exp4:
@@ -930,15 +1199,15 @@ with exp4:
         display_df.to_csv(index=False).encode('utf-8'),
         file_name=f"countries_{datetime.now().strftime('%Y%m%d_%H%M')}.csv",
         mime="text/csv",
-        use_container_width=True
+        width='stretch'
     )
 
-# Advanced Features
+# Additional analysis
 st.markdown("---")
-st.markdown("## 🚀 ADVANCED FEATURES")
+st.markdown("## Additional analysis")
 
 adv_tab1, adv_tab2, adv_tab3, adv_tab4 = st.tabs([
-    "🔔 SMART ALERTS", "📈 ML PREDICTIONS", "📊 YoY COMPARISON", "📄 PDF REPORT"
+    "Alerts", "Forecast", "YoY comparison", "Report"
 ])
 
 # SMART ALERTS
@@ -1051,7 +1320,7 @@ with adv_tab2:
                 name='Confidence Interval'
             ))
             
-            st.plotly_chart(style_fig(fig_forecast, "3-Month Forecast"), use_container_width=True)
+            st.plotly_chart(style_fig(fig_forecast, "3-Month Forecast"), width='stretch')
         
         with fc2:
             st.markdown("#### 🎯 Forecast")
@@ -1105,7 +1374,7 @@ with adv_tab3:
             textfont=dict(color=get_text_color(), size=11, weight=600)
         ))
         
-        st.plotly_chart(style_fig(fig_yoy, f"{year1} vs {year2}"), use_container_width=True)
+        st.plotly_chart(style_fig(fig_yoy, f"{year1} vs {year2}"), width='stretch')
         
         st.markdown("#### 📈 YoY Metrics")
         ym1, ym2, ym3, ym4 = st.columns(4)
@@ -1139,7 +1408,7 @@ with adv_tab3:
 
 # PDF REPORT
 with adv_tab4:
-    st.markdown("### 📄 EXECUTIVE PDF REPORT")
+    st.markdown("### Executive report")
     
     st.info("""
     **📋 Report Contents:**
@@ -1151,7 +1420,7 @@ with adv_tab4:
     - Smart Alerts & Recommendations
     """)
     
-    if st.button("📄 GENERATE REPORT", use_container_width=True, type="primary"):
+    if st.button("📄 GENERATE REPORT", width='stretch', type="primary"):
         with st.spinner("Generating report..."):
             html = f"""
             <html>
@@ -1211,7 +1480,7 @@ with adv_tab4:
                 html,
                 file_name=f"report_{datetime.now().strftime('%Y%m%d_%H%M')}.html",
                 mime="text/html",
-                use_container_width=True
+                width='stretch'
             )
             
             st.success("✅ Report generated! Download above.")
@@ -1220,21 +1489,7 @@ with adv_tab4:
 # Footer
 st.markdown("---")
 st.markdown(f"""
-    <div style='text-align: center; padding: 30px; background: linear-gradient(135deg, rgba(31, 41, 55, 0.6) 0%, rgba(17, 24, 39, 0.8) 100%); border-radius: 12px; border: 1px solid rgb(55, 65, 81);'>
-        <div style='font-size: 36px; margin-bottom: 12px;'>⚡</div>
-        <h3 style='color: rgb(243, 244, 246); margin: 10px 0; font-size: 22px; font-weight: 700; letter-spacing: -0.5px;'>Executive Dashboard v3.0</h3>
-        <p style='color: rgb(156, 163, 175); font-size: 13px; margin: 10px 0; font-weight: 500;'>Built with Streamlit, Plotly & Machine Learning</p>
-        <div style='display: flex; justify-content: center; gap: 12px; margin: 20px 0; flex-wrap: wrap;'>
-            <span style='background: rgba(96, 165, 250, 0.2); padding: 6px 14px; border-radius: 20px; font-size: 11px; color: rgb(147, 197, 253); font-weight: 600; border: 1px solid rgba(96, 165, 250, 0.3);'>🔔 Smart Alerts</span>
-            <span style='background: rgba(129, 140, 248, 0.2); padding: 6px 14px; border-radius: 20px; font-size: 11px; color: rgb(165, 180, 252); font-weight: 600; border: 1px solid rgba(129, 140, 248, 0.3);'>📈 ML Forecasting</span>
-            <span style='background: rgba(251, 146, 60, 0.2); padding: 6px 14px; border-radius: 20px; font-size: 11px; color: rgb(253, 186, 116); font-weight: 600; border: 1px solid rgba(251, 146, 60, 0.3);'>📊 YoY Analysis</span>
-            <span style='background: rgba(16, 185, 129, 0.2); padding: 6px 14px; border-radius: 20px; font-size: 11px; color: rgb(110, 231, 183); font-weight: 600; border: 1px solid rgba(16, 185, 129, 0.3);'>📄 PDF Reports</span>
-            <span style='background: rgba(236, 72, 153, 0.2); padding: 6px 14px; border-radius: 20px; font-size: 11px; color: rgb(244, 114, 182); font-weight: 600; border: 1px solid rgba(236, 72, 153, 0.3);'>💾 Save Configs</span>
-        </div>
-        <p style='color: rgb(107, 114, 128); font-size: 11px; margin: 12px 0; font-weight: 500;'>📅 Last Updated: {datetime.now().strftime('%B %d, %Y - %H:%M')}</p>
-        <div style='margin-top: 18px; padding-top: 18px; border-top: 1px solid rgb(55, 65, 81);'>
-            <p style='color: rgb(156, 163, 175); font-size: 10px; margin: 0; font-weight: 500;'>💼 Data Analytics & Business Intelligence Portfolio</p>
-            <p style='color: rgb(107, 114, 128); font-size: 9px; margin: 8px 0 0 0; font-weight: 400;'>🎯 RFM Segmentation • Pareto Analysis • Predictive Analytics • Interactive Visualizations</p>
-        </div>
+    <div style='text-align: center; padding: 12px 0; color: #667085; font-size: 12px;'>
+        E-commerce Performance Analytics · Data refreshed in the current session: {datetime.now().strftime('%b %d, %Y %H:%M')}
     </div>
 """, unsafe_allow_html=True)
