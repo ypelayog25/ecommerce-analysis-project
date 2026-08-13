@@ -14,358 +14,7 @@ st.set_page_config(
     page_icon="📊"
 )
 
-# Professional Dark Theme CSS
-st.markdown("""
-    <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Roboto:wght@300;400;500;700&display=swap');
-    
-    * { 
-        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
-        -webkit-font-smoothing: antialiased;
-        -moz-osx-font-smoothing: grayscale;
-    }
-    
-    .main { 
-        background: linear-gradient(135deg, rgb(17, 24, 39) 0%, rgb(31, 41, 55) 50%, rgb(17, 24, 39) 100%);
-    }
-    
-    [data-testid="stSidebar"] { 
-        background: linear-gradient(180deg, rgb(31, 41, 55) 0%, rgb(17, 24, 39) 100%);
-    }
-    
-    [data-testid="stSidebar"] h2, [data-testid="stSidebar"] h3, [data-testid="stSidebar"] label,
-    [data-testid="stSidebar"] p, [data-testid="stSidebar"] span, [data-testid="stSidebar"] div {
-        color: rgb(229, 231, 235) !important;
-        font-weight: 500;
-    }
-    
-    [data-testid="stSidebar"] div[data-testid="stExpander"] {
-        background-color: rgb(55, 65, 81) !important;
-        border: 1px solid rgb(75, 85, 99);
-        border-radius: 8px;
-    }
-    
-    [data-testid="stSidebar"] div[data-testid="stExpander"] > div {
-        background-color: rgb(55, 65, 81) !important;
-    }
-    
-    [data-testid="stSidebar"] div[data-testid="stExpander"] > div > div {
-        background-color: rgb(55, 65, 81) !important;
-        padding: 15px;
-        border-radius: 8px;
-    }
-    
-    [data-testid="stSidebar"] details[data-testid="stExpander"] {
-        background-color: rgb(55, 65, 81) !important;
-    }
-    
-    [data-testid="stSidebar"] details[data-testid="stExpander"] summary {
-        background-color: rgb(55, 65, 81) !important;
-        padding: 12px 15px !important;
-        border-radius: 8px;
-    }
-    
-    [data-testid="stSidebar"] details[open] {
-        background-color: rgb(55, 65, 81) !important;
-    }
-    
-    [data-testid="stSidebar"] details[open] > summary {
-        background-color: rgb(55, 65, 81) !important;
-        border-bottom: 1px solid rgb(75, 85, 99);
-        margin-bottom: 10px;
-    }
-    
-    [data-testid="stSidebar"] .stExpander {
-        background-color: rgb(55, 65, 81) !important;
-    }
-    
-    [data-testid="stSidebar"] [data-testid="stExpanderDetails"] {
-        background-color: rgb(55, 65, 81) !important;
-    }
-    
-    [data-testid="stSidebar"] input[type="date"], [data-testid="stSidebar"] input[type="text"] {
-        background-color: rgb(55, 65, 81) !important;
-        color: rgb(243, 244, 246) !important;
-        border: 1px solid rgb(75, 85, 99) !important;
-        border-radius: 6px;
-        padding: 10px;
-        font-weight: 500;
-    }
-    
-    [data-testid="stSidebar"] [data-baseweb="select"] {
-        background-color: rgb(55, 65, 81) !important;
-        border-radius: 6px;
-    }
-    
-    [data-testid="stSidebar"] [data-baseweb="select"] > div {
-        background-color: rgb(55, 65, 81) !important;
-        color: rgb(243, 244, 246) !important;
-        border: 1px solid rgb(75, 85, 99) !important;
-    }
-    
-    [data-testid="stSidebar"] [data-baseweb="popover"] {
-        background-color: rgb(31, 41, 55) !important;
-    }
-    
-    [data-testid="stSidebar"] ul {
-        background-color: rgb(31, 41, 55) !important;
-    }
-    
-    [data-testid="stSidebar"] li {
-        background-color: rgb(31, 41, 55) !important;
-        color: rgb(229, 231, 235) !important;
-    }
-    
-    [data-testid="stSidebar"] .stCheckbox {
-        background-color: transparent !important;
-    }
-    
-    [data-testid="stSidebar"] .stSlider {
-        background-color: transparent !important;
-    }
-    
-    [data-testid="stSidebar"] .stMultiSelect {
-        background-color: rgb(55, 65, 81) !important;
-    }
-    
-    [data-testid="stSidebar"] .stMultiSelect > div {
-        background-color: rgb(55, 65, 81) !important;
-    }
-    
-    [data-testid="stSidebar"] .stDateInput > div {
-        background-color: rgb(55, 65, 81) !important;
-    }
-    
-    [data-testid="stSidebar"] input {
-        background-color: rgb(55, 65, 81) !important;
-        color: rgb(243, 244, 246) !important;
-    }
-    
-    [data-testid="stSidebar"] .row-widget {
-        background-color: transparent !important;
-    }
-    
-    [data-testid="stSidebar"] .stMarkdown {
-        background-color: transparent !important;
-    }
-    
-    h1 { 
-        color: rgb(243, 244, 246) !important;
-        font-weight: 700 !important;
-        letter-spacing: -0.5px;
-    }
-    
-    h2 { 
-        color: rgb(229, 231, 235) !important;
-        font-weight: 600 !important;
-        letter-spacing: -0.3px;
-    }
-    
-    h3 { 
-        color: rgb(209, 213, 219) !important;
-        font-weight: 600 !important;
-        letter-spacing: -0.2px;
-    }
-    
-    [data-testid="stMetricValue"] {
-        font-size: 32px !important;
-        font-weight: 700 !important;
-        color: rgb(96, 165, 250) !important;
-        letter-spacing: -0.5px;
-    }
-    
-    [data-testid="stMetricLabel"] {
-        font-size: 12px !important;
-        font-weight: 600 !important;
-        color: rgb(156, 163, 175) !important;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-    }
-    
-    [data-testid="stMetricDelta"] {
-        font-size: 13px !important;
-        font-weight: 600 !important;
-    }
-    
-    div[data-testid="metric-container"] {
-        background: linear-gradient(135deg, rgb(30, 58, 138) 0%, rgb(29, 78, 216) 100%);
-        padding: 22px;
-        border-radius: 12px;
-        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
-        border: 1px solid rgba(59, 130, 246, 0.3);
-        transition: all 0.3s ease;
-    }
-    
-    div[data-testid="metric-container"]:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 8px 24px rgba(59, 130, 246, 0.4);
-        border-color: rgba(96, 165, 250, 0.5);
-    }
-    
-    .stTabs [data-baseweb="tab-list"] {
-        gap: 8px;
-        background-color: rgb(31, 41, 55);
-        padding: 6px;
-        border-radius: 10px;
-        border: 1px solid rgb(55, 65, 81);
-    }
-    
-    .stTabs [data-baseweb="tab"] {
-        height: 44px;
-        background-color: rgba(55, 65, 81, 0.5);
-        border-radius: 8px;
-        color: rgb(156, 163, 175);
-        font-weight: 600;
-        font-size: 13px;
-        padding: 0 20px;
-        border: 1px solid transparent;
-        transition: all 0.2s ease;
-        letter-spacing: 0.3px;
-    }
-    
-    .stTabs [data-baseweb="tab"]:hover {
-        background-color: rgb(55, 65, 81);
-        color: rgb(209, 213, 219);
-    }
-    
-    .stTabs [aria-selected="true"] {
-        background: linear-gradient(135deg, rgb(30, 58, 138) 0%, rgb(29, 78, 216) 100%);
-        color: rgb(243, 244, 246) !important;
-        border-color: rgba(59, 130, 246, 0.5);
-        box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
-    }
-    
-    .stButton button {
-        background: linear-gradient(135deg, rgb(30, 58, 138) 0%, rgb(29, 78, 216) 100%);
-        color: rgb(243, 244, 246) !important;
-        border: 1px solid rgba(59, 130, 246, 0.5);
-        border-radius: 8px;
-        padding: 10px 20px;
-        font-weight: 600;
-        font-size: 13px;
-        transition: all 0.2s ease;
-        letter-spacing: 0.3px;
-    }
-    
-    .stButton button:hover {
-        background: linear-gradient(135deg, rgb(37, 99, 235) 0%, rgb(59, 130, 246) 100%);
-        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
-        transform: translateY(-1px);
-    }
-    
-    .stDownloadButton button {
-        background: linear-gradient(135deg, rgb(5, 150, 105) 0%, rgb(16, 185, 129) 100%);
-        color: rgb(243, 244, 246) !important;
-        border: 1px solid rgba(16, 185, 129, 0.5);
-        font-weight: 600;
-    }
-    
-    .stDownloadButton button:hover {
-        background: linear-gradient(135deg, rgb(16, 185, 129) 0%, rgb(52, 211, 153) 100%);
-        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
-    }
-    
-    p, span, label { 
-        color: rgb(209, 213, 219) !important;
-        font-size: 14px;
-        font-weight: 400;
-        line-height: 1.6;
-    }
-    
-    .stMarkdown h3 {
-        color: rgb(96, 165, 250) !important;
-        font-weight: 700;
-        margin-top: 20px;
-        margin-bottom: 16px;
-        padding-left: 14px;
-        border-left: 4px solid rgb(59, 130, 246);
-        letter-spacing: -0.3px;
-    }
-    
-    .stMarkdown h4 {
-        color: rgb(156, 163, 175) !important;
-        font-weight: 600;
-        font-size: 16px;
-        margin-bottom: 12px;
-        letter-spacing: -0.2px;
-    }
-    
-    [data-testid="stDataFrame"] {
-        border: 1px solid rgb(55, 65, 81);
-        border-radius: 8px;
-    }
-    
-    /* Mejorar contraste en tablas */
-    [data-testid="stDataFrame"] table {
-        background-color: rgb(31, 41, 55) !important;
-    }
-    
-    [data-testid="stDataFrame"] th {
-        background-color: rgb(30, 58, 138) !important;
-        color: rgb(243, 244, 246) !important;
-        font-weight: 600 !important;
-    }
-    
-    [data-testid="stDataFrame"] td {
-        color: rgb(229, 231, 235) !important;
-        background-color: rgb(31, 41, 55) !important;
-    }
-    
-    [data-testid="stDataFrame"] tr:hover {
-        background-color: rgb(55, 65, 81) !important;
-    }
-    
-    .stAlert {
-        background-color: rgba(30, 58, 138, 0.2);
-        border-radius: 8px;
-        border-left: 4px solid rgb(59, 130, 246);
-        color: rgb(229, 231, 235) !important;
-        font-weight: 500;
-    }
-    
-    hr {
-        border-color: rgb(55, 65, 81);
-        margin: 30px 0;
-    }
-    
-    /* Success, Warning, Error colors */
-    .stSuccess {
-        background-color: rgba(5, 150, 105, 0.15);
-        border-left-color: rgb(16, 185, 129);
-        color: rgb(209, 250, 229) !important;
-    }
-    
-    .stWarning {
-        background-color: rgba(217, 119, 6, 0.15);
-        border-left-color: rgb(251, 146, 60);
-        color: rgb(254, 243, 199) !important;
-    }
-    
-    .stError {
-        background-color: rgba(220, 38, 38, 0.15);
-        border-left-color: rgb(239, 68, 68);
-        color: rgb(254, 226, 226) !important;
-    }
-    
-    .stInfo {
-        background-color: rgba(30, 58, 138, 0.15);
-        border-left-color: rgb(59, 130, 246);
-        color: rgb(219, 234, 254) !important;
-    }
-    
-    @media (max-width: 768px) {
-        h1 { font-size: 28px !important; }
-        h2 { font-size: 22px !important; }
-        h3 { font-size: 18px !important; }
-        [data-testid="stMetricValue"] { font-size: 24px !important; }
-        div[data-testid="metric-container"] { padding: 16px; margin-bottom: 12px; }
-        .stButton button { width: 100%; font-size: 13px !important; }
-        p, span, label { font-size: 13px; }
-    }
-    </style>
-""", unsafe_allow_html=True)
-
-# Executive overview visual system.  This intentionally overrides the older
+# Executive overview visual system. 
 # decorative theme above while leaving the dashboard calculations unchanged.
 st.markdown("""
 <style>
@@ -383,42 +32,79 @@ st.markdown("""
     h1 { color: #172033 !important; }
     h2, h3, h4 { color: #22314a !important; }
     p, span, label { color: #5f6b7a !important; }
+    
     .overview-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-        gap: 1.5rem;
-        padding: 0 0 1.35rem;
-        margin-bottom: 1.25rem;
-        border-bottom: 1px solid #dfe5ec;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1.5rem;
+    padding: 1.25rem 0 1.35rem;
+    margin-bottom: 3.25rem;
+    border-bottom: 1px solid #dfe5ec;
     }
+
+    .overview-header-left {
+        flex: 1;
+        min-width: 0;
+    }
+
     .overview-eyebrow {
-        color: #2563eb !important;
-        font-size: 0.75rem;
-        font-weight: 700;
-        letter-spacing: 0.08em;
-        text-transform: uppercase;
-        margin-bottom: 0.45rem;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 0.85rem;
+        padding-top: 0.25rem;
     }
-    .overview-title {
-        color: #172033 !important;
-        font-size: 2rem;
+
+    .overview-eyebrow-dot {
+        width: 6px;
+        height: 6px;
+        background: #D97706 !important;
+        border-radius: 1px;
+        display: inline-block;
+        flex-shrink: 0;
+    }
+
+    .overview-eyebrow-text {
+        color: #B45309 !important;
+        font-size: 0.72rem;
         font-weight: 700;
-        letter-spacing: -0.035em;
-        line-height: 1.15;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+    }
+
+    .overview-title {
+        color: #3730A3 !important;
+        font-size: 2.2rem;
+        font-weight: 700;
+        letter-spacing: -0.025em;
+        line-height: 1.1;
         margin: 0;
     }
+
     .overview-subtitle {
         color: #667085 !important;
         font-size: 0.98rem;
-        margin: 0.45rem 0 0;
+        margin: 0.5rem 0 0;
+        font-weight: 400;
     }
     .overview-meta {
-        color: #667085 !important;
+        text-align: right;
+        border-left: 1px solid #E5E8EC;
+        padding-left: 16px;
+    }
+    .overview-meta-label {
+        color: #98A2B3 !important;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        font-size: 0.65rem;
+        margin-bottom: 2px;
+    }
+    .overview-meta-value {
+        color: #344054 !important;
+        font-weight: 500;
         font-size: 0.78rem;
         line-height: 1.55;
-        text-align: right;
-        padding-top: 0.3rem;
     }
     .filter-panel {
         background: #ffffff;
@@ -444,8 +130,8 @@ st.markdown("""
         box-shadow: 0 1px 2px rgba(16, 24, 40, 0.03);
     }
     .kpi-card--primary {
-        border-left: 4px solid #2563eb;
-        background: #fbfdff;
+        border-left: 4px solid #3730A3;
+        background: #fbfaff;
     }
     .kpi-label {
         color: #667085 !important;
@@ -462,7 +148,7 @@ st.markdown("""
         letter-spacing: -0.035em;
         line-height: 1.1;
     }
-    .kpi-card--primary .kpi-value { color: #1d4ed8 !important; font-size: 2rem; }
+    .kpi-card--primary .kpi-value { color: #3730A3 !important; font-size: 2rem; }
     .kpi-delta { font-size: 0.82rem; font-weight: 600; margin-top: 0.6rem; }
     .kpi-delta--positive { color: #15803d !important; }
     .kpi-delta--negative { color: #b42318 !important; }
@@ -487,21 +173,28 @@ st.markdown("""
         padding: 0 !important;
         gap: 1.25rem;
     }
-    .stTabs [data-baseweb="tab"] {
+    .stTabs [role="tab"] {
         background: transparent !important;
         color: #667085 !important;
         border: 0 !important;
         border-radius: 0 !important;
         height: 42px;
         padding: 0 0 0.65rem !important;
-        font-size: 0.9rem;
+        font-size: 0.95rem !important;
         font-weight: 600;
+    }
+    .stTabs [role="tab"] p {
+        font-size: inherit !important;
     }
     .stTabs [aria-selected="true"] {
         background: transparent !important;
-        color: #1d4ed8 !important;
+        color: #3730A3 !important;
         box-shadow: none !important;
-        border-bottom: 2px solid #2563eb !important;
+        border-bottom: 2px solid #D97706 !important;
+    }
+    .stTabs [aria-selected="true"] p {
+    color: #3730A3 !important;
+    font-weight: 800 !important;
     }
     .stButton > button, .stDownloadButton > button {
         background: #ffffff !important;
@@ -575,13 +268,16 @@ def set_date_preset(days=None, ytd=False):
 st.markdown(f"""
     <div class='overview-header'>
         <div>
-            <div class='overview-eyebrow'>Business intelligence</div>
-            <h1 class='overview-title'>E-commerce Performance Analytics</h1>
+            <div class='overview-eyebrow'>
+                <span class='overview-eyebrow-dot'></span>
+                <span class='overview-eyebrow-text'>Business Intelligence</span>
+            </div>
+            <div class='overview-title' style='color: #3730A3 !important;'>E-commerce Performance Analytics</div>
             <p class='overview-subtitle'>Sales, customer and product performance overview</p>
         </div>
         <div class='overview-meta'>
             Source: processed e-commerce dataset<br>
-            Available data: {min_date.strftime('%b %d, %Y')} – {max_date.strftime('%b %d, %Y')}
+            Available Data: {min_date.strftime('%b %d, %Y')} – {max_date.strftime('%b %d, %Y')}
         </div>
     </div>
 """, unsafe_allow_html=True)
@@ -632,11 +328,11 @@ with st.container(key="bi_filter_bar"):
     }
     .st-key-bi_filter_bar div[data-testid="stPopover"] > button:hover,
     .st-key-bi_filter_bar button[kind="secondary"]:hover {
-        border-color: #2563eb !important;
-        color: #2563eb !important;
+        border-color: #3730A3 !important;
+        color: #3730A3 !important;
     }
     .st-key-bi_filter_bar [data-testid="column"]:nth-of-type(4) div[data-testid="stPopover"] > button {
-        border-left: 2px solid #0d9488 !important;
+        border-left: 2px solid #D97706 !important;
     }
     .st-key-bi_filter_bar [data-testid="stElementContainer"] { margin-bottom: 0 !important; }
     .st-key-bi_filter_bar [data-testid="stHorizontalBlock"] { align-items: flex-end !important; }
@@ -793,7 +489,7 @@ def render_kpi(label, value, delta=None, primary=False):
         unsafe_allow_html=True
     )
 
-st.markdown("<div class='overview-section-title'>Performance summary</div>", unsafe_allow_html=True)
+st.markdown(f"### Performance Summary")
 kpi1, kpi2, kpi3, kpi4 = st.columns([1.25, 1, 1, 1])
 with kpi1:
     render_kpi("Revenue", f"${metrics['total_revenue']:,.0f}", metrics['revenue_delta'], primary=True)
@@ -866,7 +562,16 @@ def style_fig(fig, title=""):
     
     return fig
 
-colors = ['rgb(96, 165, 250)', 'rgb(129, 140, 248)', 'rgb(167, 139, 250)', 'rgb(236, 72, 153)', 'rgb(251, 146, 60)']
+colors = ['rgb(55, 48, 163)', 'rgb(99, 91, 214)', 'rgb(147, 139, 232)', 'rgb(217, 119, 6)', 'rgb(180, 83, 9)']
+
+# Signature brand colorscale (indigo -> amber) used across ranked/heat charts instead of generic Plotly scales
+BRAND_COLORSCALE = [
+    [0.0, 'rgb(224, 224, 248)'],
+    [0.35, 'rgb(129, 116, 214)'],
+    [0.6, 'rgb(76, 63, 184)'],
+    [0.85, 'rgb(55, 48, 163)'],
+    [1.0, 'rgb(180, 83, 9)']
+]
 
 # Función para obtener color de texto según tema
 def get_text_color():
@@ -878,7 +583,7 @@ tab1, tab2, tab3, tab4, tab5 = st.tabs(["Overview", "Customers", "Products", "Ge
 
 # TAB 1: Executive overview
 with tab1:
-    st.markdown("<div class='overview-section-title'>Revenue performance</div>", unsafe_allow_html=True)
+    st.markdown( f"### 💰 Revenue Performance")
     col1, col2 = st.columns([2.05, 1])
     
     with col1:
@@ -889,26 +594,27 @@ with tab1:
         fig_trend.add_trace(go.Scatter(
             x=monthly_revenue['order_date'], y=monthly_revenue['total_price'],
             mode='lines+markers', name='Revenue',
-            line=dict(color='rgb(37, 99, 235)', width=3),
-            marker=dict(size=6, color='rgb(37, 99, 235)'),
-            fill='tozeroy', fillcolor='rgba(37, 99, 235, 0.10)',
+            line=dict(color='rgb(55, 48, 163)', width=3),
+            marker=dict(size=6, color='rgb(55, 48, 163)'),
+            fill='tozeroy', fillcolor='rgba(55, 48, 163, 0.10)',
             textfont=dict(color=get_text_color())
         ))
         
-        z = np.polyfit(range(len(monthly_revenue)), monthly_revenue['total_price'], 1)
-        p = np.poly1d(z)
-        fig_trend.add_trace(go.Scatter(
-            x=monthly_revenue['order_date'], y=p(range(len(monthly_revenue))),
-            mode='lines', name='Trend',
-            line=dict(color='rgb(100, 116, 139)', width=2, dash='dash')
-        ))
+        if len(monthly_revenue) >= 2:
+            z = np.polyfit(range(len(monthly_revenue)), monthly_revenue['total_price'], 1)
+            p = np.poly1d(z)
+            fig_trend.add_trace(go.Scatter(
+                x=monthly_revenue['order_date'], y=p(range(len(monthly_revenue))),
+                mode='lines', name='Trend',
+                line=dict(color='rgb(100, 116, 139)', width=2, dash='dash')
+            ))
         st.plotly_chart(style_fig(fig_trend, "Monthly revenue"), width='stretch')
     
     with col2:
         country_revenue = df_filtered.groupby('country')['total_price'].sum().nlargest(5).sort_values().reset_index()
         fig_country_overview = go.Figure(data=[go.Bar(
             x=country_revenue['total_price'], y=country_revenue['country'], orientation='h',
-            marker=dict(color='rgb(96, 165, 250)'),
+            marker=dict(color='rgb(99, 91, 214)'),
             text=[f"${value:,.0f}" for value in country_revenue['total_price']],
             textposition='outside',
             textfont=dict(color=get_text_color(), size=10)
@@ -920,7 +626,7 @@ with tab1:
         top_products_overview = df_filtered.groupby('product_name')['total_price'].sum().nlargest(top_n).sort_values().reset_index()
         fig_products_overview = go.Figure(data=[go.Bar(
             x=top_products_overview['total_price'], y=top_products_overview['product_name'], orientation='h',
-            marker=dict(color='rgb(79, 70, 229)'),
+            marker=dict(color='rgb(55, 48, 163)'),
             text=[f"${value:,.0f}" for value in top_products_overview['total_price']],
             textposition='outside',
             textfont=dict(color=get_text_color(), size=10)
@@ -932,7 +638,7 @@ with tab1:
         dow_revenue = df_filtered.groupby('day_of_week')['total_price'].sum().reindex(dow_order).reset_index()
         fig_dow = go.Figure(data=[go.Bar(
             x=dow_revenue['day_of_week'], y=dow_revenue['total_price'],
-            marker=dict(color='rgb(148, 163, 184)'),
+            marker=dict(color='rgb(217, 158, 74)'),
             text=[f"${val:,.0f}" for val in dow_revenue['total_price']],
             textposition='outside',
             textfont=dict(color=get_text_color(), size=10)
@@ -952,7 +658,7 @@ with tab2:
         
         fig_cust = go.Figure(data=[go.Bar(
             x=top_customers['total_revenue'], y=top_customers['customer_id'], orientation='h',
-            marker=dict(color=top_customers['total_revenue'], colorscale='Plasma'),
+            marker=dict(color=top_customers['total_revenue'], colorscale=BRAND_COLORSCALE),
             text=[f"${val:,.0f}" for val in top_customers['total_revenue']], 
             textposition='outside',
             textfont=dict(color=get_text_color(), size=11, weight=600)
@@ -966,7 +672,7 @@ with tab2:
         
         fig_freq = go.Figure(data=[go.Bar(
             x=order_freq['orders'], y=order_freq['customer_count'],
-            marker=dict(color=order_freq['customer_count'], colorscale='Turbo'),
+            marker=dict(color=order_freq['customer_count'], colorscale=BRAND_COLORSCALE),
             text=order_freq['customer_count'], 
             textposition='outside',
             textfont=dict(color=get_text_color(), size=12, weight=600)
@@ -1027,7 +733,7 @@ with tab3:
         
         fig_prod = go.Figure(data=[go.Bar(
             x=top_prod['total_price'], y=top_prod['product_name'], orientation='h',
-            marker=dict(color=top_prod['total_price'], colorscale='Rainbow'),
+            marker=dict(color=top_prod['total_price'], colorscale=BRAND_COLORSCALE),
             text=[f"${val:,.0f}" for val in top_prod['total_price']], 
             textposition='outside',
             textfont=dict(color=get_text_color(), size=11, weight=600)
@@ -1040,7 +746,7 @@ with tab3:
         
         fig_qty = go.Figure(data=[go.Bar(
             x=top_qty['quantity'], y=top_qty['product_name'], orientation='h',
-            marker=dict(color=top_qty['quantity'], colorscale='Teal'),
+            marker=dict(color=top_qty['quantity'], colorscale=BRAND_COLORSCALE),
             text=top_qty['quantity'], 
             textposition='outside',
             textfont=dict(color=get_text_color(), size=11, weight=600)
@@ -1054,7 +760,7 @@ with tab3:
         fig_price = go.Figure()
         fig_price.add_trace(go.Histogram(
             x=df_filtered['unit_price'], nbinsx=50,
-            marker=dict(color='rgb(126, 87, 194)'), name='Distribution'
+            marker=dict(color='rgb(99, 91, 214)'), name='Distribution'
         ))
         st.plotly_chart(style_fig(fig_price, "Unit Price Analysis"), width='stretch')
     
@@ -1078,7 +784,7 @@ with tab4:
     
     fig_country = go.Figure(data=[go.Bar(
         x=country_analysis['country'], y=country_analysis['revenue'],
-        marker=dict(color=country_analysis['revenue'], colorscale='Viridis', showscale=True),
+        marker=dict(color=country_analysis['revenue'], colorscale=BRAND_COLORSCALE, showscale=True),
         text=[f"${val:,.0f}" for val in country_analysis['revenue']], 
         textposition='outside',
         textfont=dict(color=get_text_color(), size=12, weight=600)
@@ -1094,7 +800,7 @@ with tab4:
 
 # TAB 5: Advanced
 with tab5:
-    st.markdown("### Supporting analysis")
+    st.markdown("### Supporting Analysis")
     
     adv1, adv2 = st.columns(2)
     
@@ -1123,13 +829,13 @@ with tab5:
         fig_pareto = go.Figure()
         fig_pareto.add_trace(go.Bar(
             x=prod_rev.index[:20], y=prod_rev['total_price'][:20],
-            name='Revenue', marker=dict(color='rgb(129, 140, 248)')
+            name='Revenue', marker=dict(color='rgb(99, 91, 214)')
         ))
         fig_pareto.add_trace(go.Scatter(
             x=prod_rev.index[:20], y=prod_rev['cumulative_pct'][:20],
             name='Cumulative %', mode='lines+markers',
-            marker=dict(color='rgb(96, 165, 250)', size=6),
-            line=dict(color='rgb(96, 165, 250)', width=2.5),
+            marker=dict(color='rgb(217, 119, 6)', size=6),
+            line=dict(color='rgb(217, 119, 6)', width=2.5),
             yaxis='y2'
         ))
         fig_pareto.update_layout(yaxis2=dict(overlaying='y', side='right', range=[0, 100]))
@@ -1162,7 +868,7 @@ with tab5:
 
 # Export Section
 st.markdown("---")
-st.markdown("## Export data")
+st.markdown("## Export Data")
 
 exp1, exp2, exp3, exp4 = st.columns(4)
 
@@ -1204,7 +910,7 @@ with exp4:
 
 # Additional analysis
 st.markdown("---")
-st.markdown("## Additional analysis")
+st.markdown("## Additional Analysis")
 
 adv_tab1, adv_tab2, adv_tab3, adv_tab4 = st.tabs([
     "Alerts", "Forecast", "YoY comparison", "Report"
@@ -1300,14 +1006,14 @@ with adv_tab2:
             fig_forecast.add_trace(go.Scatter(
                 x=hist['date'], y=hist['revenue'],
                 mode='lines+markers', name='Historical',
-                line=dict(color='rgb(79, 195, 247)', width=3)
+                line=dict(color='rgb(55, 48, 163)', width=3)
             ))
             
             fore = forecast_df[forecast_df['type'] == 'Forecast']
             fig_forecast.add_trace(go.Scatter(
                 x=fore['date'], y=fore['revenue'],
                 mode='lines+markers', name='Forecast',
-                line=dict(color='rgb(236, 64, 122)', width=3, dash='dash')
+                line=dict(color='rgb(217, 119, 6)', width=3, dash='dash')
             ))
             
             std_dev = monthly_data['total_price'].std()
@@ -1315,7 +1021,7 @@ with adv_tab2:
                 x=fore['date'].tolist() + fore['date'].tolist()[::-1],
                 y=(fore['revenue'] + std_dev).tolist() + (fore['revenue'] - std_dev).tolist()[::-1],
                 fill='toself',
-                fillcolor='rgba(236, 64, 122, 0.2)',
+                fillcolor='rgba(217, 119, 6, 0.2)',
                 line=dict(color='rgba(255,255,255,0)'),
                 name='Confidence Interval'
             ))
@@ -1361,14 +1067,14 @@ with adv_tab3:
         fig_yoy = go.Figure()
         fig_yoy.add_trace(go.Bar(
             x=m_y1['month_name'], y=m_y1['revenue'], name=str(year1),
-            marker=dict(color='rgb(96, 165, 250)'),
+            marker=dict(color='rgb(55, 48, 163)'),
             text=[f"${v:,.0f}" for v in m_y1['revenue']], 
             textposition='outside',
             textfont=dict(color=get_text_color(), size=11, weight=600)
         ))
         fig_yoy.add_trace(go.Bar(
             x=m_y2['month_name'], y=m_y2['revenue'], name=str(year2),
-            marker=dict(color='rgb(129, 140, 248)'),
+            marker=dict(color='rgb(217, 119, 6)'),
             text=[f"${v:,.0f}" for v in m_y2['revenue']], 
             textposition='outside',
             textfont=dict(color=get_text_color(), size=11, weight=600)
@@ -1408,7 +1114,7 @@ with adv_tab3:
 
 # PDF REPORT
 with adv_tab4:
-    st.markdown("### Executive report")
+    st.markdown("### Executive Report")
     
     st.info("""
     **📋 Report Contents:**
@@ -1421,18 +1127,18 @@ with adv_tab4:
     """)
     
     if st.button("📄 GENERATE REPORT", width='stretch', type="primary"):
-        with st.spinner("Generating report..."):
+        with st.spinner("Generating Report..."):
             html = f"""
             <html>
             <head>
                 <style>
                     body {{ font-family: Arial; margin: 40px; background: rgb(245, 245, 245); }}
-                    .header {{ background: linear-gradient(135deg, rgb(94, 53, 177), rgb(81, 45, 168)); color: white; padding: 30px; border-radius: 10px; text-align: center; }}
+                    .header {{ background: linear-gradient(135deg, rgb(55, 48, 163), rgb(180, 83, 9)); color: white; padding: 30px; border-radius: 10px; text-align: center; }}
                     .metric-card {{ background: white; padding: 20px; margin: 15px 0; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }}
                     table {{ width: 100%; border-collapse: collapse; margin: 20px 0; background: white; }}
-                    th {{ background: rgb(94, 53, 177); color: white; padding: 12px; }}
+                    th {{ background: rgb(55, 48, 163); color: white; padding: 12px; }}
                     td {{ padding: 10px; border-bottom: 1px solid rgb(221, 221, 221); }}
-                    h2 {{ color: rgb(94, 53, 177); border-bottom: 2px solid rgb(79, 195, 247); padding-bottom: 10px; }}
+                    h2 {{ color: rgb(55, 48, 163); border-bottom: 2px solid rgb(217, 119, 6); padding-bottom: 10px; }}
                 </style>
             </head>
             <body>
